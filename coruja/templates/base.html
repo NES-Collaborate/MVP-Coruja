@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Coruja</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" crossorigin="anonymous">
+    <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <style>
+        body {
+            margin-bottom: 60px;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-500 p-4">
+        <div class="container mx-auto">
+            <div class="flex justify-between items-center">
+                <div class="text-white text-2xl font-bold">
+                    Projeto Coruja
+                </div>
+                <ul class="flex space-x-4">
+                    <li><a href="#" class="text-white">Página Inicial</a></li>
+                    <li><a href="#" class="text-white">Sobre</a></li>
+                    <li><a href="#" class="text-white">Contato</a></li>
+                    <li>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('auth.logout') }}" class="text-white">Sair</a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="text-white">Entrar</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-8">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="space-y-4">
+                {% for category, message in messages %}
+                    <div class="relative px-4 py-3 rounded-lg shadow-md
+                                {% if category == 'success' %}bg-green-100 border-green-400 text-green-700{% endif %}
+                                {% if category == 'danger' %}bg-red-100 border-red-400 text-red-700{% endif %}
+                                {% if category == 'error' %}bg-red-100 border-red-400 text-red-700{% endif %}
+                                ">
+                                <button class="absolute top-0 right-0 p-3" type="button" data-dismiss="alert" aria-label="Close">
+                                    <i class="fas fa-times text-red-600"></i>
+                                </button>
+                            
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Projeto Coruja - Novo Ensino Suplementar
+    </div>
+</body>
+</html>

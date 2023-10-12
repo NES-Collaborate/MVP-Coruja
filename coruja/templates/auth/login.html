@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="text-2xl font-bold mb-4 text-center">Login</h1>
+    <form method="POST" class="max-w-md mx-auto">
+        {{ form.hidden_tag() }}
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="cpf">CPF</label>
+            {{ form.cpf(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            {% for error in form.cpf.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Senha</label>
+            {{ form.password(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            {% for error in form.password.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Login</button>
+    </form>
+{% endblock %}
