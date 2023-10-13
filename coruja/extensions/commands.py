@@ -1,7 +1,6 @@
 from random import choices
 from string import ascii_lowercase
 
-from bcrypt import gensalt, hashpw
 from flask import Flask
 
 from ..extensions.database import db
@@ -22,14 +21,14 @@ def create_admin():
     print("Creating admin user...")
 
     password = "".join(choices(ascii_lowercase, k=10))
-    hashed_password = hashpw(password.encode("utf-8"), gensalt())
     cpf = "00000000000"
+
     user = User(
         name="Administrador",
         cpf=cpf,
-        password=hashed_password,
+        password=password,
         email_professional="admin@coruja",
-        is_adm=True,
+        is_administrator=True,
     )
 
     db.session.add(user)
@@ -44,11 +43,11 @@ def create_admin():
 
 def init_app(app: Flask) -> None:
     @app.cli.command("initdb")
-    def init_database_command():
+    def _():
         """Inicializa o banco de dados."""
         init_database()
 
     @app.cli.command("createsu")
-    def create_admin_command():
+    def _():
         """Cria um usuário administrador."""
         create_admin()
