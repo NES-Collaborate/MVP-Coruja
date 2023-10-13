@@ -10,8 +10,13 @@ $ git clone git@github.com:Coruja-NES/MVP-Coruja.git
 # Acesse a pasta do projeto no terminal/cmd
 $ cd MVP-Coruja
 # Instale as dependências
+$ python -m venv .venv
+$ source .venv/bin/activate
+$ pip install -U pip setuptools
 $ pip install -r requirements.txt
 # Execute a aplicação em modo de desenvolvimento
+$ export FLASK_ENV=development
+$ export FLASK_APP=coruja.app:create_app
 $ make init
 # O servidor inciará na porta:5000 - acesse http://localhost:5000
 $ make server
