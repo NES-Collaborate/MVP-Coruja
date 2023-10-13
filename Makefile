@@ -3,10 +3,8 @@ install:
 init:
 	@python -m flask initdb
 	@python -m flask createsu
-	@export FLASK_ENV=development
-	@export FLASK_APP=coruja.app:create_app
 server:
-	@python -m flask run
+	@python -m flask run --debug
 format:
 	@python -m black -l 79 .
 	@python -m isort .
