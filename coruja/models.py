@@ -1,16 +1,23 @@
-from . import db, session
-from datetime import datetime
-from sqlalchemy import event
-from flask_login import UserMixin
 import json
+from datetime import datetime
+
 from bcrypt import checkpw
+from flask_login import UserMixin
+from sqlalchemy import event
+
+from .extensions.database import db
+from .extensions.sessions import session
 
 
 class BaseTable(db.Model):
     __abstract__ = True
-    id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
+    id = db.Column(
+        db.Integer, primary_key=True, nullable=False, autoincrement=True
+    )
     created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.now, onupdate=datetime.now
+    )
 
     def on_update(self):
         change = Change(
@@ -60,8 +67,12 @@ class User(BaseTable, UserMixin):
 
 orgao_administrators = db.Table(
     "orgao_administrators",
-    db.Column("orgao_id", db.Integer, db.ForeignKey("orgao.id"), primary_key=True),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id"), primary_key=True),
+    db.Column(
+        "orgao_id", db.Integer, db.ForeignKey("orgao.id"), primary_key=True
+    ),
+    db.Column(
+        "user_id", db.Integer, db.ForeignKey("user.id"), primary_key=True
+    ),
 )
 
 
@@ -165,9 +176,13 @@ class VulnerabilityCategory(BaseTable):
 
 class VulnerabilitySubCategory(BaseTable):
     name = db.Column(db.String(255), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey("vulnerability_category.id"))
+    category_id = db.Column(
+        db.Integer, db.ForeignKey("vulnerability_category.id")
+    )
     category = db.relationship(
-        "VulnerabilityCategory", backref="vulnerability_sub_categories", lazy=True
+        "VulnerabilityCategory",
+        backref="vulnerability_sub_categories",
+        lazy=True,
     )
 
 
@@ -206,5 +221,7 @@ class AccessLog(BaseTable):
     user_agent = db.Column(db.String(255))
     access_at = db.Column(db.DateTime)
     endpoint = db.Column(db.String(255))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user = db.relationship("User", backref="access_logs", lazy=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = db.relationship("User", backref="access_logs", lazy=True)
