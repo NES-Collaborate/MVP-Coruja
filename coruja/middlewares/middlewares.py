@@ -1,40 +1,44 @@
 from datetime import datetime
 
-from flask import Flask, flash, redirect, request
+from flask import Flask, flash, redirect, request, url_for
 from flask_login import current_user
 
 from ..extensions.auth import login_manager
 from ..extensions.database import db
-from ..models import AccessLog
+from ..models import AccessLog, User
 
 
-def init_middlware_login(app: Flask):
-    app.register_error_handler(404, handle_404)
-    app.before_request(_before_request)
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter_by(id=user_id).first()
 
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    flash("Por favor, faça login antes de acessar a página :D", "danger")
+    flash("Por favor, faça login antes de acessar a página", "danger")
 
-    return redirect("/login")
+    return redirect(url_for("auth.login"))
 
 
 def _before_request():
-    if current_user.is_authenticated and not request.path.startswith(
-        "/static/"
-    ):
+    is_static = request.path.startswith("/static/")
+    if current_user.is_authenticated and not is_static:  # type: ignore
         current_user.last_seen = datetime.utcnow()
         new_access_log = AccessLog(
             ip=request.remote_addr,
             user_agent=request.user_agent.string,
             access_at=datetime.utcnow(),
             endpoint=request.path,
-            user_id=current_user.id,
+            user_id=current_user.id,  # type: ignore
         )
         db.session.add(new_access_log)
         db.session.commit()
 
 
-def handle_404(e):
+def handle_404(err):
     return redirect("/home")
+
+
+def init_middlware_login(app: Flask) -> None:
+    app.register_error_handler(404, handle_404)
+    app.before_request(_before_request)
