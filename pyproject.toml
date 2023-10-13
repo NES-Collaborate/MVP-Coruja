@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "mvp-coruja"
+version = "0.1.0"
+description = "MVP de uma aplicação web para gerenciamento organizacional."
+authors = ["Novo Ensino Suplementar <nes.alagoas@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "mvp_coruja" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Flask = "3.0.0"
+Jinja2 = "3.1.2"
+Flask-Cors = "4.0.0"
+Flask-Session = "0.5.0"
+Flask-SQLAlchemy = "3.1.1"
+Flask-WTF = "1.2.1"
+dynaconf = "^3.2.3"
+WTForms = "3.0.1"
+bcrypt = "4.0.1"
+
+[tool.poetry.group.dev.dependencies]
+flask-debugtoolbar = "^0.13.1"
+pytest-flask = "^1.2.0"
+black = "^23.9.1"
+isort = "^5.12.0"
+pip-audit = "^2.6.1"
+flake8 = "^6.1.0"
+ipdb = "^0.13.13"
+
+[tool.black]
+skip-string-normalization = false
+line-length = 79
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

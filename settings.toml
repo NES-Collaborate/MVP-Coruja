@@ -1,0 +1,38 @@
+[default]
+CSRF_ENABLED = true
+CSRF_SESSION_TIMEOUT = 86400 # 60 * 60 * 24
+PERMANENT_SESSION_LIFETIME = 86400 # 60 * 60 * 24
+EXTENSIONS = [
+    "coruja.extensions.securancy:init_app",
+    "coruja.extensions.database:init_app",
+    "coruja.extensions.auth:init_app",
+    "coruja.extensions.sessions:init_app",
+    "coruja.restapi:init_apis",
+    "coruja.middlewares:init_middlewares",
+    "coruja.extensions.commands:init_app",
+]
+
+[development]
+SECRET_KEY = "secret_key"
+SESSION_TYPE = "filesystem"
+SESSION_PERMANENT = false
+SQLALCHEMY_TRACK_MODIFICATIONS = false
+SQLALCHEMY_DATABASE_URI = "sqlite:///development.db"
+DEBUG = true
+TEMPLATES_AUTO_RELOAD = true
+DEBUG_TOOLBAR_ENABLED = true
+DEBUG_TB_INTERCEPT_REDIRECTS = false
+DEBUG_TB_PROFILER_ENABLED = true
+DEBUG_TB_TEMPLATE_EDITOR_ENABLED = true
+DEBUG_TB_PANELS = [
+    "flask_debugtoolbar.panels.versions.VersionDebugPanel",
+    "flask_debugtoolbar.panels.sqlalchemy.SQLAlchemyDebugPanel",
+    "flask_debugtoolbar.panels.timer.TimerDebugPanel",
+    "flask_debugtoolbar.panels.headers.HeaderDebugPanel",
+    "flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel",
+    "flask_debugtoolbar.panels.template.TemplateDebugPanel",
+    "flask_debugtoolbar.panels.route_list.RouteListDebugPanel",
+    "flask_debugtoolbar.panels.logger.LoggingPanel",
+    "flask_debugtoolbar.panels.profiler.ProfilerDebugPanel",
+    "flask_debugtoolbar.panels.config_vars.ConfigVarsDebugPanel",
+]
