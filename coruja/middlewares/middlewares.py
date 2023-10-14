@@ -36,7 +36,7 @@ def _before_request():
 
 
 def handle_404(err):
-    return redirect("/home")
+    return redirect(url_for("application.home"))
 
 
 def init_middlware_login(app: Flask) -> None:
