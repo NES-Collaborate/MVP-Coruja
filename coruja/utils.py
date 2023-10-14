@@ -11,7 +11,7 @@ def get_organs_by_user_id(user_id: int):
     organs = (
         Organ.query.join(
             organ_admin_alias,
-            Organ.id == organ_admin_alias.c.orgao_id,
+            Organ.id == organ_admin_alias.c.organ_id,
         )
         .filter(organ_admin_alias.c.user_id == user_id)
         .all()
