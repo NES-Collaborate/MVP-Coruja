@@ -12,10 +12,10 @@ def validate_cpf(form, field):
 class LoginForm(FlaskForm):
     cpf = StringField(
         label="CPF",
-        validators=[DataRequired(), Length(min=11, max=11), validate_cpf],
+        validators=[DataRequired("Preencha esse campo"), validate_cpf],
         description="Somente Números",
     )
-    password = PasswordField(label="Senha", validators=[DataRequired()])
+    password = PasswordField(label="Senha", validators=[DataRequired("Preencha esse campo")])
     submit = SubmitField(label="Entrar")
     csrf_token = HiddenField()
 
