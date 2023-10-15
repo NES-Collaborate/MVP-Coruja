@@ -53,12 +53,14 @@ class Institution(BaseTable):
         email: str,
         address: Optional[str] = None,
         telephone: Optional[str] = None,
+        is_template: Optional[bool] = False,
     ):
         self.name = name
         self.cnpj = cnpj
         self.address = address
         self.email = email
         self.telephone = telephone
+        self.is_template = is_template
 
     def add_administrator(self, user: "User"):
         if not self.administrators:

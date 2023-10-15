@@ -8,6 +8,7 @@ class Active(BaseTable):
     title = db.Column(db.String(255))
     description = db.Column(db.String)
     analysis_risk_id = db.Column(db.Integer, db.ForeignKey("analysis_risk.id"))
+    is_template = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
@@ -15,10 +16,12 @@ class Active(BaseTable):
         title: Optional[str] = None,
         description: Optional[str] = None,
         analysis_risk_id: Optional[int] = None,
+        is_template: Optional[bool] = False,
     ):
         self.title = title
         self.description = description
         self.analysis_risk_id = analysis_risk_id
+        self.is_template = is_template
 
 
 class ActiveScore(BaseTable):

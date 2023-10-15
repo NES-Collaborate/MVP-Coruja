@@ -44,6 +44,7 @@ class Organ(BaseTable):
     address = db.Column(db.String(255))
     email = db.Column(db.String(255), nullable=False, unique=True)
     telephone = db.Column(db.String(255))
+    is_template = db.Column(db.Boolean, default=False)
 
     administrators = db.relationship(
         "User",
@@ -65,12 +66,14 @@ class Organ(BaseTable):
         address: Optional[str] = None,
         email: str,
         telephone: Optional[str] = None,
+        is_template: Optional[bool] = False,
     ):
         self.name = name
         self.cnpj = cnpj
         self.address = address
         self.email = email
         self.telephone = telephone
+        self.is_template = is_template
 
     def add_administrator(self, user: User):
         if not self.administrators:

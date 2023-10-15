@@ -19,6 +19,7 @@ analytics_staff = db.Table(
 
 class Analysis(BaseTable):
     description = db.Column(db.String)
+    is_template = db.Column(db.Boolean, default=False)
 
     administrators = db.relationship(
         "User",
@@ -42,15 +43,19 @@ class Analysis(BaseTable):
         lazy=True,
     )
 
-    def __init__(self, *, description: Optional[str] = None):
+    def __init__(
+        self,
+        *,
+        description: Optional[str] = None,
+        is_template: Optional[bool] = False
+    ):
         self.description = description
+        self.is_template = is_template
 
 
 class AnalysisRisk(BaseTable):
     analysis_id = db.Column(db.Integer, db.ForeignKey("analysis.id"))
-
-    def __init__(self, analysis_id):
-        self.analysis_id = analysis_id
+    is_template = db.Column(db.Boolean, default=False)
 
     associated_actives = db.relationship(
         "Active",
@@ -59,6 +64,10 @@ class AnalysisRisk(BaseTable):
         lazy=True,
         overlaps="associated_actives",
     )
+
+    def __init__(self, analysis_id: int, is_template: Optional[bool] = False):
+        self.analysis_id = analysis_id
+        self.is_template = is_template
 
 
 vulnerability_categories = db.Table(

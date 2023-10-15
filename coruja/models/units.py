@@ -30,8 +30,16 @@ class Unit(BaseTable):
         backref=db.backref("units_staffed", lazy="dynamic"),
     )
 
-    def __init__(self, *, description: Optional[str] = None) -> None:
+    is_template = db.Column(db.Boolean, default=False)
+
+    def __init__(
+        self,
+        *,
+        description: Optional[str] = None,
+        is_template: Optional[bool] = False
+    ) -> None:
         self.description = description
+        self.is_template = is_template
 
     def add_administrator(self, user: User):
         if not self.administrators:

@@ -2,8 +2,8 @@ import json
 from datetime import datetime
 from typing import Optional
 
+from bcrypt import checkpw, gensalt, hashpw
 from flask_login import UserMixin
-from bcrypt import hashpw, checkpw, gensalt
 
 from ..extensions.database import db
 from .configurations import BaseTable
@@ -84,7 +84,9 @@ class User(BaseTable, UserMixin):
     ):
         self.name = name
         self.cpf = cpf
-        self.password = hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
+        self.password = hashpw(password.encode("utf-8"), gensalt()).decode(
+            "utf-8"
+        )
         self.email_personal = email_personal
         self.email_professional = email_professional
         self.address = address

@@ -8,8 +8,8 @@ class Threat(BaseTable):
     title = db.Column(db.String(255))
     description = db.Column(db.String)
     active_id = db.Column(db.Integer, db.ForeignKey("active.id"))
-
     active = db.relationship("Active", backref="threats", lazy=True)
+    is_template = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
@@ -17,18 +17,20 @@ class Threat(BaseTable):
         title: Optional[str] = None,
         description: Optional[str] = None,
         active_id: Optional[int] = None,
+        is_template: Optional[bool] = False,
     ):
         self.title = title
         self.description = description
         self.active_id = active_id
+        self.is_template = is_template
 
 
 class AdverseAction(BaseTable):
     title = db.Column(db.String(255))
     description = db.Column(db.String)
     threat_id = db.Column(db.Integer, db.ForeignKey("threat.id"))
-
     threat = db.relationship("Threat", backref="adverse_actions", lazy=True)
+    is_template = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
@@ -36,10 +38,12 @@ class AdverseAction(BaseTable):
         title: Optional[str] = None,
         description: Optional[str] = None,
         threat_id: Optional[int] = None,
+        is_template: Optional[bool] = False,
     ):
         self.title = title
         self.description = description
         self.threat_id = threat_id
+        self.is_template = is_template
 
 
 class AdverseActionScore(BaseTable):
