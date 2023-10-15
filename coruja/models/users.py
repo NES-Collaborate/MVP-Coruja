@@ -3,10 +3,57 @@ from datetime import datetime
 from typing import Optional
 
 from flask_login import UserMixin
-from werkzeug.security import check_password_hash, generate_password_hash
+from bcrypt import hashpw, checkpw, gensalt
 
 from ..extensions.database import db
 from .configurations import BaseTable
+
+
+class Permission(BaseTable):
+    label = db.Column(db.String(255), nullable=False, unique=True)
+    type = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+
+    def __init__(self, *, label: str, type: str, description: str):
+        """Permissão de acesso à funcionalidades gerais da aplicação
+
+        Args:
+            label (str): Nome da permissão
+            type (str): Tipo de permissão (`create`, `read`, `update`, `delete`)
+            description (str): Breve descrição sobre a permissão
+        """
+        self.label = label
+        self.type = type
+        self.description = description
+
+
+permissions_roles = db.Table(
+    "permissions_roles",
+    db.Column("role_id", db.String, db.ForeignKey("role.id")),
+    db.Column("permission_id", db.String, db.ForeignKey("permission.id")),
+)
+
+
+class Role(BaseTable):
+    name = db.Column(db.String(255), nullable=False)
+    permissions = db.relationship(
+        "Permission",
+        secondary=permissions_roles,
+        backref=db.backref("roles", lazy=True),
+    )
+
+    def __init__(self, *, name: str, permissions: Optional[list] = []):
+        self.name = name
+        for permission in permissions:
+            self.add_permission(permission)
+
+    def add_permission(self, permission: Permission):
+        if not self.permissions:
+            self.permissions = []
+
+        self.permissions.append(permission)
+
+        db.session.commit()
 
 
 class User(BaseTable, UserMixin):
@@ -19,7 +66,8 @@ class User(BaseTable, UserMixin):
     _telephones = db.Column(db.String)
     title = db.Column(db.String(255))
     last_seen = db.Column(db.DateTime)
-    is_administrator = db.Column(db.Boolean, default=False)
+    role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
+    role = db.relationship("Role", backref="users", lazy=True)
 
     def __init__(
         self,
@@ -32,17 +80,17 @@ class User(BaseTable, UserMixin):
         address: Optional[str] = None,
         title: Optional[str] = None,
         last_seen: Optional[datetime] = None,
-        is_administrator: bool = False,
+        role: Optional[Role] = None,
     ):
         self.name = name
         self.cpf = cpf
-        self.password = generate_password_hash(password)
+        self.password = hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
         self.email_personal = email_personal
         self.email_professional = email_professional
         self.address = address
         self.title = title
         self.last_seen = last_seen
-        self.is_administrator = is_administrator
+        self.role = role or Role.query.filter_by(name="user").first()
 
     @property
     def telephones(self):
@@ -57,4 +105,4 @@ class User(BaseTable, UserMixin):
         del self._telephones
 
     def check_password(self, password: str) -> bool:
-        return check_password_hash(self.password, password)
+        return checkpw(password.encode("utf-8"), self.password.encode("utf-8"))

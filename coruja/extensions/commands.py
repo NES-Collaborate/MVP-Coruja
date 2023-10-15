@@ -4,7 +4,7 @@ from string import ascii_lowercase
 from flask import Flask
 
 from ..extensions.database import db
-from ..models import User
+from ..models import Permission, Role, User
 
 
 def init_database():
@@ -15,6 +15,43 @@ def init_database():
     db.session.commit()
 
     print("Tables Created\n")
+
+
+def create_default_roles():
+    print("Creating default roles...")
+    permissions = [
+        Permission(
+            label="access_log",
+            type="read",
+            description="Acessar logs de acesso",
+        ),
+        Permission(
+            label="configurations",
+            type="read",
+            description="Acessar configurações",
+        ),
+        Permission(
+            label="configurations",
+            type="write",
+            description="Editar configurações",
+        ),
+        Permission(label="organ", type="create", description="Criar Órgãos"),
+        Permission(label="organ", type="read", description="Acessar Órgãos"),
+        Permission(label="organ", type="update", description="Editar Órgãos"),
+        Permission(label="organ", type="delete", description="Deletar Órgãos"),
+    ]
+    db.session.add_all(permissions)
+    db.session.commit()
+
+    admin_role = Role(name="admin", permissions=permissions)
+    db.session.add(admin_role)
+    db.session.commit()
+
+    user_role = Role(name="user")
+    db.session.add(user_role)
+    db.session.commit()
+
+    print("Default Roles Created\n")
 
 
 def create_admin():
@@ -28,7 +65,7 @@ def create_admin():
         cpf=cpf,
         password=password,
         email_professional="admin@coruja",
-        is_administrator=True,
+        role=Role.query.filter_by(name="admin").first(),
     )
 
     db.session.add(user)

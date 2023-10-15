@@ -2,6 +2,8 @@ from typing import Optional
 
 from ..extensions.database import db
 from .configurations import BaseTable
+from .institution import Institution
+from .users import User
 
 organ_administrators = db.Table(
     "organ_administrators",
@@ -15,6 +17,22 @@ organ_administrators = db.Table(
         "user_id",
         db.Integer,
         db.ForeignKey("user.id"),
+        primary_key=True,
+    ),
+)
+
+organ_intitutions = db.Table(
+    "organ_intitutions",
+    db.Column(
+        "organ_id",
+        db.Integer,
+        db.ForeignKey("organ.id"),
+        primary_key=True,
+    ),
+    db.Column(
+        "institution_id",
+        db.Integer,
+        db.ForeignKey("institution.id"),
         primary_key=True,
     ),
 )
@@ -33,6 +51,12 @@ class Organ(BaseTable):
         backref=db.backref("organs_administered", lazy=True),
     )
 
+    intitutions = db.relationship(
+        "Institution",
+        secondary=organ_intitutions,
+        backref=db.backref("organs", lazy=True),
+    )
+
     def __init__(
         self,
         *,
@@ -47,3 +71,19 @@ class Organ(BaseTable):
         self.address = address
         self.email = email
         self.telephone = telephone
+
+    def add_administrator(self, user: User):
+        if not self.administrators:
+            self.administrators = []
+
+        self.administrators.append(user)
+
+        db.session.commit()
+
+    def add_institution(self, institution: Institution):
+        if not self.intitutions:
+            self.intitutions = []
+
+        self.intitutions.append(institution)
+
+        db.session.commit()

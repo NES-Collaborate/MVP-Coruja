@@ -7,20 +7,18 @@ from .configurations import BaseTable
 class Active(BaseTable):
     title = db.Column(db.String(255))
     description = db.Column(db.String)
-    analysis_id = db.Column(db.Integer, db.ForeignKey("analysis.id"))
-
-    analysis = db.relationship("Analysis", backref="actives", lazy=True)
+    analysis_risk_id = db.Column(db.Integer, db.ForeignKey("analysis_risk.id"))
 
     def __init__(
         self,
         *,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        analysis_id: Optional[int] = None,
+        analysis_risk_id: Optional[int] = None,
     ):
         self.title = title
         self.description = description
-        self.analysis_id = analysis_id
+        self.analysis_risk_id = analysis_risk_id
 
 
 class ActiveScore(BaseTable):
