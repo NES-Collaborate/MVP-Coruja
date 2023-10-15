@@ -1,23 +1,28 @@
 {% extends 'base.html' %}
+{% set active_page = "login" %}
 
 {% block content %}
-    <h1 class="text-2xl font-bold mb-4 text-center">Login</h1>
-    <form method="POST" class="max-w-md mx-auto">
-        {{ form.hidden_tag() }}
-        <div class="mb-6">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="cpf">CPF</label>
-            {{ form.cpf(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-            {% for error in form.cpf.errors %}
-                <div class="text-red-500 text-sm mt-1">{{ error }}</div>
-            {% endfor %}
-        </div>
-        <div class="mb-6">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Senha</label>
-            {{ form.password(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-            {% for error in form.password.errors %}
-                <div class="text-red-500 text-sm mt-1">{{ error }}</div>
-            {% endfor %}
-        </div>
-        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Login</button>
-    </form>
+    <main class="px-3 mx-auto w-50">
+        <h3 class="h3 fw-normal mb-3">Login</h2>
+        <form method="POST" class="" novalidate autocomplete="off">
+            {{ form.hidden_tag() }}
+            <div class="form-floating mb-3">
+                {{ form.cpf(class = "form-control", placeholder="CPF")}}
+                <label for="floatingCpf">CPF</label>
+                {% for error in form.cpf.errors %}
+                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                {% endfor %}
+            </div>            
+            <div class="form-floating mb-3">
+                {{ form.password(class = "form-control", placeholder="Senha")}}
+                <label for="floatingPassword">Senha</label>
+                {% for error in form.password.errors %}
+                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="text-center">
+                {{ form.submit(class = "btn btn-primary w-100") }}
+            </div>
+        </form>
+    </main>
 {% endblock %}
