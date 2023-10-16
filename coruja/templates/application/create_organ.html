@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <main class="px-3 mx-auto w-50">
+        <h3 class="h3 fw-normal mb-3">Criar Orgão</h2>
+        <form method="POST" class="" novalidate autocomplete="off">
+            {{ form.hidden_tag() }}
+
+            <div class="form-floating mb-3">
+                {{ form.name(class = "form-control", placeholder="Nome do orgão")}}
+            
+                <label for="floatingName">Nome do orgão</label>
+            
+                {% for error in form.name.errors %}
+                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating mb-3">
+                {{ form.cnpj(class = "form-control", placeholder="CNPJ")}}
+            
+                <label for="floatingCnpj">CNPJ</label>
+            
+                {% for error in form.cnpj.errors %}
+                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating mb-3">
+                {{ form.address(class = "form-control", placeholder="Endereço")}}
+            
+                <label for="floatingAddress">Endereço</label>
+            
+                {% for error in form.address.errors %}
+                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating mb-3">
+                {{ form.email(class = "form-control", placeholder="E-mail")}}
+            
+                <label for="floatingEmail">E-mail</label>
+            
+                {% for error in form.email.errors %}
+                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating mb-3">
+                {{ form.telephone(class = "form-control", placeholder="Telefone")}}
+            
+                <label for="floatingTelephone">Telefone</label>
+            
+                {% for error in form.telephone.errors %}
+                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center">
+                {{ form.submit(class = "btn btn-primary w-100") }}
+            </div>
+        </form>
+    </main>
+{% endblock %}

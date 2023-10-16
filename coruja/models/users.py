@@ -67,6 +67,7 @@ class User(BaseTable, UserMixin):
     title = db.Column(db.String(255))
     last_seen = db.Column(db.DateTime)
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
+
     role = db.relationship("Role", backref="users", lazy=True)
 
     def __init__(
