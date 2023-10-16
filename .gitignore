@@ -287,5 +287,8 @@ pyrightconfig.json
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 
+# Others
+access.txt
+
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pythonvanilla,flask
