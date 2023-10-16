@@ -36,9 +36,16 @@ def _before_request():
 
 
 def handle_404(err):
+    flash("Desculpe, a página que você procura não foi encontrada", "warning")
+    return redirect(url_for("application.home"))
+
+
+def handle_403(err):
+    flash("Você não tem permissão para acessar esta página", "danger")
     return redirect(url_for("application.home"))
 
 
 def init_middlware_login(app: Flask) -> None:
     app.register_error_handler(404, handle_404)
+    app.register_error_handler(403, handle_403)
     app.before_request(_before_request)
