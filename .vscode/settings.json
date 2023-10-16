@@ -1,0 +1,13 @@
+{
+    "material-icon-theme.folders.associations": {
+      "coruja": "app",
+      "application": "theme",
+      "flask_session": "archive",
+      "instance": "database"
+    },
+    "material-icon-theme.files.associations": {
+      ".flaskenv": "Settings",
+      "requirements_dev.txt": "Python-misc",
+      "requirements_test.txt": "Python-misc"
+    }
+  }
