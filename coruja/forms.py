@@ -26,6 +26,7 @@ class LoginForm(FlaskForm):
         - password (PasswordField): O campo para inserir a senha do usuário.
         - csrf_token (HiddenField): O campo oculto para proteção CSRF.
     """
+
     cpf = StringField(
         label="CPF",
         validators=[DataRequired("Preencha esse campo"), validate_cpf],
@@ -38,7 +39,7 @@ class LoginForm(FlaskForm):
     csrf_token = HiddenField()
 
 
-class OrgaoForm(FlaskForm):
+class OrganForm(FlaskForm):
     """
     Formulário para criar um órgão.
     Fields:
@@ -49,6 +50,7 @@ class OrgaoForm(FlaskForm):
         - email (str): O campo para inserir o e-mail do órgão.
         - telephone (str): O campo para inserir o telefone do órgão.
     """
+
     csrf_token = HiddenField()
     name = StringField("Nome", validators=[DataRequired()])
     cnpj = StringField("CNPJ", validators=[DataRequired()])
