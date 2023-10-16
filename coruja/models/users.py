@@ -47,12 +47,11 @@ class Role(BaseTable):
         for permission in permissions:
             self.add_permission(permission)
 
-    def add_permission(self, permission: Permission):
+    def add_permission(self, permission: Permission) -> None:
         if not self.permissions:
             self.permissions = []
 
         self.permissions.append(permission)
-
         db.session.commit()
 
 
@@ -99,11 +98,11 @@ class User(BaseTable, UserMixin):
         return json.loads(self._telephones) if self._telephones else []
 
     @telephones.setter
-    def telephones(self, value):
+    def telephones(self, value) -> None:
         self._telephones = json.dumps(value)
 
     @telephones.deleter
-    def telephones(self):
+    def telephones(self) -> None:
         del self._telephones
 
     def check_password(self, password: str) -> bool:
