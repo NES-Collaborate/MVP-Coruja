@@ -39,7 +39,7 @@ class LoginForm(FlaskForm):
     csrf_token = HiddenField()
 
 
-class OrgaoForm(FlaskForm):
+class OrganForm(FlaskForm):
     """
     Formulário para criar um órgão.
     Fields:
