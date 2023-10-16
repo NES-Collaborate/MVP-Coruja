@@ -4,7 +4,16 @@ from .extensions.database import db
 from .models import Organ, organ_administrators
 
 
-def get_organs_by_user_id(user_id: int):
+def get_organs_by_user_id(user_id: int) -> list[Organ]:
+    """
+    Obtém órgãos associados a um usuário com base em seu ID.
+
+    Parâmetros:
+    user_id (int): O ID do usuário a ser pesquisado.
+
+    Retorna:
+    list[Organ]: Uma lista de objetos Organ associados ao usuário especificado.
+    """
     organ_admin_alias = aliased(organ_administrators)
 
     organs = (
