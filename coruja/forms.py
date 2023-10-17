@@ -84,7 +84,7 @@ class OrganForm(FlaskForm):
     address = StringField("Endereço")
     email = StringField("E-mail", validators=[DataRequired()])
     telephone = StringField("Telefone", validators=[DataRequired()])
-    submit = SubmitField("Criar Orgão")
+    submit = SubmitField("Criar orgão")
 
 
 class AnalysisForm(FlaskForm):
