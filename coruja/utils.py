@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
@@ -22,7 +22,7 @@ class DatabaseManager:
     def __init__(self):
         self.__db = db
 
-    def get_organs_by_user_id(self, user_id: int) -> list[Organ]:
+    def get_organs_by_user_id(self, user_id: int) -> List[Organ]:
         """
         Obtém órgãos associados a um usuário com base em seu ID.
 
@@ -51,7 +51,8 @@ class DatabaseManager:
 
         Args:
             analysis_id (int): O ID da análise
-            or_404 (bool, optional): Se True, caso não exista uma análise com o ID especificado, `abort(404)`. Defaults to True.
+            or_404 (bool, optional): Se True, caso não exista uma análise com o ID
+                especificado, `abort(404)`. Defaults to True.
 
         Returns:
             Analysis: A análise com o ID especificado
@@ -68,6 +69,50 @@ class DatabaseManager:
         )
         return analysis
 
+    def get_user_by_id(self, user_id: int, or_404: bool = True) -> User:
+        """Obtém um usuário com base em seu ID
+
+        Args:
+            user_id (int): O ID do usuário
+            or_404 (bool, optional): Se True, caso não exista um usuário com o ID
+                especificado, `abort(404)`. Defaults to True.
+
+        Returns:
+            User: O usuário com o ID especificado
+        """
+        user = (
+            User.query.filter_by(id=user_id).first_or_404(
+                "Usuário com o ID especificado ({}) não foi encontrado".format(
+                    user_id
+                )
+            )
+            if or_404
+            else User.query.filter_by(id=user_id).first()
+        )
+        return user
+
+    def create_analysis(self, **kwargs) -> Analysis:
+        """
+        Cria uma nova análise e atribui administradores a ela.
+
+        Args:
+            description (str): A descrição da análise.
+            administrators (List[int]): Lista de IDs dos administradores.
+
+        Returns:
+            Analysis: O objeto de análise recém-criado.
+        """
+        administrators = kwargs.pop("administrators", [])
+        new_analysis = Analysis(description=kwargs.pop("description", None))
+
+        for admin_id in administrators:
+            admin = self.get_user_by_id(admin_id)
+            new_analysis.add_administrator(admin, commit_changes=False)
+
+        self.__db.session.add(new_analysis)
+        self.__db.session.commit()
+
+        return new_analysis
 
     def add_organ(self, **kwargs) -> None:
         administrators = kwargs.pop("administrators", [])
@@ -80,7 +125,6 @@ class DatabaseManager:
 
         self.__db.session.commit()
         self.__db.session.commit()
-
 
     def is_organ_administrator(self, user: User | Any) -> bool:
         organ_admin = aliased(organ_administrators)

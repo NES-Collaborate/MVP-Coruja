@@ -1,6 +1,7 @@
-from flask import Blueprint, Flask, render_template
+from flask import Blueprint, Flask, flash, redirect, render_template, url_for
 from flask_login import login_required
 
+from ..forms import AnalysisForm
 from ..utils import database_manager
 
 bp = Blueprint("analysis", __name__, url_prefix="/analise")
@@ -15,6 +16,31 @@ def get_analysis(analysis_id: int):
     experts = analysis.experts
     context = {"analysis": analysis, "experts": experts}
     return render_template("analysis/analysis.html", **context)
+
+
+@bp.route("/create", methods=["GET", "POST"])
+@login_required
+def create_analysis():
+    form = AnalysisForm()
+    if form.validate_on_submit():
+        description = form.description.data
+        admin_ids = form.admin_ids.data
+
+        analysis = database_manager.create_analysis(
+            description=description, administrators=admin_ids
+        )
+
+        if analysis:
+            flash("Análise criada com sucesso.", "success")
+            return redirect(
+                url_for("analysis.get_analysis", analysis_id=analysis.id),
+            )
+        else:
+            flash("Ocorreu um erro ao criar a análise.", "danger")
+
+    return render_template(
+        "analysis/create.html", form=form
+    )  # Certifique-se de que este template exista
 
 
 def init_api(app: Flask) -> None:
