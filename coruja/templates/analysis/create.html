@@ -42,7 +42,7 @@
 <script>
     $(document).ready(function () {
         var current_id = '{{ current_user.id }}';
-        var selectedAdmins = [];
+        var selectedAdmins = [parseInt(current_id)];
 
         $('#admin_autocomplete').autocomplete({
             appendTo: "#result-container",
