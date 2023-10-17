@@ -2,11 +2,11 @@ from datetime import datetime
 
 from flask import Flask, flash, redirect, request, url_for
 from flask_login import current_user
+from werkzeug.exceptions import NotFound
 
 from ..extensions.auth import login_manager
 from ..extensions.database import db
 from ..models import AccessLog, User
-from werkzeug.exceptions import NotFound
 
 
 @login_manager.user_loader
@@ -40,7 +40,9 @@ def handle_404(err: NotFound):
     if err.description != NotFound.description:
         flash(err.description, "warning")
     else:
-        flash("Desculpe, a página que você procura não foi encontrada", "warning")
+        flash(
+            "Desculpe, a página que você procura não foi encontrada", "warning"
+        )
     return redirect(url_for("application.home"))
 
 
