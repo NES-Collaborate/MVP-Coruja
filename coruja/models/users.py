@@ -108,7 +108,52 @@ class User(BaseTable, UserMixin):
         del self._telephones
 
     def check_password(self, password: str) -> bool:
+        """Verifica se a senha está correta
+
+        Args:
+            password (str): Senha a ser verificada
+
+        Returns:
+            bool: True se a senha estiver correta. False caso não.
+        """
         return checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
-    def __dict__(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    def as_dict(
+        self, filter_params: Optional[list] = [], censor_cpf: bool = True
+    ) -> dict:
+        """Retorna um dicionário com os atributos da classe
+
+        Args:
+            filter_params (Optional[list], optional): Especifica os campos que devem ser
+                retornados, quando vazio retorna todos. Defaults to [].
+            censor_cpf (bool, optional): Se True, censura o CPF. Defaults to True.
+
+        Returns:
+            dict: Dicionário com os atributos da classe
+        """
+        return {
+            c.name: self.__censor_cpf(getattr(self, c.name))
+            if c.name == "cpf" and censor_cpf
+            else getattr(self, c.name)
+            for c in self.__table__.columns
+            if c.name in filter_params and filter_params
+        }
+
+    def __censor_cpf(self, cpf: str) -> str:
+        """
+        Censura um CPF, mantendo apenas os três primeiros e os dois últimos dígitos
+        visíveis.
+
+        Exemplo: Se o CPF for 123.456.789-09, ele se tornará 123.***.**9-09.
+
+        Args:
+            cpf (str): O CPF a ser censurado.
+
+        Return:
+            str: O CPF censurado.
+        """
+        return f"{cpf[:3]}.***.**{cpf[-3]}-{cpf[-2:]}"
+
+    @property
+    def cpf_censored(self) -> str:
+        return self.__censor_cpf(self.cpf)

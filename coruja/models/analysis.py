@@ -3,6 +3,7 @@ from typing import Optional
 from ..extensions.database import db
 from .actives import Active
 from .configurations import BaseTable
+from .users import User
 
 analytics_administrators = db.Table(
     "analytics_administrators",
@@ -51,6 +52,23 @@ class Analysis(BaseTable):
     ):
         self.description = description
         self.is_template = is_template
+
+    def add_administrator(
+        self, user: User, commit_changes: bool = True
+    ) -> None:
+        """Adiciona um administrador para a analise
+
+        Args:
+            user (User): usuário a ser adicionado
+            commit_changes (bool, optional): Se True, salva as alterações no banco.
+                Defaults to True.
+        """
+        if not self.administrators:
+            self.administrators = []
+
+        self.administrators.append(user)
+        if commit_changes:
+            db.session.commit()
 
 
 class AnalysisRisk(BaseTable):
