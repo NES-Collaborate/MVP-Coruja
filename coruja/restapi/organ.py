@@ -35,7 +35,7 @@ def get_post_organ_creation():
 
         return redirect(url_for("application.home"))
 
-    return render_template("application/create_organ.html", form=form)
+    return render_template("organ/create.html", form=form)
 
 
 def init_api(app: Flask) -> None:

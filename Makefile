@@ -2,7 +2,7 @@ install:
 	@pip install -r requirements.txt
 init:
 	@python -m flask initdb
-	@python -m flask createsu
+	@python -m flask createsu >> access.txt
 server:
 	@python -m flask run --debug
 format:

@@ -7,16 +7,6 @@ from ..extensions.database import db
 from ..models import Permission, Role, User
 
 
-def init_database():
-    print("Creating tables...")
-
-    db.drop_all()
-    db.create_all()
-    db.session.commit()
-
-    print("Tables Created\n")
-
-
 def create_default_roles():
     print("Creating default roles...")
     permissions = [
@@ -52,6 +42,17 @@ def create_default_roles():
     db.session.commit()
 
     print("Default Roles Created\n")
+
+def init_database():
+    print("Creating tables...")
+
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
+    
+    create_default_roles()
+
+    print("Tables Created\n")
 
 
 def create_admin():

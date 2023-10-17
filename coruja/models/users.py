@@ -10,7 +10,7 @@ from .configurations import BaseTable
 
 
 class Permission(BaseTable):
-    label = db.Column(db.String(255), nullable=False, unique=True)
+    label = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(255), nullable=False)
 
@@ -48,12 +48,13 @@ class Role(BaseTable):
         for permission in permissions:
             self.add_permission(permission)
 
-    def add_permission(self, permission: Permission) -> None:
+    def add_permission(self, permission: Permission, commit_changes: bool = False) -> None:
         if not self.permissions:
             self.permissions = []
 
         self.permissions.append(permission)
-        db.session.commit()
+        if commit_changes:
+            db.session.commit()
 
 
 class User(BaseTable, UserMixin):
