@@ -6,6 +6,7 @@ from flask_login import current_user
 from ..extensions.auth import login_manager
 from ..extensions.database import db
 from ..models import AccessLog, User
+from werkzeug.exceptions import NotFound
 
 
 @login_manager.user_loader
@@ -35,8 +36,11 @@ def _before_request():
         db.session.commit()
 
 
-def handle_404(err):
-    flash("Desculpe, a página que você procura não foi encontrada", "warning")
+def handle_404(err: NotFound):
+    if err.description != NotFound.description:
+        flash(err.description, "warning")
+    else:
+        flash("Desculpe, a página que você procura não foi encontrada", "warning")
     return redirect(url_for("application.home"))
 
 
