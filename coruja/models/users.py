@@ -109,3 +109,6 @@ class User(BaseTable, UserMixin):
 
     def check_password(self, password: str) -> bool:
         return checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
+
+    def __dict__(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

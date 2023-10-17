@@ -2,7 +2,7 @@ from .actives import Active, ActiveScore
 from .analysis import (
     Analysis,
     analytics_administrators,
-    analytics_staff,
+    analytics_experts,
     vulnerability_categories,
 )
 from .configurations import AccessLog
@@ -35,7 +35,7 @@ __all__ = [
     "ActiveScore",
     "Vulnerability",
     "AdverseAction",
-    "analytics_staff",
+    "analytics_experts",
     "institution_units",
     "organ_intitutions",
     "permissions_roles",

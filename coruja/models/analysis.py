@@ -10,8 +10,8 @@ analytics_administrators = db.Table(
     db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
 )
 
-analytics_staff = db.Table(
-    "analytics_staff",
+analytics_experts = db.Table(
+    "analytics_experts",
     db.Column("analysis_id", db.Integer, db.ForeignKey("analysis.id")),
     db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
 )
@@ -26,10 +26,10 @@ class Analysis(BaseTable):
         secondary=analytics_administrators,
         backref=db.backref("analytics_administered", lazy="dynamic"),
     )
-    staff = db.relationship(
+    experts = db.relationship(
         "User",
-        secondary=analytics_staff,
-        backref=db.backref("analytics_staffed", lazy="dynamic"),
+        secondary=analytics_experts,
+        backref=db.backref("analytics_experted", lazy="dynamic"),
     )
 
     analysis_risk = db.relationship(

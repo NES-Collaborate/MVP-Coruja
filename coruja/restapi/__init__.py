@@ -1,5 +1,6 @@
 from flask import Flask
 
+from .analysis import init_api as init_analysis
 from .api import init_api
 from .application import init_api as init_aplication
 from .auth import init_api as init_auth
@@ -11,3 +12,4 @@ def init_apis(app: Flask) -> None:
     init_auth(app)
     init_aplication(app)
     init_organ(app)
+    init_analysis(app)
