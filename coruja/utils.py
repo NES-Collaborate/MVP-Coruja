@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
 
 from .extensions.database import db
-from .models import Organ, User, organ_administrators
+from .models import Analysis, Organ, User, organ_administrators
 
 
 def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
@@ -44,6 +44,31 @@ class DatabaseManager:
             .all()
         )
 
+    def get_analysis_by_id(
+        self, analysis_id: int, or_404: bool = True
+    ) -> Analysis:
+        """Obtém uma análise com base em seu ID
+
+        Args:
+            analysis_id (int): O ID da análise
+            or_404 (bool, optional): Se True, caso não exista uma análise com o ID especificado, `abort(404)`. Defaults to True.
+
+        Returns:
+            Analysis: A análise com o ID especificado
+            None: Caso não exista uma análise com o ID especificado
+        """
+        analysis = (
+            Analysis.query.filter_by(id=analysis_id).first_or_404(
+                "Análise não encontrada com o ID especificado ({})".format(
+                    analysis_id
+                )
+            )
+            if or_404
+            else Analysis.query.filter_by(id=analysis_id).first()
+        )
+        return analysis
+
+
     def add_organ(self, **kwargs) -> None:
         administrators = kwargs.pop("administrators", [])
         organ = Organ(**kwargs)
@@ -55,6 +80,7 @@ class DatabaseManager:
 
         self.__db.session.commit()
         self.__db.session.commit()
+
 
     def is_organ_administrator(self, user: User | Any) -> bool:
         organ_admin = aliased(organ_administrators)
