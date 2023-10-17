@@ -23,7 +23,8 @@ def unauthorized_handler():
 
 def _before_request():
     is_static = request.path.startswith("/static/")
-    if current_user.is_authenticated and not is_static:  # type: ignore
+    is_favicon = request.path.startswith("/favicon.ico")
+    if current_user.is_authenticated and not (is_static or is_favicon):  # type: ignore
         current_user.last_seen = datetime.utcnow()
         new_access_log = AccessLog(
             ip=request.remote_addr,

@@ -43,13 +43,14 @@ def create_default_roles():
 
     print("Default Roles Created\n")
 
+
 def init_database():
     print("Creating tables...")
 
     db.drop_all()
     db.create_all()
     db.session.commit()
-    
+
     create_default_roles()
 
     print("Tables Created\n")

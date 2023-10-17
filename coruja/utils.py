@@ -128,7 +128,7 @@ class DatabaseManager:
             description (str): Nova descrição da análise
             administrators (List[int]): Nova lista de IDs dos administradores
             experts (List[int]): Nova lista de IDs dos especialistas
-        
+
         Returns:
             Analysis: O objeto de análise atualizado
         """
@@ -195,18 +195,7 @@ class DatabaseManager:
         self.__db.session.commit()
 
     def is_organ_administrator(self, user: User | Any) -> bool:
-        organ_admin = aliased(organ_administrators)
-
-        organs = (
-            Organ.query.join(
-                organ_admin,
-                Organ.id == organ_admin.c["organ_id"],
-            )
-            .filter(organ_admin.c["user_id"] == user.id)
-            .first()
-        )
-
-        return bool(organs)
+        return user.role.name == "admin"
 
 
 database_manager = DatabaseManager()

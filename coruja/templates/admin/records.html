@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Access Logs</h1>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>IP</th>
+                <th>User Agent</th>
+                <th>Access At</th>
+                <th>Endpoint</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{ log.user.name }} ({{ log.user.cpf_censored }})</td>
+                    <td>{{ log.ip }}</td>
+                    <td>{{ log.user_agent }}</td>
+                    <td>{{ log.access_at.strftime("%d/%m/%Y %H:%M:%S") }}</td>
+                    <td>{{ log.endpoint }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.get_records', page=pagination.page-1) }}">Anterior</a>
+            </li>
+            <li class="page-item {% if not has_next_page %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.get_records', page=pagination.page+1) }}">Próximo</a>
+            </li>
+        </ul>
+    </nav>
+    
+</div>
+
+{% endblock %}

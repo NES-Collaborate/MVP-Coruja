@@ -48,7 +48,9 @@ class Role(BaseTable):
         for permission in permissions:
             self.add_permission(permission)
 
-    def add_permission(self, permission: Permission, commit_changes: bool = False) -> None:
+    def add_permission(
+        self, permission: Permission, commit_changes: bool = False
+    ) -> None:
         if not self.permissions:
             self.permissions = []
 
