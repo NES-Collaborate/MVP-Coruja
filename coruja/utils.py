@@ -114,6 +114,39 @@ class DatabaseManager:
 
         return new_analysis
 
+    def update_analysis(
+        self,
+        analysis_id: int,
+        description: str,
+        administrators: List[int],
+        experts: List[int],
+    ) -> Analysis:
+        """Atualiza os dados de uma análise com base em seu ID
+
+        Args:
+            analysis_id (int): ID da análise
+            description (str): Nova descrição da análise
+            administrators (List[int]): Nova lista de IDs dos administradores
+            experts (List[int]): Nova lista de IDs dos especialistas
+        
+        Returns:
+            Analysis: O objeto de análise atualizado
+        """
+        analysis = self.get_analysis_by_id(analysis_id)
+        analysis.description = description
+        analysis.administrators = []
+        analysis.experts = []
+
+        for admin_id in administrators:
+            admin = self.get_user_by_id(admin_id)
+            analysis.add_administrator(admin, commit_changes=False)
+
+        for expert_id in experts:
+            expert = self.get_user_by_id(expert_id)
+            analysis.add_expert(expert, commit_changes=False)
+
+        db.session.commit()
+        return analysis
 
     def get_actives_by_analysis(
         self, analysis: Analysis, with_average_scores: bool = True

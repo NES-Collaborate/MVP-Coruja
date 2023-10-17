@@ -72,6 +72,21 @@ class Analysis(BaseTable):
         if commit_changes:
             db.session.commit()
 
+    def add_expert(self, user: User, commit_changes: bool = True):
+        """Adiciona um especialista para a analise
+
+        Args:
+            user (User): especialista a ser adicionado
+            commit_changes (bool, optional): Se True, salva as alterações no banco.
+                Defaults to True.
+        """
+        if not self.experts:
+            self.experts = []
+
+        self.experts.append(user)
+        if commit_changes:
+            db.session.commit()
+
 
 class AnalysisRisk(BaseTable):
     analysis_id = db.Column(db.Integer, db.ForeignKey("analysis.id"))

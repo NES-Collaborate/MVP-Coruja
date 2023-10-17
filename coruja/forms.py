@@ -89,7 +89,7 @@ class OrganForm(FlaskForm):
 
 class AnalysisForm(FlaskForm):
     """
-    Formulário para criar uma análise.
+    Formulário para criar / editar uma análise.
     Fields:
         - csrf_token (HiddenField): O campo oculto para proteção CSRF.
         - description (str): O campo para inserir a descrição da análise.
@@ -98,4 +98,5 @@ class AnalysisForm(FlaskForm):
     csrf_token = HiddenField()
     description = StringField("Descrição")
     admin_ids = FieldList(HiddenField(), min_entries=1)
-    submit = SubmitField("Criar Analise")
+    expert_ids = FieldList(HiddenField())
+    submit = SubmitField("Submeter")
