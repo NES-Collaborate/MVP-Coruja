@@ -5,7 +5,7 @@ from .configurations import BaseTable
 
 
 class Active(BaseTable):
-    title = db.Column(db.String(255))
+    title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String)
     analysis_risk_id = db.Column(db.Integer, db.ForeignKey("analysis_risk.id"))
     is_template = db.Column(db.Boolean, default=False)
@@ -22,6 +22,9 @@ class Active(BaseTable):
         self.description = description
         self.analysis_risk_id = analysis_risk_id
         self.is_template = is_template
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class ActiveScore(BaseTable):

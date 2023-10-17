@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4"><i class="bi bi-file-earmark-text"></i> Detalhes da Análise</h2>
+
+    <!-- Informações Gerais da Análise -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> Informações Gerais
+                </div>
+                <div class="card-body">
+                    <p><strong>Descrição:</strong> {{ analysis.description or 'Sem descrição' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-shield"></i> Análise de Risco
+                </div>
+                <div class="card-body">
+                    <a href="" class="btn btn-primary" role="button">
+                        <i class="bi bi-arrow-right-circle"></i> Ir para Análise de Risco
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-shield-lock"></i> Análise de Vulnerabilidade
+                </div>
+                <div class="card-body">
+                    <a href="" class="btn btn-primary" role="button">
+                        <i class="bi bi-arrow-right-circle"></i> Ir para Análise de Vulnerabilidade
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Administradores e Especialistas -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-person-check"></i> Administradores e Especialistas
+        </div>
+        <div class="card-body">
+            <h5>Administradores:</h5>
+            <div class="accordion" id="administratorsAccordion">
+                {% if analysis.administrators %}
+                {% for admin in analysis.administrators %}
+                <div class="card">
+                    <div class="card-header" id="admin{{ admin.id }}Header">
+                        <button class="btn btn-link" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#admin{{ admin.id }}" aria-expanded="true"
+                            aria-controls="admin{{ admin.id }}">
+                            <i class="bi bi-person"></i> {{ admin.name }} ({{ admin.cpf_censored }})
+                        </button>
+                    </div>
+                    <div id="admin{{ admin.id }}" class="collapse" aria-labelledby="admin{{ admin.id }}Header"
+                        data-parent="#administratorsAccordion">
+                        <div class="card-body">
+                            <!-- Conteúdo detalhado do administrador aqui -->
+                            <p><strong>Nome:</strong> {{ admin.name }}</p>
+                            <p><strong>CPF:</strong> {{ admin.cpf_censored }}</p>
+                            <p><strong>Email Pessoal:</strong> {{ admin.email_personal or 'N/A' }}</p>
+                            <p><strong>Email Profissional:</strong> {{ admin.email_professional }}</p>
+                            <p><strong>Endereço:</strong> {{ admin.address or 'N/A' }}</p>
+                            <p><strong>Telefones:</strong> {{ admin.telephones|join(', ') or 'N/A' }}</p>
+                            <p><strong>Cargo:</strong> {{ admin.title or 'N/A' }}</p>
+                            <p><strong>Visto pela Última Vez:</strong> {{ admin.last_seen.strftime('%d/%m/%Y %H:%M:%S')
+                                if admin.last_seen else 'N/A' }}</p>
+                            <p><strong>Função:</strong> {{ admin.role.name }}</p>
+
+                            <!-- Adicione um botão para editar -->
+                            <a href="" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="Editar Administrador">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>Sem administradores</p>
+                {% endif %}
+            </div>
+
+            <h5>Especialistas:</h5>
+            <div class="accordion" id="expertsAccordion">
+                {% if experts %}
+                {% for expert in experts %}
+                <div class="card">
+                    <div class="card-header" id="expert{{ expert.id }}Header">
+                        <button class="btn btn-link" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#expert{{ expert.id }}" aria-expanded="true"
+                            aria-controls="expert{{ expert.id }}">
+                            <i class="bi bi-person-check"></i> {{ expert.name }} ({{ expert.cpf_censored }}) -
+                            Progresso: {{ expert.progress }}
+                        </button>
+                    </div>
+                    <div id="expert{{ expert.id }}" class="collapse" aria-labelledby="expert{{ expert.id }}Header"
+                        data-parent="#expertsAccordion">
+                        <div class="card-body">
+                            <p><strong>Nome:</strong> {{ expert.name }}</p>
+                            <p><strong>CPF:</strong> {{ expert.cpf_censored }}</p>
+                            <p><strong>Email Pessoal:</strong> {{ expert.email_personal or 'N/A' }}</p>
+                            <p><strong>Email Profissional:</strong> {{ expert.email_professional }}</p>
+                            <p><strong>Endereço:</strong> {{ expert.address or 'N/A' }}</p>
+                            <p><strong>Telefones:</strong> {{ expert.telephones|join(', ') or 'N/A' }}</p>
+                            <p><strong>Cargo:</strong> {{ expert.title or 'N/A' }}</p>
+                            <p><strong>Visto pela Última Vez:</strong> {{ expert.last_seen.strftime('%d/%m/%Y %H:%M:%S')
+                                if expert.last_seen else 'N/A' }}</p>
+                            <p><strong>Função:</strong> {{ expert.role.name }}</p>
+                            <a href="" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="Editar Especialista">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>Sem especialistas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Ativos e seus Scores -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-box"></i> Ativos
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Título</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">Substituibilidade</th>
+                        <th scope="col">Custo de Substituição</th>
+                        <th scope="col">Essencialidade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for active in actives %}
+                    <tr>
+                        <td>{{ active.title }}</td>
+                        <td>{{ active.description or 'Sem descrição' }}</td>
+                        <td>{{ active.average_substitutability }}</td>
+                        <td>{{ active.average_replacement_cost }}</td>
+                        <td>{{ active.average_essentiality }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

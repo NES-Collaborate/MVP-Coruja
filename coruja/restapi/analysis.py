@@ -14,7 +14,8 @@ def get_analysis(analysis_id: int):
     # TODO: Criar métodos para retornar uma lista de experts com seus respectivos
     # "progressos" dentro de uma determinada análise (notasDadas/notasPossíveis)
     experts = analysis.experts
-    context = {"analysis": analysis, "experts": experts}
+    actives = database_manager.get_actives_by_analysis(analysis)
+    context = {"analysis": analysis, "experts": experts, "actives": actives}
     return render_template("analysis/analysis.html", **context)
 
 
@@ -40,7 +41,7 @@ def create_analysis():
 
     return render_template(
         "analysis/create.html", form=form
-    )  # Certifique-se de que este template exista
+    )
 
 
 def init_api(app: Flask) -> None:

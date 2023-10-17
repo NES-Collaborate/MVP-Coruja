@@ -36,11 +36,13 @@ class Analysis(BaseTable):
     analysis_risk = db.relationship(
         "AnalysisRisk",
         backref="analysis",
+        uselist=False,
         lazy=True,
     )
     analysis_vulnerability = db.relationship(
         "AnalysisVulnerability",
         backref="analysis",
+        uselist=False,
         lazy=True,
     )
 

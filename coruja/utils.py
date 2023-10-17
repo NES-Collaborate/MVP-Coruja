@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
 
 from .extensions.database import db
-from .models import Analysis, Organ, User, organ_administrators
+from .models import Active, ActiveScore, Analysis, Organ, User, organ_administrators
 
 
 def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
@@ -113,6 +113,41 @@ class DatabaseManager:
         self.__db.session.commit()
 
         return new_analysis
+
+
+    def get_actives_by_analysis(
+        self, analysis: Analysis, with_average_scores: bool = True
+    ) -> List[Active]:
+        """Obtém lista de ativos de uma determinada análise (ou seja, lista de ativos de uma análise de risco que está relacionada com a Análise especificada).
+
+        Args:
+            analysis (Analysis): Análise
+            with_average_scores (bool, optional): Se True, inclui as médias dos scores dos ativos. Defaults to True.
+
+        Returns:
+            List[Active]: Lista de ativos
+        """
+        analysis_risk = analysis.analysis_risk
+        if not analysis_risk:
+            return []
+        actives = Active.query.filter_by(
+            analysis_risk_id=analysis_risk.id
+        ).all()
+        if with_average_scores:
+            for active in actives:
+                active_scores: List[ActiveScore] = ActiveScore.query.filter_by(
+                    active_id=active.id
+                ).all()
+                active.average_substitutability = sum(
+                    score.substitutability for score in active_scores
+                ) / len(active_scores)
+                active.average_replacement_cost = sum(
+                    score.replacement_cost for score in active_scores
+                ) / len(active_scores)
+                active.average_essentiality = sum(
+                    score.essentiality for score in active_scores
+                ) / len(active_scores)
+        return actives
 
     def add_organ(self, **kwargs) -> None:
         administrators = kwargs.pop("administrators", [])
