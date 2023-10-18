@@ -2,7 +2,8 @@ from datetime import datetime
 
 from flask import Flask, flash, redirect, request, url_for
 from flask_login import current_user
-from werkzeug.exceptions import NotFound
+
+from werkzeug.exceptions import Forbidden, NotFound
 
 from ..extensions.auth import login_manager
 from ..extensions.database import db
@@ -38,7 +39,7 @@ def _before_request():
 
 
 def handle_404(err: NotFound):
-    if err.description != NotFound.description:
+    if err.description != NotFound.description and err.description:
         flash(err.description, "warning")
     else:
         flash(
@@ -47,8 +48,11 @@ def handle_404(err: NotFound):
     return redirect(url_for("application.home"))
 
 
-def handle_403(err):
-    flash("Você não tem permissão para acessar esta página", "danger")
+def handle_403(err: Forbidden):
+    if err.description != Forbidden.description and err.description:
+        flash(err.description, "warning")
+    else:
+        flash("Você não tem permissão para acessar esta página", "danger")
     return redirect(url_for("application.home"))
 
 
