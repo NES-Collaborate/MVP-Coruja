@@ -18,5 +18,5 @@ Werkzeug==3.0.0
 WTForms==3.0.1
 bcrypt==4.0.1
 dynaconf==3.2.3
-email_validator=2.0.0
+email_validator==2.0.0
 isort==5.12.0
