@@ -11,6 +11,7 @@ from .models import (
     AnalysisRisk,
     Institution,
     Organ,
+    Unit,
     User,
     institution_administrators,
     organ_administrators,
@@ -53,7 +54,6 @@ class DatabaseManager:
             .filter(organ_admin_alias.c.user_id == user_id)
             .all()
         )
-
 
     def get_organ(
         self,
@@ -145,8 +145,33 @@ class DatabaseManager:
             .all()
         )
 
+    def get_institution(
+        self, institution_id: int, or_404: bool = True
+    ) -> Institution | None:
+        """Obtém uma instituição com base em seu ID.
 
-    def get_analysis_by_id(
+        Args:
+            institution_id (int): O ID da Instituição.
+            or_404 (bool, optional): Se True, caso não exista uma Instituição
+                com o ID especificado, `abort(404)`. O padrão é True.
+
+        Returns:
+            Institution: A instituição com o ID especificado.
+            None: Caso não exista uma Instituição com o ID especificado.
+
+        Raises:
+            NotFoundError: Se a instituição não foi encontrada e `or_404=True`
+        """
+        institution = (
+            Institution.query.filter_by(id=institution_id).first_or_404(
+                "Instituição não encontrada"
+            )
+            if or_404
+            else Institution.query.filter_by(id=institution_id).first()
+        )
+        return institution
+
+    def get_analysis(
         self,
         analysis_id: int,
         or_404: bool = True,
@@ -171,7 +196,36 @@ class DatabaseManager:
         )
         return analysis  # type: ignore
 
-    def get_user_by_id(self, user_id: int, or_404: bool = True) -> User:
+    def get_unit(
+        self,
+        unit_id: int,
+        or_404: bool = True,
+    ) -> Unit | None:
+        """Obtém uma unidade com base em seu ID.
+
+        Args:
+            unit_id (int): O ID da unidade.
+            or_404 (bool, optional): Se True, caso não exista uma unidade
+                com o ID especificado, `abort(404)`. O padrão é True.
+
+        Returns:
+            Unit: A unidade com o ID especificado.
+            None: Caso não exista uma unidade com o ID especificado.
+
+        Raises:
+            NotFoundError: Se a unidade não foi encontrada e `or_404=True`
+        """
+
+        unit = (
+            Unit.query.filter_by(id=unit_id).first_or_404(
+                "Unidade não encontrada"
+            )
+            if or_404
+            else Unit.query.filter_by(id=unit_id).first()
+        )
+        return unit
+
+    def get_user(self, user_id: int, or_404: bool = True) -> User:
         """Obtém um usuário com base em seu ID
 
         Args:
@@ -209,7 +263,7 @@ class DatabaseManager:
         new_analysis = Analysis(description=kwargs.pop("description", None))
 
         for admin_id in administrators:
-            admin = self.get_user_by_id(admin_id)
+            admin = self.get_user(admin_id)
             new_analysis.add_administrator(admin, commit_changes=False)
 
         self.__db.session.add(new_analysis)
@@ -236,7 +290,7 @@ class DatabaseManager:
             Analysis: O objeto de análise atualizado
             None: Caso não exista uma analise com o ID especificado
         """
-        analysis = self.get_analysis_by_id(analysis_id)
+        analysis = self.get_analysis(analysis_id)
         if not analysis:
             return None
         analysis.description = description
@@ -244,11 +298,11 @@ class DatabaseManager:
         analysis.experts = []
 
         for admin_id in administrators:
-            admin = self.get_user_by_id(admin_id)
+            admin = self.get_user(admin_id)
             analysis.add_administrator(admin, commit_changes=False)
 
         for expert_id in experts:
-            expert = self.get_user_by_id(expert_id)
+            expert = self.get_user(expert_id)
             analysis.add_expert(expert, commit_changes=False)
 
         db.session.commit()
@@ -310,7 +364,7 @@ class DatabaseManager:
         self.__db.session.commit()
 
         for administrator_id in administrators:
-            administrator = self.get_user_by_id(administrator_id)
+            administrator = self.get_user(administrator_id)
             organ.add_administrator(administrator)
 
     def is_organ_administrator(self, user: User | Any) -> bool:
@@ -320,9 +374,9 @@ class DatabaseManager:
             return False
         return role.name == "admin"
 
-    def get_analysis_risk_by_id(
+    def get_analysis_risk(
         self, analysis_risk_id: int, or_404: bool = True
-    ) -> AnalysisRisk:
+    ) -> AnalysisRisk | None:
         """Obtém uma analise de risco por ID
 
         Args:
@@ -331,12 +385,14 @@ class DatabaseManager:
 
         Returns:
             AnalysisRisk: O objeto de analise
+            None: Caso não exista uma analise de risco com o ID especificado
+
+        Raises:
+            NotFoundError: Se `or_404=True` e a analise de risco não foi encontrada
         """
-        analysis_risk = AnalysisRisk.query.filter_by(
-            id=analysis_risk_id
-        ).first_or_404(
-            "Análise de Risco não encontrada com o ID especificado ({})".format(
-                analysis_risk_id
+        analysis_risk = (
+            AnalysisRisk.query.filter_by(id=analysis_risk_id).first_or_404(
+                "Análise de Risco não encontrada"
             )
             if or_404
             else AnalysisRisk.query.filter_by(id=analysis_risk_id).first()
