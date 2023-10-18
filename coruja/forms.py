@@ -1,6 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import FieldList, HiddenField, PasswordField, StringField, SubmitField
-from wtforms.validators import DataRequired, ValidationError
+from wtforms import (
+    EmailField,
+    FieldList,
+    HiddenField,
+    PasswordField,
+    StringField,
+    SubmitField,
+)
+from wtforms.validators import DataRequired, Email, Regexp, ValidationError
 
 
 def validate_cpf(form, field):
@@ -69,6 +76,7 @@ class LoginForm(FlaskForm):
 class OrganForm(FlaskForm):
     """
     Formulário para criar um órgão.
+
     Fields:
         - csrf_token (HiddenField): O campo oculto para proteção CSRF.
         - name (str): O campo para inserir o nome do órgão.
@@ -79,11 +87,38 @@ class OrganForm(FlaskForm):
     """
 
     csrf_token = HiddenField()
-    name = StringField("Nome", validators=[DataRequired()])
-    cnpj = StringField("CNPJ", validators=[DataRequired()])
+    name = StringField(
+        "Nome", validators=[DataRequired("Este campo é obrigatório")]
+    )
+    cnpj = StringField(
+        "CNPJ",
+        validators=[
+            DataRequired("Este campo é obrigatório"),
+            Regexp(
+                r"^\d{2}.\d{3}.\d{3}\/\d{4}-\d{2}$",
+                message="Insira um CNPJ válido",
+            ),
+        ],
+    )
     address = StringField("Endereço")
-    email = StringField("E-mail", validators=[DataRequired()])
-    telephone = StringField("Telefone", validators=[DataRequired()])
+    email = EmailField(
+        "E-mail",
+        validators=[
+            DataRequired("Este campo é obrigatório"),
+            Email("Digite um endereço de e-mail válido"),
+        ],
+    )
+    telephone = StringField(
+        "Telefone",
+        validators=[
+            DataRequired("Este campo é obrigatório"),
+            Regexp(
+                r"^\(\d{2,3}\) \d{4,5}-\d{4}$",
+                message="Formato de telefone inválido. Use (99) 99999-9999.",
+            ),
+        ],
+    )
+    admin_ids = FieldList(HiddenField(), min_entries=1)
     submit = SubmitField("Criar orgão")
 
 
