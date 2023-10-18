@@ -4,8 +4,21 @@ from typing import Callable, Mapping, Optional
 from flask import abort
 from flask_login import current_user
 
-from ..models import Analysis, User
+from ..models import User
 from ..utils import database_manager
+
+
+def is_object_administrator(obj: object, user: User) -> bool:
+    """Verifica se o usuário é um administrador do objeto
+
+    Args:
+        obj (object): O objeto (deve ter atributo `administrators` como `List[User]`)
+        user (User): Usuário a ser verificado
+
+    Returns:
+        bool: Se o usuário é um administrador do objeto
+    """
+    return any(user.id == admin.id for admin in obj.administrators)  # type: ignore
 
 
 def can_access_organ(organ_id: int, user: User) -> bool:
@@ -17,13 +30,15 @@ def can_access_organ(organ_id: int, user: User) -> bool:
 
     Returns:
         bool: Se o usuário tem permissão para acessar o órgão
+
+    Raises:
+        NotFoundError: Se o órgão não foi encontrado
     """
     organ = database_manager.get_organ(organ_id)
+    if organ is None:
+        abort(404, message="Órgão não encontrado")
     can_access = database_manager.is_organ_administrator(user)
-    if can_access:
-        return can_access
-    is_organ_admin = any(user.id == admin.id for admin in organ.administrators)
-    return is_organ_admin
+    return can_access or is_object_administrator(organ, user)
 
 
 def can_access_institution(institution_id: int, user: User) -> bool:
@@ -36,15 +51,9 @@ def can_access_institution(institution_id: int, user: User) -> bool:
     Returns:
         bool: Se o usuário tem permissão para acessar a instituição
     """
-    # TODO: Cabe a ser implementado por quem for cuidar de instituição
-    #   deve verificar tanto se o usuário é um ados administradores, como
-    #   deve verificar se o usuário can_access_organ
-    institution: "Institution" = ...
-    can_access = ...
-    if can_access:
-        return can_access
-    can_access_father = can_access_organ(institution.organ_id, user)
-    return can_access_father  # type: ignore
+    institution = database_manager.get_institution(institution_id)
+    can_access = is_object_administrator(institution, user)
+    return can_access or can_access_organ(institution.organ_id, user)  # type: ignore [institution isn't None]
 
 
 def can_access_unit(unit_id: int, user: User) -> bool:
@@ -57,16 +66,9 @@ def can_access_unit(unit_id: int, user: User) -> bool:
     Returns:
         bool: Se o usuário tem permissão para acessar a unidade
     """
-    # TODO: Cabe a ser implementado por quem for cuidar de unidade
-    #   deve verificar tanto se o usuário é um ados administradores, como
-    #   deve verificar se o usuário can_access_institution (pai)
-
-    unit: "Unit" = ...
-    can_access = ...
-    if can_access:
-        return can_access
-    can_access_father = can_access_institution(unit.institution_id, user)
-    return can_access_father
+    unit = database_manager.get_unit(unit_id)
+    can_access = is_object_administrator(unit, user)
+    return can_access or can_access_institution(unit.institution_id, user)  # type: ignore [unit isn't None]
 
 
 def can_access_analysis(analysis_id: int, user: User) -> bool:
@@ -79,16 +81,10 @@ def can_access_analysis(analysis_id: int, user: User) -> bool:
     Returns:
         bool: Se o usuário tem permissão para acessar a analise
     """
-    # TODO: Cabe a ser implementado por quem for cuidar de analise
-    #   deve verificar tanto se o usuário é um ados administradores, como
-    #   deve verificar se o usuário can_access_unit (pai)
 
-    analysis: "Analysis" = ...
-    can_access = ...
-    if can_access:
-        return can_access
-    can_access_father = can_access_unit(analysis.unit_id, user)
-    return can_access_father
+    analysis = database_manager.get_analysis(analysis_id)
+    can_access = is_object_administrator(analysis, user)
+    return can_access or can_access_unit(analysis.unit_id, user)  # type: ignore [analysis isn't None]
 
 
 def can_access_analysis_risk(analysis_risk_id: int, user: User) -> bool:
@@ -101,12 +97,9 @@ def can_access_analysis_risk(analysis_risk_id: int, user: User) -> bool:
     Returns:
         bool: Se usuário especificado tem permissão para acessar a analise
     """
-    analysis_risk: "AnalysisRisk" = ...
-    can_access = ...
-    if can_access:
-        return can_access
-    can_access_father = can_access_analysis(analysis_risk.analysis_id, user)
-    return can_access_father
+    analysis_risk = database_manager.get_analysis_risk(analysis_risk_id)
+    can_access = is_object_administrator(analysis_risk, user)
+    return can_access or can_access_analysis(analysis_risk.analysis_id, user) # type: ignore [analysis_risk isn't None]
 
 
 object_map: Mapping[str, Callable] = {
