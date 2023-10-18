@@ -17,9 +17,8 @@ def get_records():
         logs=all_access_logs,
         pagination=pagination,
         has_prev_page=pagination.has_prev,
-        has_next_page=pagination.has_next
+        has_next_page=pagination.has_next,
     )
-
 
 
 def init_api(app: Flask):

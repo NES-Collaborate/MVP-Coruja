@@ -4,14 +4,7 @@ from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
 
 from .extensions.database import db
-from .models import (
-    Active,
-    ActiveScore,
-    Analysis,
-    Organ,
-    User,
-    organ_administrators,
-)
+from .models import Active, ActiveScore, Analysis, Organ, User, organ_administrators
 
 
 def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:

@@ -122,6 +122,27 @@ class OrganForm(FlaskForm):
     submit = SubmitField("Criar orgão")
 
 
+class InstitutionForm(FlaskForm):
+    """
+    Formulário para criar uma instituição.
+
+    Fields:
+        - csrf_token (HiddenField): O campo oculto para proteção CSRF.
+        - name (str): O campo para inserir o nome da instituição.
+        - address (str): O campo para inserir o endereço da instituição.
+        - description (str): O campo para inserir a descrição da instituição.
+    """
+
+    csrf_token = HiddenField()
+    name = StringField(
+        "Nome", validators=[DataRequired("Este campo é obrigatório")]
+    )
+    address = StringField("Endereço")
+    description = StringField("Descrição")
+    admin_ids = FieldList(HiddenField(), min_entries=1)
+    submit = SubmitField("Criar instituição")
+
+
 class AnalysisForm(FlaskForm):
     """
     Formulário para criar / editar uma análise.
