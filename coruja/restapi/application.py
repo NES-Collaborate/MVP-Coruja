@@ -11,10 +11,8 @@ bp = Blueprint("application", __name__, url_prefix="/app")
 @login_required
 def home():
     form = OrganForm()
-    organs = database_manager.get_organs_by_user_id(current_user.id)
-    institutions = database_manager.get_institutions_by_user_id(
-        current_user.id
-    )
+    organs = database_manager.get_organs(current_user.id)
+    institutions = database_manager.get_institutions(current_user.id)
 
     return render_template(
         "application/home.html",

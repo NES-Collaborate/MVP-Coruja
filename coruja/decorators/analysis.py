@@ -18,7 +18,7 @@ def can_access_organ(organ_id: int, user: User) -> bool:
     Returns:
         bool: Se o usuário tem permissão para acessar o órgão
     """
-    organ = database_manager.get_organ_by_id(organ_id)
+    organ = database_manager.get_organ(organ_id)
     can_access = database_manager.is_organ_administrator(user)
     if can_access:
         return can_access

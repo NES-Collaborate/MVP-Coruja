@@ -2,74 +2,88 @@
 {% set active_page = "home" %}
 
 {% block content %}
-    <div class="px-3 mx-auto my-auto w-75">
-        <div class="text-center">
-            <h2 class="h2 fw-normal mb-4">Órgãos</h2>
-            {% if organs %}
-                <table class = "table table-stripped text-center">
+<div class="px-3 mx-auto my-auto w-75">
+    <div class="text-center">
+        <h2 class="h2 fw-normal mb-4">
+            <i class="bi bi-buildings-fill"></i> 
+            Órgãos
+        </h2>
+
+        {% if organs %}
+            <table class = "table table-stripped text-center">
+                <tr>
+                    <th scope = "col">Nome</th>
+                    <th scope = "col">Endereço</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+
+                {% for organ in organs %}
                     <tr>
-                        <th scope = "col">Nome</th>
-                        <th scope = "col">Endereço</th>
-                        <th></th>
-                        <th></th>
+                        <td>{{ organ.name }}</td>
+                        <td>{{ organ.address }}</td>
+                        <td>
+                            <a href="/orgao/{{ organ.id }}" class="btn btn-outline-info btn-sm">Acessar</a>
+                        </td>
+                        <td>
+                            <a href="/orgao/{{ organ.id }}/editar" class="btn btn-outline-info btn-sm">Editar</a>
+                        </td>
+                        <td>
+
+                        </td>
                     </tr>
-                    {% for organ in organs %}
-                        <tr>
-                            <td>{{ organ.name }}</td>
-                            <td>{{ organ.address }}</td>
-                            <td>
-                                <a href="#" class="btn btn-outline-info btn-sm">Acessar</a>
-                            </td>
-                            <td>
-                                <a href="#" class="btn btn-outline-info btn-sm">Editar</a>
-                            </td>
-                            <td>
+                {% endfor %}
+            </table>
 
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <p>Você não participa de nenhum órgão no momento.</p>
-            {% endif %}
+        {% else %}
+            <p>Você não participa de nenhum órgão no momento.</p>
+        {% endif %}
 
-            {% if current_user.is_adm %}
-                <a href="{{ url_for('application.create_organ') }}" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center mt-4">
-                    <span>Criar Órgão</span>
-                    <span class="ml-2 text-sm">
-                        <i class="fas fa-info-circle"></i>
-                    </span>
-                </a>
-            {% endif %}
+        {% if current_user.is_adm %}
+            <a
+                href="{{ url_for('application.create_organ') }}"
+                class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center mt-4"
+            >
+                <span>Criar Órgão</span>
+                <span class="ml-2 text-sm">
+                    <i class="fas fa-info-circle"></i>
+                </span>
+            </a>
+        {% endif %}
 
-            <h2 class="h2 fw-normal mb-4">Instituições</h2>
-            {% if institutions %}
-                <table class = "table table-stripped text-center">
+        <h2 class="h2 fw-normal mb-4">
+            <i class="bi bi-building-gear"></i> 
+            Instituições
+        </h2>
+        {% if institutions %}
+            <table class = "table table-stripped text-center">
+                <tr>
+                    <th scope = "col">Nome</th>
+                    <th scope = "col">Endereço</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+
+                {% for institution in institutions %}
                     <tr>
-                        <th scope = "col">Nome</th>
-                        <th scope = "col">Endereço</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                    {% for institution in institutions %}
-                        <tr>
-                            <td>{{ institution.name }}</td>
-                            <td>{{ institution.address }}</td>
-                            <td>
-                                <a href="#" class="btn btn-outline-info btn-sm">Acessar</a>
-                            </td>
-                            <td>
-                                <a href="#" class="btn btn-outline-info btn-sm">Editar</a>
-                            </td>
-                            <td>
+                        <td>{{ institution.name }}</td>
+                        <td>{{ institution.address }}</td>
+                        <td>
+                            <a href="#" class="btn btn-outline-info btn-sm">Acessar</a>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-outline-info btn-sm">Editar</a>
+                        </td>
+                        <td>
 
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <p>Você não participa de nenhuma instituição no momento.</p>
-            {% endif %}
-        </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+        {% else %}
+            <p>Você não participa de nenhuma instituição no momento.</p>
+        {% endif %}
     </div>
+</div>
 {% endblock %}

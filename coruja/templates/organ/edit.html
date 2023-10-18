@@ -4,7 +4,7 @@
 <main class="px-3 mx-auto w-50">
     <h3 class="h3 fw-normal mb-3">
         <i class="bi bi-buildings-fill"></i> 
-        Criar Orgão
+        Editar {{ organ.name }}
     </h2>
 
     <div class="card shadow">
@@ -13,7 +13,7 @@
                 {{ form.hidden_tag() }}
 
                 <div class="form-floating mb-3">
-                    {{ form.name(class = "form-control", placeholder="Nome do orgão")}}
+                    {{ form.name(class = "form-control", placeholder="Nome do orgão", value=organ.name)}}
 
                     <label for="floatingName">Nome do orgão</label>
 
@@ -23,7 +23,7 @@
                 </div>
 
                 <div class="form-floating mb-3">
-                    {{ form.cnpj(class = "form-control", placeholder="CNPJ")}}
+                    {{ form.cnpj(class = "form-control", placeholder="CNPJ", value=organ.cnpj)}}
 
                     <label for="floatingCnpj">CNPJ</label>
 
@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="form-floating mb-3">
-                    {{ form.address(class = "form-control", placeholder="Endereço")}}
+                    {{ form.address(class = "form-control", placeholder="Endereço", value=organ.address)}}
 
                     <label for="floatingAddress">Endereço</label>
 
@@ -43,7 +43,7 @@
                 </div>
 
                 <div class="form-floating mb-3">
-                    {{ form.email(class = "form-control", placeholder="E-mail")}}
+                    {{ form.email(class = "form-control", placeholder="E-mail", value=organ.email)}}
 
                     <label for="floatingEmail">E-mail</label>
 
@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="form-floating mb-3">
-                    {{ form.telephone(class = "form-control", placeholder="Telefone")}}
+                    {{ form.telephone(class = "form-control", placeholder="Telefone", value=organ.telephone)}}
 
                     <label for="floatingTelephone">Telefone</label>
 

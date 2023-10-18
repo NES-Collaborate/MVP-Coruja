@@ -18,6 +18,24 @@ from ..utils import database_manager, form_to_dict
 bp = Blueprint("organ", __name__, url_prefix="/orgao")
 
 
+@bp.route("/<int:organ_id>")
+@login_required
+def get_organ(organ_id: int):
+    """Rota para retornar a página de detalhes de um órgão.
+
+    Args:
+        organ_id (int): ID do orgão a ser visualizado.
+    """
+    organ = database_manager.get_organ(organ_id)
+    institutions = database_manager.get_institutions(current_user.id)  # type: ignore
+
+    return render_template(
+        "organ/organ.html",
+        organ=organ,
+        institutions=institutions,
+    )
+
+
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
 def get_post_organ_creation():
@@ -48,6 +66,19 @@ def get_post_organ_creation():
 
         flash("Encontramos um erro ao tentar criar o órgão", "danger")
     return render_template("organ/create.html", form=form)
+
+
+@bp.route("/<int:organ_id>/editar", methods=["GET", "POST"])
+@login_required
+def edit_organ(organ_id: int):
+    form = OrganForm()
+    organ = database_manager.get_organ(organ_id)
+
+    if request.method == "POST":
+        if form.validate_on_submit():
+            # TODO: construir o método update_organ em utils.DatabaseManager
+            ...
+    return render_template("organ/edit.html", form=form, organ=organ)
 
 
 def init_api(app: Flask) -> None:
