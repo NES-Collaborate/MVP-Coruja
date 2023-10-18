@@ -124,6 +124,5 @@ class AnalysisVulnerability(BaseTable):
     analysis_id = db.Column(db.Integer, db.ForeignKey("analysis.id"))
     vulnerability_categories = db.relationship(
         "VulnerabilityCategory",
-        secondary=vulnerability_categories,
-        backref=db.backref("analysis_vulnerabilities", lazy="dynamic"),
+        back_populates="analysis_vulnerability",
     )

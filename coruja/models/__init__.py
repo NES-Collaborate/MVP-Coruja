@@ -18,7 +18,7 @@ from .dangers import (
     VulnerabilitySubCategory,
 )
 from .institution import Institution, institution_administrators, institution_units
-from .organs import Organ, organ_administrators, organ_intitutions
+from .organs import Organ, organ_administrators, organ_institutions
 from .units import Unit, units_administrators, units_staff
 from .users import Permission, Role, User, permissions_roles
 
@@ -40,7 +40,7 @@ __all__ = [
     "AdverseAction",
     "analytics_experts",
     "institution_units",
-    "organ_intitutions",
+    "organ_institutions",
     "permissions_roles",
     "AdverseActionScore",
     "VulnerabilityScore",
