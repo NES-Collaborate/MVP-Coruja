@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, overload
 
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
@@ -31,7 +31,7 @@ class DatabaseManager:
     def __init__(self):
         self.__db = db
 
-    def get_organs_by_user_id(self, user_id: int) -> List[Organ]:
+    def get_organs(self, user_id: int) -> List[Organ]:
         """
         Obtém órgãos associados a um usuário com base em seu ID.
 
@@ -53,7 +53,33 @@ class DatabaseManager:
             .all()
         )
 
-    def get_institutions_by_user_id(self, user_id: int) -> List[Institution]:
+    def get_organ(
+        self,
+        organ_id: int,
+        or_404: bool = True,
+    ) -> Organ | None:
+        """Obtém um orgão com base em seu ID.
+
+        Args:
+            organ_id (int): O ID do orgão.
+            or_404 (bool, optional): Se True, caso não exista um orgão
+                com o ID especificado, `abort(404)`. O padrão é True.
+
+        Returns:
+            Organ: O orgão com o ID especificado.
+            None: Caso não exista um orgão com o ID especificado.
+        """
+        if or_404:
+            message = "Orgão não encontrado"
+            return Organ.query.filter_by(id=organ_id).first_or_404(message)
+
+        return Organ.query.filter_by(id=organ_id).first()
+
+    def update_organ(self, organ: Organ):
+        ...
+
+    @overload
+    def get_institutions(self, user_id: int) -> List[Institution]:
         """
         Obtém instituições associadas a um usuário com base em seu ID.
 
@@ -61,39 +87,81 @@ class DatabaseManager:
             user_id (int): O ID do usuário a ser pesquisado.
 
         Return:
-            list[Institution]: Uma lista de objetos Institution associados ao usuário
-                especificado.
+            list[Institution]: Uma lista de objetos Institution associados ao
+                usuário especificado.
         """
+        ...
+
+    @overload
+    def get_institutions(
+        self,
+        user_id: int,
+        *,
+        organ_id: int,
+    ) -> List[Institution]:
+        """
+        Obtém instituições associadas a um usuário com base em seu ID
+        e que estejam associados a um órgão.
+
+        Params:
+            user_id (int): O ID do usuário a ser pesquisado.
+            organ_id (int): O ID do orgão a ser pesquisado.
+
+        Return:
+            list[Institution]: Uma lista de objetos Institution associados
+                ao usuário e orgão especificado.
+        """
+        ...
+
+    def get_institutions(
+        self,
+        user_id: int,
+        *,
+        organ_id: Optional[int] = None,
+    ) -> List[Institution]:
         user_institution_alias = aliased(institution_administrators)
+
+        if organ_id is None:
+            return (
+                Institution.query.join(
+                    user_institution_alias,
+                    Institution.id == user_institution_alias.c.institution_id,
+                )
+                .filter(user_institution_alias.c.user_id == user_id)
+                .all()
+            )
 
         return (
             Institution.query.join(
                 user_institution_alias,
                 Institution.id == user_institution_alias.c.institution_id,
             )
-            .filter(user_institution_alias.c.user_id == user_id)
+            .filter(
+                user_institution_alias.c.user_id == user_id,
+                user_institution_alias.c.organ_id == organ_id,
+            )
             .all()
         )
 
     def get_analysis_by_id(
-        self, analysis_id: int, or_404: bool = True
-    ) -> Analysis:
-        """Obtém uma análise com base em seu ID
+        self,
+        analysis_id: int,
+        or_404: bool = True,
+    ) -> Analysis | None:
+        """Obtém uma análise com base em seu ID.
 
         Args:
-            analysis_id (int): O ID da análise
-            or_404 (bool, optional): Se True, caso não exista uma análise com o ID
-                especificado, `abort(404)`. Defaults to True.
+            analysis_id (int): O ID da análise.
+            or_404 (bool, optional): Se True, caso não exista uma análise
+                com o ID especificado, `abort(404)`. O padrão é True.
 
         Returns:
-            Analysis: A análise com o ID especificado
-            None: Caso não exista uma análise com o ID especificado
+            Analysis: A análise com o ID especificado.
+            None: Caso não exista uma análise com o ID especificado.
         """
         analysis = (
             Analysis.query.filter_by(id=analysis_id).first_or_404(
-                "Análise não encontrada com o ID especificado ({})".format(
-                    analysis_id
-                )
+                "Análise não encontrada"
             )
             if or_404
             else Analysis.query.filter_by(id=analysis_id).first()
@@ -105,8 +173,8 @@ class DatabaseManager:
 
         Args:
             user_id (int): O ID do usuário
-            or_404 (bool, optional): Se True, caso não exista um usuário com o ID
-                especificado, `abort(404)`. Defaults to True.
+            or_404 (bool, optional): Se True, caso não exista um usuário com
+                o ID especificado, `abort(404)`. Defaults to True.
 
         Returns:
             User: O usuário com o ID especificado
@@ -180,23 +248,30 @@ class DatabaseManager:
         return analysis
 
     def get_actives_by_analysis(
-        self, analysis: Analysis, with_average_scores: bool = True
+        self,
+        analysis: Analysis,
+        with_average_scores: bool = True,
     ) -> List[Active]:
-        """Obtém lista de ativos de uma determinada análise (ou seja, lista de ativos de uma análise de risco que está relacionada com a Análise especificada).
+        """Obtém lista de ativos de uma determinada análise (ou seja, lista
+        de ativos de uma análise de risco que está relacionada com a Análise
+        especificada).
 
         Args:
             analysis (Analysis): Análise
-            with_average_scores (bool, optional): Se True, inclui as médias dos scores dos ativos. Defaults to True.
+            with_average_scores (bool, optional): Se True, inclui as médias
+                dos scores dos ativos. Defaults to True.
 
         Returns:
-            List[Active]: Lista de ativos
+            List[Active]: Lista de ativos.
         """
         analysis_risk = analysis.analysis_risk
         if not analysis_risk:
             return []
+
         actives = Active.query.filter_by(
             analysis_risk_id=analysis_risk.id
         ).all()
+
         if with_average_scores:
             for active in actives:
                 active_scores: List[ActiveScore] = ActiveScore.query.filter_by(
