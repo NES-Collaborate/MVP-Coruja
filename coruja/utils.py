@@ -4,7 +4,15 @@ from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
 
 from .extensions.database import db
-from .models import Active, ActiveScore, Analysis, Organ, User, organ_administrators
+from .models import (
+    Active,
+    ActiveScore,
+    Analysis,
+    AnalysisRisk,
+    Organ,
+    User,
+    organ_administrators,
+)
 
 
 def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
@@ -44,6 +52,28 @@ class DatabaseManager:
             .all()
         )
 
+    def get_organ_by_id(
+        self, organ_id: int, or_404: bool = True
+    ) -> Organ | None:
+        """Obtém um órgão com base em seu ID
+
+        Args:
+            organ_id (int): O ID do órgão
+            or_404 (bool, optional): Se True, caso não exista um organ com o ID especificado, `abort(404)`. Defaults to True.
+
+        Returns:
+            Organ: O objeto om o ID especificado
+        """
+        organ = (
+            Organ.query.filter_by(id=organ_id).first_or_404(
+                f"Orgão não encontrado com o ID especificado ({organ_id})"
+            )
+            if or_404
+            else Organ.query.filter_by(id=organ_id).first()
+        )
+
+        return organ
+
     def get_analysis_by_id(
         self, analysis_id: int, or_404: bool = True
     ) -> Analysis:
@@ -67,7 +97,7 @@ class DatabaseManager:
             if or_404
             else Analysis.query.filter_by(id=analysis_id).first()
         )
-        return analysis
+        return analysis  # type: ignore
 
     def get_user_by_id(self, user_id: int, or_404: bool = True) -> User:
         """Obtém um usuário com base em seu ID
@@ -89,11 +119,12 @@ class DatabaseManager:
             if or_404
             else User.query.filter_by(id=user_id).first()
         )
-        return user
+        return user  # type: ignore
 
     def create_analysis(self, **kwargs) -> Analysis:
         """
         Cria uma nova análise e atribui administradores a ela.
+        Relacionado à esta anaĺise cria Análise de Risco e Análise de Vulnerabilidade
 
         Args:
             description (str): A descrição da análise.
@@ -117,7 +148,7 @@ class DatabaseManager:
     def update_analysis(
         self,
         analysis_id: int,
-        description: str,
+        description: str | None,
         administrators: List[int],
         experts: List[int],
     ) -> Analysis:
@@ -201,7 +232,32 @@ class DatabaseManager:
             organ.add_administrator(administrator)
 
     def is_organ_administrator(self, user: User | Any) -> bool:
+        # TODO: implementar verificação de permission pela role
         return user.role.name == "admin"
+
+    def get_analysis_risk_by_id(
+        self, analysis_risk_id: int, or_404: bool = True
+    ) -> AnalysisRisk:
+        """Obtém uma analise de risco por ID
+
+        Args:
+            analysis_risk_id (int): ID da analise
+            or_404 (bool, optional): Se True, abort(404) caso não exista uma analise de risco com o ID especificado. Defaults to True
+
+        Returns:
+            AnalysisRisk: O objeto de analise
+        """
+        analysis_risk = AnalysisRisk.query.filter_by(
+            id=analysis_risk_id
+        ).first_or_404(
+            "Análise de Risco não encontrada com o ID especificado ({})".format(
+                analysis_risk_id
+            )
+            if or_404
+            else AnalysisRisk.query.filter_by(id=analysis_risk_id).first()
+        )
+
+        return analysis_risk
 
 
 database_manager = DatabaseManager()
