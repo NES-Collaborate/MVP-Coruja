@@ -80,7 +80,6 @@ class Organ(BaseTable):
             self.administrators = []
 
         self.administrators.append(user)
-
         db.session.commit()
 
     def add_institution(self, institution: Institution):
@@ -88,5 +87,4 @@ class Organ(BaseTable):
             self.intitutions = []
 
         self.intitutions.append(institution)
-
         db.session.commit()
