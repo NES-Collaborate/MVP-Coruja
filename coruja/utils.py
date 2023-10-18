@@ -223,7 +223,7 @@ class DatabaseManager:
         description: str | None,
         administrators: List[int],
         experts: List[int],
-    ) -> Analysis:
+    ) -> Analysis | None:
         """Atualiza os dados de uma análise com base em seu ID
 
         Args:
@@ -234,8 +234,11 @@ class DatabaseManager:
 
         Returns:
             Analysis: O objeto de análise atualizado
+            None: Caso não exista uma analise com o ID especificado
         """
         analysis = self.get_analysis_by_id(analysis_id)
+        if not analysis:
+            return None
         analysis.description = description
         analysis.administrators = []
         analysis.experts = []
@@ -312,7 +315,10 @@ class DatabaseManager:
 
     def is_organ_administrator(self, user: User | Any) -> bool:
         # TODO: implementar verificação de permission pela role
-        return user.role.name == "admin"
+        role = user.role
+        if not role:
+            return False
+        return role.name == "admin"
 
     def get_analysis_risk_by_id(
         self, analysis_risk_id: int, or_404: bool = True
