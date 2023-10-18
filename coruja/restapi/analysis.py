@@ -10,7 +10,7 @@ bp = Blueprint("analysis", __name__, url_prefix="/analise")
 @bp.route("/<int:analysis_id>")
 @login_required
 def get_analysis(analysis_id: int):
-    analysis = database_manager.get_analysis_by_id(analysis_id)
+    analysis = database_manager.get_analysis(analysis_id)
     # TODO: Criar métodos para retornar uma lista de experts com seus respectivos
     # "progressos" dentro de uma determinada análise (notasDadas/notasPossíveis)
     experts = analysis.experts
@@ -23,7 +23,7 @@ def get_analysis(analysis_id: int):
 @login_required
 def edit_analysis(analysis_id: int):
     form = AnalysisForm()
-    analysis = database_manager.get_analysis_by_id(analysis_id)
+    analysis = database_manager.get_analysis(analysis_id)
 
     if form.validate_on_submit():
         description = form.description.data
