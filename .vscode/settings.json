@@ -37,6 +37,19 @@
     "flask_session",
     "flask_sqlalchemy"
   ],
+  "python.analysis.extraPaths": [
+    "flask",
+    "wtforms",
+    "dynaconf",
+    "werkezeug",
+    "flask_wtf",
+    "sqlalchemy",
+    "flask_cors",
+    "flask_login",
+    "flask_session",
+    "flask_sqlalchemy"
+  ],
+  "python.analysis.autoImportCompletions": true,
   "python.terminal.focusAfterLaunch": true,
   "python.terminal.executeInFileDir": false,
   "python.terminal.activateEnvironment": true,
@@ -44,10 +57,8 @@
 
   // Configuração do Isort
   "isort.check": true,
-  // "isort.showNotifications": "always",
   "isort.importStrategy": "fromEnvironment",
 
   // Configurações do Black Formatter
-  // "black-formatter.showNotifications": "always",
   "black-formatter.importStrategy": "fromEnvironment"
 }
