@@ -1,68 +1,163 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <main class="px-3 mx-auto w-50">
-        <h3 class="h3 fw-normal mb-3"><i class="bi bi-building-add"></i> Criar orgão</h2>
-        <div class="card shadow">
-            <div class="card-body">
-                <form method="POST" autocomplete="off">
-                    {{ form.hidden_tag() }}
+<main class="px-3 mx-auto w-50">
+    <h3 class="h3 fw-normal mb-3"><i class="bi bi-building-add"></i> Criar orgão</h2>
+    <div class="card shadow">
+        <div class="card-body">
+            <form method="POST" autocomplete="off">
+                {{ form.hidden_tag() }}
 
-                    <div class="form-floating mb-3">
-                        {{ form.name(class = "form-control", placeholder="Nome do orgão")}}
+                <div class="form-floating mb-3">
+                    {{ form.name(class = "form-control", placeholder="Nome do orgão")}}
+                
+                    <label for="floatingName">Nome do orgão</label>
+                
+                    {% for error in form.name.errors %}
+                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-floating mb-3">
+                    {{ form.cnpj(class = "form-control", placeholder="CNPJ")}}
+                
+                    <label for="floatingCnpj">CNPJ</label>
+                
+                    {% for error in form.cnpj.errors %}
+                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-floating mb-3">
+                    {{ form.address(class = "form-control", placeholder="Endereço")}}
+                
+                    <label for="floatingAddress">Endereço</label>
+                
+                    {% for error in form.address.errors %}
+                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-floating mb-3">
+                    {{ form.email(class = "form-control", placeholder="E-mail")}}
+                
+                    <label for="floatingEmail">E-mail</label>
+                
+                    {% for error in form.email.errors %}
+                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-floating mb-3">
+                    {{ form.telephone(class = "form-control", placeholder="Telefone")}}
+                
+                    <label for="floatingTelephone">Telefone</label>
+                
+                    {% for error in form.telephone.errors %}
+                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4 position-relative">
+                    <label for="admin_autocomplete" class="form-label">
+                        <i class="bi bi-person-search me-2"></i>
+                        Administradores desse orgão
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="admin_autocomplete"
+                        placeholder="Pesquisar por admins..."
+                    >
                     
-                        <label for="floatingName">Nome do orgão</label>
-                    
-                        {% for error in form.name.errors %}
-                            <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                        {% endfor %}
+                    <div id="loading" class="position-absolute top-100 start-0 d-none">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
                     </div>
 
-                    <div class="form-floating mb-3">
-                        {{ form.cnpj(class = "form-control", placeholder="CNPJ")}}
-                    
-                        <label for="floatingCnpj">CNPJ</label>
-                    
-                        {% for error in form.cnpj.errors %}
-                            <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                        {% endfor %}
-                    </div>
+                    <div id="result-container" class="position-absolute w-100 bg-light rounded-bottom"></div>
+                </div>
 
-                    <div class="form-floating mb-3">
-                        {{ form.address(class = "form-control", placeholder="Endereço")}}
-                    
-                        <label for="floatingAddress">Endereço</label>
-                    
-                        {% for error in form.address.errors %}
-                            <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                        {% endfor %}
-                    </div>
+                <ul id="selected_admins" class="list-group mt-2 rounded">
+                    <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                        data-id="{{ current_user.id }}"
+                    >
+                        {{ current_user.name }} [{{ current_user.cpf_censored }}] (você mesmo)
 
-                    <div class="form-floating mb-3">
-                        {{ form.email(class = "form-control", placeholder="E-mail")}}
-                    
-                        <label for="floatingEmail">E-mail</label>
-                    
-                        {% for error in form.email.errors %}
-                            <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                        {% endfor %}
-                    </div>
+                        <span class="badge bg-info">Administrador</span>
+                    </li>
+                </ul>
 
-                    <div class="form-floating mb-3">
-                        {{ form.telephone(class = "form-control", placeholder="Telefone")}}
-                    
-                        <label for="floatingTelephone">Telefone</label>
-                    
-                        {% for error in form.telephone.errors %}
-                            <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="text-center">
-                        {{ form.submit(class = "btn btn-primary w-100") }}
-                    </div>
-                </form>
-            <div>
+                <input
+                    type="hidden"
+                    name="admin_ids-{{ current_user.id }}"
+                    value="{{ current_user.id }}"
+                    id="admin_ids-{{ current_user.id }}"
+                />
+                
+                <div class="text-center mt-3">
+                    {{ form.submit(class = "btn btn-primary w-100") }}
+                </div>
+            </form>
         <div>
-    </main>
+    <div>
+</main>
+
+<script>
+    $(document).ready(() => {
+        const current_id = '{{ current_user.id }}';
+        const selectedAdmins = [parseInt(current_id)];
+
+        $('#admin_autocomplete').autocomplete({
+            appendTo: "#result-container",
+            source: (request, response) => {
+                $("#loading").removeClass("d-none");
+
+                $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
+                    response(data.users);
+                    $("#loading").addClass("d-none");
+                });
+            },
+            focus: (event, ui) => {
+                return false;
+            },
+            select: (event, ui) => {
+                if (selectedAdmins.includes(ui.item.id)) return false;
+                selectedAdmins.push(ui.item.id);
+
+                const adminItem = $(`
+                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${ui.item.id}">
+                    ${ui.item.name} <span class="badge bg-secondary">${ui.item.title || "Sem título"}</span>
+                    <button class="remove-admin btn btn-outline-danger btn-sm">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </li>
+                `);
+                $('#selected_admins').append(adminItem);
+                $(`<input type="hidden" name="admin_ids-${ui.item.id}" value="${ui.item.id}" id="admin_ids-${ui.item.id}" />`)
+                    .appendTo('#analysis-form');
+
+                return false;
+            }
+        }).data("ui-autocomplete")._renderItem = (ul, item) => {
+            const listItem = $("<li>").appendTo(ul);
+            const div = $("<div>").addClass("d-flex justify-content-between align-items-center").appendTo(listItem);
+            const name = $("<span>").text(item.name).appendTo(div);
+            const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
+
+            return listItem;
+        };
+
+        $(document).on('click', '.remove-admin', () {
+            const listItem = $(this).closest('li');
+            const id = listItem.data('id');
+            selectedAdmins = selectedAdmins.filter(adminId => adminId !== id);
+            listItem.remove();
+            $(`#admin_ids-${id}`).remove();
+        });
+    });
+</script>
 {% endblock %}
