@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">
+        <i class="bi bi-buildings-fill"></i> 
+        {{ organ.name }}
+    </h2>
+
+    <!-- Informações Gerais do Orgão -->
+    <div class="row">
+        <div class="card-shadow">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> 
+                    Informações Gerais
+                </div>
+    
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Endereço:</strong> 
+                                {{ organ.address }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>CNPJ:</strong> 
+                                {{ organ.cnpj }}
+                            </p>
+                        </div>
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>E-mail:</strong> 
+                                {{ organ.email }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Telefone:</strong> 
+                                {{ organ.telephone }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="px-3 mx-auto my-auto w-75">
+            <div class="text-center">
+                <h2 class="h2 fw-normal mb-4">
+                    <i class="bi bi-building-gear"></i> 
+                    Instituições
+                </h2>
+        
+                {% if institutions %}
+                    <table class = "table table-stripped text-center">
+                        <tr>
+                            <th scope = "col">Nome</th>
+                            <th scope = "col">Endereço</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+        
+                        {% for institution in institutions %}
+                            <tr>
+                                <td>{{ institution.name }}</td>
+                                
+                                <td>{{ institution.address }}</td>
+                                
+                                <td>
+                                    <a href="#" class="btn btn-outline-info btn-sm">
+                                        Acessar
+                                    </a>
+                                </td>
+                                
+                                <td>
+                                    <a href="#" class="btn btn-outline-info btn-sm">
+                                        Editar
+                                    </a>
+                                </td>
+
+                                <td>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                {% else %}
+                    <p>Você não participa de nenhum órgão no momento.</p>
+                {% endif %}
+        
+                {% if current_user.is_adm %}
+                    <a
+                        href="{{ url_for('application.create_organ') }}"
+                        class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center mt-4"
+                    >
+                        <span>Criar Órgão</span>
+                        <span class="ml-2 text-sm">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
