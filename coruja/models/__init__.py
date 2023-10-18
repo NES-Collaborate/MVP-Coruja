@@ -1,6 +1,8 @@
 from .actives import Active, ActiveScore
 from .analysis import (
     Analysis,
+    AnalysisRisk,
+    AnalysisVulnerability,
     analytics_administrators,
     analytics_experts,
     vulnerability_categories,
@@ -33,6 +35,7 @@ __all__ = [
     "units_staff",
     "Institution",
     "ActiveScore",
+    "AnalysisRisk",
     "Vulnerability",
     "AdverseAction",
     "analytics_experts",
@@ -43,6 +46,7 @@ __all__ = [
     "VulnerabilityScore",
     "units_administrators",
     "organ_administrators",
+    "AnalysisVulnerability",
     "VulnerabilityCategory",
     "vulnerability_categories",
     "VulnerabilitySubCategory",
