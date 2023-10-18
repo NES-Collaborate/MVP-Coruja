@@ -4,13 +4,20 @@ from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
 
 from .extensions.database import db
-from .models import Active, ActiveScore, Analysis, Organ, User, organ_administrators
+from .models import (
+    Active,
+    ActiveScore,
+    Analysis,
+    Organ,
+    User,
+    organ_administrators,
+)
 
 
 def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
     _new_form = {}
     for atributte in dir(form):
-        if callable(getattr(form, atributte)) or atributte.startswith("__"):
+        if callable(getattr(form, atributte)) or atributte.startswith("_"):
             continue
 
         _new_form[atributte] = getattr(form, atributte)
@@ -183,16 +190,22 @@ class DatabaseManager:
         return actives
 
     def add_organ(self, **kwargs) -> None:
+        """Adiciona um órgão ao banco de dados e atribui administradores
+        especificados a ele.
+
+        Args:
+            **kwargs (dict): Argumentos de palavra-chave contendo os atributos
+                do órgão a ser adicionado e os IDs dos administradores.
+        """
         administrators = kwargs.pop("administrators", [])
         organ = Organ(**kwargs)
 
         self.__db.session.add(organ)
         self.__db.session.commit()
 
-        organ.administrators.extend(administrators)
-
-        self.__db.session.commit()
-        self.__db.session.commit()
+        for administrator_id in administrators:
+            administrator = self.get_user_by_id(administrator_id)
+            organ.add_administrator(administrator)
 
     def is_organ_administrator(self, user: User | Any) -> bool:
         return user.role.name == "admin"
