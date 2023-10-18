@@ -9,13 +9,13 @@ from .models import (
     ActiveScore,
     Analysis,
     AnalysisRisk,
+    AnalysisVulnerability,
     Institution,
     Organ,
     Unit,
     User,
     institution_administrators,
     organ_administrators,
-    AnalysisVulnerability
 )
 
 
@@ -400,8 +400,10 @@ class DatabaseManager:
         )
 
         return analysis_risk
-    
-    def get_analysis_vulnerability(self, analysis_vulnerability_id: int, or_404: bool = True) -> AnalysisVulnerability | None:
+
+    def get_analysis_vulnerability(
+        self, analysis_vulnerability_id: int, or_404: bool = True
+    ) -> AnalysisVulnerability | None:
         """Obtém uma analise de vulnerabilidade por ID
 
         Args:
@@ -411,16 +413,18 @@ class DatabaseManager:
         Returns:
             AnalysisVulnerability: O objeto de analise de vulnerabilidade
             None: Caso não exista uma analise de vulnerabilidade com o ID especificado
-        
+
         Raises:
             NotFoundError: Se `or_404=True` e a analise de vulnerabilidade não foi encontrada
         """
         analysis_vulnerability = (
-            AnalysisVulnerability.query.filter_by(id=analysis_vulnerability_id).first_or_404(
-                "Análise de Vulnerabilidade.Undefinida"
-            )
+            AnalysisVulnerability.query.filter_by(
+                id=analysis_vulnerability_id
+            ).first_or_404("Análise de Vulnerabilidade não encontrada")
             if or_404
-            else AnalysisVulnerability.query.filter_by(id=analysis_vulnerability_id).first()
+            else AnalysisVulnerability.query.filter_by(
+                id=analysis_vulnerability_id
+            ).first()
         )
         return analysis_vulnerability
 
