@@ -11,9 +11,17 @@ bp = Blueprint("application", __name__, url_prefix="/app")
 @login_required
 def home():
     form = OrganForm()
-    orgaos = database_manager.get_organs_by_user_id(current_user.id)  # type: ignore
+    organs = database_manager.get_organs_by_user_id(current_user.id)
+    institutions = database_manager.get_institutions_by_user_id(
+        current_user.id
+    )
 
-    return render_template("application/home.html", orgaos=orgaos, form=form)
+    return render_template(
+        "application/home.html",
+        organs=organs,
+        institutions=institutions,
+        form=form,
+    )
 
 
 def init_api(app: Flask) -> None:

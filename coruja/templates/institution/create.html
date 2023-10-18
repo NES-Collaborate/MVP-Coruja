@@ -2,16 +2,16 @@
 
 {% block content %}
 <main class="px-3 mx-auto w-50">
-    <h3 class="h3 fw-normal mb-3"><i class="bi bi-building-add"></i> Criar orgão</h2>
+    <h3 class="h3 fw-normal mb-3"><i class="bi bi-building-add"></i> Criar instituição</h2>
     <div class="card shadow">
         <div class="card-body">
             <form method="POST" autocomplete="off">
                 {{ form.hidden_tag() }}
 
                 <div class="form-floating mb-3">
-                    {{ form.name(class = "form-control", placeholder="Nome do orgão")}}
+                    {{ form.name(class = "form-control", placeholder="Nome da instituição")}}
 
-                    <label for="floatingName">Nome do orgão</label>
+                    <label for="floatingName">Nome da instituição</label>
 
                     {% for error in form.name.errors %}
                         <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
@@ -61,7 +61,7 @@
                 <div class="mb-4 position-relative">
                     <label for="admin_autocomplete" class="form-label">
                         <i class="bi bi-person-search me-2"></i>
-                        Administradores desse orgão
+                        Administradores dessa instituição
                     </label>
 
                     <input
