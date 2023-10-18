@@ -4,7 +4,16 @@ from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
 
 from .extensions.database import db
-from .models import Active, ActiveScore, Analysis, Organ, User, organ_administrators
+from .models import (
+    Active,
+    ActiveScore,
+    Analysis,
+    Institution,
+    Organ,
+    User,
+    institution_administrators,
+    organ_administrators,
+)
 
 
 def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
@@ -41,6 +50,28 @@ class DatabaseManager:
                 Organ.id == organ_admin_alias.c.organ_id,
             )
             .filter(organ_admin_alias.c.user_id == user_id)
+            .all()
+        )
+
+    def get_institutions_by_user_id(self, user_id: int) -> List[Institution]:
+        """
+        Obtém instituições associadas a um usuário com base em seu ID.
+
+        Params:
+            user_id (int): O ID do usuário a ser pesquisado.
+
+        Return:
+            list[Institution]: Uma lista de objetos Institution associados ao usuário
+                especificado.
+        """
+        user_institution_alias = aliased(institution_administrators)
+
+        return (
+            Institution.query.join(
+                user_institution_alias,
+                Institution.id == user_institution_alias.c.institution_id,
+            )
+            .filter(user_institution_alias.c.user_id == user_id)
             .all()
         )
 
