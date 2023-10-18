@@ -2,7 +2,6 @@ from datetime import datetime
 
 from flask import Flask, flash, redirect, request, url_for
 from flask_login import current_user
-
 from werkzeug.exceptions import Forbidden, NotFound
 
 from ..extensions.auth import login_manager
