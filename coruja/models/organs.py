@@ -21,8 +21,8 @@ organ_administrators = db.Table(
     ),
 )
 
-organ_intitutions = db.Table(
-    "organ_intitutions",
+organ_institutions = db.Table(
+    "organ_institutions",
     db.Column(
         "organ_id",
         db.Integer,
@@ -54,7 +54,7 @@ class Organ(BaseTable):
 
     intitutions = db.relationship(
         "Institution",
-        secondary=organ_intitutions,
+        secondary=organ_institutions,
         backref=db.backref("organs", lazy=True),
     )
 
