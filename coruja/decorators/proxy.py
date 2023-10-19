@@ -99,7 +99,26 @@ def can_access_analysis_risk(analysis_risk_id: int, user: User) -> bool:
     """
     analysis_risk = database_manager.get_analysis_risk(analysis_risk_id)
     can_access = is_object_administrator(analysis_risk, user)
-    return can_access or can_access_analysis(analysis_risk.analysis_id, user) # type: ignore [analysis_risk isn't None]
+    return can_access or can_access_analysis(analysis_risk.analysis_id, user)  # type: ignore [analysis_risk isn't None]
+
+
+def can_access_analysis_vulnerability(
+    analysis_vulnerability_id: int, user: User
+) -> bool:
+    """Verifica se o usuário tem permissão para acessar a vulnerabilidade
+
+    Args:
+        analysis_vulnerability_id (int): ID da vulnerabilidade
+        user (User): Usuário a ser verificado
+
+    Returns:
+        bool: Se o usuário tem permissão para acessar a vulnerabilidade
+    """
+    analysis_vulnerability = database_manager.get_analysis_vulnerability(
+        analysis_vulnerability_id
+    )
+    can_access = is_object_administrator(analysis_vulnerability, user)
+    return can_access or can_access_analysis(analysis_vulnerability.analysis_id, user)  # type: ignore [analysis_vulnerability isn't None]
 
 
 object_map: Mapping[str, Callable] = {
@@ -108,6 +127,7 @@ object_map: Mapping[str, Callable] = {
     "unit": can_access_unit,
     "analysis": can_access_analysis,
     "analysis_risk": can_access_analysis_risk,
+    "analysis_vulnerability": can_access_analysis_vulnerability,
     # TODO: Adicionar mais objetos
 }
 
@@ -121,6 +141,17 @@ def proxy_access(
 ) -> Callable:
     """Verifica se o usuário tem permissão para acessar o objeto correspondente
 
+    O ID do objeto deve algum argumento que termine com `_id`, ou seja, sua rota
+    fica parecida com isto:
+
+
+    ```
+    @bp.route("/<int:example_id>")
+    @proxy_access(kind_object="example", kind_access="read")
+    def get_organ(example_id: int):
+        ...
+    ```
+
     Args:
         function (Callable): Funcionalidade
         kind_object (str): Tipo do objeto. Ex: `organ`, `instituition`, etc.
@@ -133,6 +164,9 @@ def proxy_access(
 
     Returns:
         Callable: Funcionalidade modificada
+
+    Raises:
+        KeyError: Caso o ID do objeto não seja encontrado entre as `kwargs`
     """
     # TODO: implementar os diferentes tipos de access
     message = (
@@ -149,7 +183,10 @@ def proxy_access(
             if obj_class is None:
                 abort(403, message)
 
-            obj_id = args[0]
+            ids = [kwargs[_id] for _id in kwargs if _id.endswith("_id")]
+            if not ids:
+                raise KeyError("ID do objeto não encontrado")
+            obj_id = ids[0]
             can_access = obj_class(obj_id, user)  # type: ignore
             if can_access:
                 return function(*args, **kwargs)
