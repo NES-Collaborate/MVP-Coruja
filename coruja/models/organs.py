@@ -3,39 +3,8 @@ from typing import Optional
 from ..extensions.database import db
 from .configurations import BaseTable
 from .institution import Institution
+from .relationships import organ_administrators, organ_institutions
 from .users import User
-
-organ_administrators = db.Table(
-    "organ_administrators",
-    db.Column(
-        "organ_id",
-        db.Integer,
-        db.ForeignKey("organ.id"),
-        primary_key=True,
-    ),
-    db.Column(
-        "user_id",
-        db.Integer,
-        db.ForeignKey("user.id"),
-        primary_key=True,
-    ),
-)
-
-organ_institutions = db.Table(
-    "organ_institutions",
-    db.Column(
-        "organ_id",
-        db.Integer,
-        db.ForeignKey("organ.id"),
-        primary_key=True,
-    ),
-    db.Column(
-        "institution_id",
-        db.Integer,
-        db.ForeignKey("institution.id"),
-        primary_key=True,
-    ),
-)
 
 
 class Organ(BaseTable):

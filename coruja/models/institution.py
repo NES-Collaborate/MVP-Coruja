@@ -2,27 +2,9 @@ from typing import Optional
 
 from ..extensions.database import db
 from .configurations import BaseTable
+from .relationships import institution_administrators, institution_units
 from .units import Unit
 from .users import User
-
-institution_administrators = db.Table(
-    "institution_administrators",
-    db.Column("institution_id", db.Integer, db.ForeignKey("institution.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-)
-
-institution_units = db.Table(
-    "institution_units",
-    db.Column(
-        "institution_id",
-        db.Integer,
-        db.ForeignKey("institution.id"),
-        primary_key=True,
-    ),
-    db.Column(
-        "unit_id", db.Integer, db.ForeignKey("unit.id"), primary_key=True
-    ),
-)
 
 
 class Institution(BaseTable):

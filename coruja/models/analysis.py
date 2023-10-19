@@ -3,19 +3,8 @@ from typing import Optional
 from ..extensions.database import db
 from .actives import Active
 from .configurations import BaseTable
+from .relationships import analytics_administrators, analytics_experts
 from .users import User
-
-analytics_administrators = db.Table(
-    "analytics_administrators",
-    db.Column("analysis_id", db.Integer, db.ForeignKey("analysis.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-)
-
-analytics_experts = db.Table(
-    "analytics_experts",
-    db.Column("analysis_id", db.Integer, db.ForeignKey("analysis.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-)
 
 
 class Analysis(BaseTable):
@@ -32,7 +21,6 @@ class Analysis(BaseTable):
         secondary=analytics_experts,
         backref=db.backref("analytics_experted", lazy="dynamic"),
     )
-
     analysis_risk = db.relationship(
         "AnalysisRisk",
         backref="analysis",
@@ -109,21 +97,6 @@ class AnalysisRisk(BaseTable):
         """
         self.analysis_id = analysis_id
         self.is_template = is_template
-
-
-vulnerability_categories = db.Table(
-    "vulnerability_categories",
-    db.Column(
-        "analysis_vulnerability_id",
-        db.Integer,
-        db.ForeignKey("analysis_vulnerability.id"),
-    ),
-    db.Column(
-        "vulnerability_category_id",
-        db.Integer,
-        db.ForeignKey("vulnerability_category.id"),
-    ),
-)
 
 
 class AnalysisVulnerability(BaseTable):

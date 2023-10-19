@@ -2,25 +2,8 @@ from typing import Optional
 
 from ..extensions.database import db
 from .configurations import BaseTable
+from .relationships import unit_analysis, units_administrators, units_staff
 from .users import User
-
-units_administrators = db.Table(
-    "units_administrators",
-    db.Column("unit_id", db.Integer, db.ForeignKey("unit.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-)
-
-units_staff = db.Table(
-    "units_staff",
-    db.Column("unit_id", db.Integer, db.ForeignKey("unit.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-)
-
-unit_analysis = db.Table(
-    "unit_analysis",
-    db.Column("unit_id", db.Integer, db.ForeignKey("unit.id")),
-    db.Column("analysis_id", db.Integer, db.ForeignKey("analysis.id")),
-)
 
 
 class Unit(BaseTable):

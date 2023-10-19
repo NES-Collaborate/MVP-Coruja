@@ -1,12 +1,5 @@
 from .actives import Active, ActiveScore
-from .analysis import (
-    Analysis,
-    AnalysisRisk,
-    AnalysisVulnerability,
-    analytics_administrators,
-    analytics_experts,
-    vulnerability_categories,
-)
+from .analysis import Analysis, AnalysisRisk, AnalysisVulnerability
 from .configurations import AccessLog
 from .dangers import (
     AdverseAction,
@@ -17,9 +10,23 @@ from .dangers import (
     VulnerabilityScore,
     VulnerabilitySubCategory,
 )
-from .institution import Institution, institution_administrators, institution_units
-from .organs import Organ, organ_administrators, organ_institutions
-from .units import Unit, units_administrators, units_staff
+from .institution import (
+    Institution,
+    institution_administrators,
+    institution_units,
+)
+from .organs import Organ
+from .relationships import (
+    analytics_administrators,
+    analytics_experts,
+    organ_administrators,
+    organ_institutions,
+    unit_analysis,
+    units_administrators,
+    units_staff,
+    vulnerability_categories,
+)
+from .units import Unit
 from .users import Permission, Role, User, permissions_roles
 
 __all__ = [
@@ -37,11 +44,12 @@ __all__ = [
     "ActiveScore",
     "AnalysisRisk",
     "Vulnerability",
+    "unit_analysis",
     "AdverseAction",
     "analytics_experts",
     "institution_units",
-    "organ_institutions",
     "permissions_roles",
+    "organ_institutions",
     "AdverseActionScore",
     "VulnerabilityScore",
     "units_administrators",
