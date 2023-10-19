@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
+from flask import Blueprint, Flask, render_template, request
 from flask_login import login_required
 
 from ..models import AccessLog
