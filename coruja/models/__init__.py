@@ -21,13 +21,14 @@ from .relationships import (
     analytics_experts,
     organ_administrators,
     organ_institutions,
+    permissions_roles,
     unit_analysis,
     units_administrators,
     units_staff,
     vulnerability_categories,
 )
 from .units import Unit
-from .users import Permission, Role, User, permissions_roles
+from .users import Permission, Role, User
 
 __all__ = [
     "User",
