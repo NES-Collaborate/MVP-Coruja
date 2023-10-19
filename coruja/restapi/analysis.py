@@ -54,13 +54,13 @@ def edit_analysis(analysis_id: int):
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
 # @proxy_access(kind_object="analysis", kind_access="create")
-def create_analysis():
+def add_analysis():
     form = AnalysisForm()
     if form.validate_on_submit():
         description = form.description.data
         admin_ids = form.admin_ids.data
 
-        analysis = database_manager.create_analysis(
+        analysis = database_manager.add_analysis(
             description=description, administrators=admin_ids
         )
 

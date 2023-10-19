@@ -62,13 +62,20 @@ class Institution(BaseTable):
         self.telephone = telephone
         self.is_template = is_template
 
-    def add_administrator(self, user: "User"):
+    def add_administrator(self, user: "User", commit_changes: bool = True):
+        """Adiciona um administrador a uma instituição
+
+        Args:
+            user (User): Usuário a ser adicionado
+            commit_changes (bool, optional): Se True, salva as alterações no banco.
+        """
         if not self.administrators:
             self.administrators = []
 
         self.administrators.append(user)
 
-        db.session.commit()
+        if commit_changes:
+            db.session.commit()
 
     def add_unit(self, unit: Unit):
         if not self.units:
