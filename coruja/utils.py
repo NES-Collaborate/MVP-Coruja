@@ -248,7 +248,7 @@ class DatabaseManager:
         )
         return user  # type: ignore
 
-    def create_analysis(self, **kwargs) -> Analysis:
+    def add_analysis(self, **kwargs) -> Analysis:
         """
         Cria uma nova análise e atribui administradores a ela.
         Relacionado à esta anaĺise cria Análise de Risco e Análise de Vulnerabilidade
@@ -268,6 +268,16 @@ class DatabaseManager:
             new_analysis.add_administrator(admin, commit_changes=False)
 
         self.__db.session.add(new_analysis)
+        self.__db.session.commit()
+
+        new_analysis_risk = AnalysisRisk(analysis_id=new_analysis.id)
+        self.__db.session.add(new_analysis_risk)
+        self.__db.session.commit()
+
+        new_analysis_vulnerability = AnalysisVulnerability(
+            analysis_id=new_analysis.id
+        )
+        self.__db.session.add(new_analysis_vulnerability)
         self.__db.session.commit()
 
         return new_analysis
@@ -367,6 +377,32 @@ class DatabaseManager:
         for administrator_id in administrators:
             administrator = self.get_user(administrator_id)
             organ.add_administrator(administrator)
+
+    def add_institution(self, **kwargs) -> Institution:
+        """Adiciona uma instituição ao banco de dados e atribui administradores
+        especificados a ela.
+
+        Args:
+            **kwargs (dict): Argumentos de palavra-chave contendo os atributos
+                da instituição a ser adicionada e os IDs dos administradores.
+            administrators (List[int]): Lista de IDs dos administradores
+
+        Returns:
+            Institution: A instituição adicionada ao banco de dados.
+        """
+
+        administrators = kwargs.pop("administrators", [])
+        institution = Institution(**kwargs)
+
+        self.__db.session.add(institution)
+        self.__db.session.commit()
+
+        for administrator_id in administrators:
+            administrator = self.get_user(administrator_id)
+            institution.add_administrator(administrator)
+
+        self.__db.session.commit()
+        return institution
 
     def is_organ_administrator(self, user: User | Any) -> bool:
         # TODO: implementar verificação de permission pela role
