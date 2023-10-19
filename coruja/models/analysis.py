@@ -101,6 +101,12 @@ class AnalysisRisk(BaseTable):
     )
 
     def __init__(self, analysis_id: int, is_template: Optional[bool] = False):
+        """Construtor de AnalysisRisk
+
+        Args:
+            analysis_id (int): ID da analise (pai)
+            is_template (bool, optional): Se True, constrói como template. Defaults to False.
+        """
         self.analysis_id = analysis_id
         self.is_template = is_template
 
@@ -126,3 +132,11 @@ class AnalysisVulnerability(BaseTable):
         "VulnerabilityCategory",
         back_populates="analysis_vulnerability",
     )
+
+    def __init__(self, *, analysis_id: int) -> None:
+        """Construtor de AnalysisVulnerability
+
+        Args:
+            analysis_id (int): ID da análise (pai)
+        """
+        self.analysis_id = analysis_id
