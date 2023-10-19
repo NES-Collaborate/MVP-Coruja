@@ -76,11 +76,9 @@ class Organ(BaseTable):
         self.is_template = is_template
 
     def add_administrator(self, user: User):
-        if not self.administrators:
-            self.administrators = []
-
-        self.administrators.append(user)
-        db.session.commit()
+        if user not in self.administrators:  # type: ignore
+            self.administrators.append(user)
+            db.session.commit()
 
     def add_institution(self, institution: Institution):
         if not self.intitutions:
