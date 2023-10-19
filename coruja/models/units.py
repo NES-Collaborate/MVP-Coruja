@@ -16,9 +16,22 @@ units_staff = db.Table(
     db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
 )
 
+unit_analysis = db.Table(
+    "unit_analysis",
+    db.Column("unit_id", db.Integer, db.ForeignKey("unit.id")),
+    db.Column("analysis_id", db.Integer, db.ForeignKey("analysis.id")),
+)
+
 
 class Unit(BaseTable):
     description = db.Column(db.String)
+    is_template = db.Column(db.Boolean, default=False)
+
+    analysis = db.relationship(
+        "Analysis",
+        secondary=unit_analysis,
+        backref=db.backref("units", lazy="dynamic"),
+    )
     administrators = db.relationship(
         "User",
         secondary=units_administrators,
@@ -29,8 +42,6 @@ class Unit(BaseTable):
         secondary=units_staff,
         backref=db.backref("units_staffed", lazy="dynamic"),
     )
-
-    is_template = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
