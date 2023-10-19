@@ -146,8 +146,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-
+{% block javascript %}
 <script>
     $(document).ready(() => {
         const current_id = '{{ current_user.id }}';
