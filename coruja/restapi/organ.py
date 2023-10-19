@@ -71,13 +71,24 @@ def get_post_organ_creation():
 @bp.route("/<int:organ_id>/editar", methods=["GET", "POST"])
 @login_required
 def edit_organ(organ_id: int):
+    """Rota para edição de orgão específico pelo seu ID.
+
+    Args:
+        organ_id (int): ID do orgão a ser editado.
+    """
     form = OrganForm()
     organ = database_manager.get_organ(organ_id)
 
-    if request.method == "POST":
-        if form.validate_on_submit():
-            # TODO: construir o método update_organ em utils.DatabaseManager
-            ...
+    if form.validate_on_submit() and organ:
+        form = form_to_dict(form)["data"]
+        form.pop("csrf_token", None)
+        form.pop("submit", None)
+
+        if organ := database_manager.update_organ(organ, form):
+            flash("Orgão atualizada com sucesso", "success")
+            return redirect(url_for("organ.get_organ", organ_id=organ.id))
+
+        flash("Ocorreu um erro ao atualizar o orgão", "danger")
     return render_template("organ/edit.html", form=form, organ=organ)
 
 
