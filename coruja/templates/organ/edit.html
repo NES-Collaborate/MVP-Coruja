@@ -1,125 +1,164 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<main class="px-3 mx-auto w-50">
-    <h3 class="h3 fw-normal mb-3">
-        <i class="bi bi-buildings-fill"></i> 
-        Editar {{ organ.name }}
+<div class="container">
+    <h2 class="mb-4">
+        <i class="bi bi-pencil-square"></i> 
+        Editar Orgão
     </h2>
 
     <div class="card shadow">
         <div class="card-body">
-            <form method="POST" autocomplete="off">
+            <form id="organ-form" method="post">
                 {{ form.hidden_tag() }}
 
-                <div class="form-floating mb-3">
-                    {{ form.name(class = "form-control", placeholder="Nome do orgão", value=organ.name)}}
+                <div class="mb-4">
+                    <label for="description" class="form-label">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Informações Gerais
+                    </label>
 
-                    <label for="floatingName">Nome do orgão</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                {{ form.name(class="form-control", placeholder="Nome do orgão", value=organ.name) }}
 
-                    {% for error in form.name.errors %}
-                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                    {% endfor %}
-                </div>
+                                <label for="floatingName">Nome do orgão</label>
 
-                <div class="form-floating mb-3">
-                    {{ form.cnpj(class = "form-control", placeholder="CNPJ", value=organ.cnpj)}}
+                                {% for error in form.name.errors %}
+                                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                {{ form.cnpj(class="form-control", placeholder="CNPJ", value=organ.cnpj) }}
 
-                    <label for="floatingCnpj">CNPJ</label>
+                                <label for="floatingCnpj">CNPJ</label>
 
-                    {% for error in form.cnpj.errors %}
-                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                    {% endfor %}
-                </div>
+                                {% for error in form.cnpj.errors %}
+                                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="form-floating mb-3">
-                    {{ form.address(class = "form-control", placeholder="Endereço", value=organ.address)}}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                {{ form.address(class="form-control", placeholder="Endereço", value=organ.address) }}
 
-                    <label for="floatingAddress">Endereço</label>
+                                <label for="floatingAddress">Endereço</label>
 
-                    {% for error in form.address.errors %}
-                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                    {% endfor %}
-                </div>
+                                {% for error in form.address.errors %}
+                                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                {{ form.email(class="form-control", placeholder="E-mail", value=organ.email) }}
 
-                <div class="form-floating mb-3">
-                    {{ form.email(class = "form-control", placeholder="E-mail", value=organ.email)}}
+                                <label for="floatingEmail">E-mail</label>
 
-                    <label for="floatingEmail">E-mail</label>
+                                {% for error in form.email.errors %}
+                                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
 
-                    {% for error in form.email.errors %}
-                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                    {% endfor %}
-                </div>
+                    <div class="row">
+                        <div class="col-md-6 mx-auto">
+                            <div class="form-floating mb-3">
+                                {{ form.telephone(class="form-control", placeholder="Telefone", value=organ.telephone) }}
 
-                <div class="form-floating mb-3">
-                    {{ form.telephone(class = "form-control", placeholder="Telefone", value=organ.telephone)}}
+                                <label for="floatingTelephone">Telefone</label>
 
-                    <label for="floatingTelephone">Telefone</label>
+                                {% for error in form.telephone.errors %}
+                                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
 
-                    {% for error in form.telephone.errors %}
-                        <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
-                    {% endfor %}
                 </div>
 
                 <div class="mb-4 position-relative">
                     <label for="admin_autocomplete" class="form-label">
-                        <i class="bi bi-person-search me-2"></i>
-                        Administradores desse orgão
+                        <i class="bi bi-person-search me-2"></i> 
+                        Administradores da <strong>{{ organ.name }}</strong>
                     </label>
 
                     <input
                         type="text"
                         class="form-control"
                         id="admin_autocomplete"
-                        placeholder="Pesquisar por admins..."
+                        placeholder="Pesquisar por administradores..."
                     >
 
                     <div id="loading" class="position-absolute top-100 start-0 d-none">
                         <div class="spinner-border spinner-border-sm text-primary" role="status">
-                            <span class="visually-hidden">Carregando...</span>
+                            <span class="visually-hidden">
+                                Carregando...
+                            </span>
                         </div>
                     </div>
 
-                    <div id="result-container" class="position-absolute w-100 bg-light rounded-bottom"></div>
+                    <div
+                        id="result-container"
+                        class="position-absolute w-100 bg-light rounded-bottom"
+                    ></div>
                 </div>
 
                 <ul id="selected_admins" class="list-group mt-2 rounded">
-                    <li
-                        class="list-group-item d-flex justify-content-between align-items-center"
-                        data-id="{{ current_user.id }}"
-                    >
-                        {{ current_user.name }} [{{ current_user.cpf_censored }}] (você mesmo)
+                    {% for administrator in organ.administrators %}
+                        <li
+                            class="list-group-item d-flex justify-content-between align-items-center"
+                            data-id="{{ administrator.id }}"
+                        >
+                            {{ administrator.name }} [{{ administrator.cpf_censored }}] 
 
-                        <span class="badge bg-info">Administrador</span>
-                    </li>
+                            <span class="badge bg-secondary">
+                                {{ administrator.title or 'Sem Título'}}
+                            </span>
+
+                            <button class="remove-admin btn btn-outline-danger btn-sm {{ 'disabled' if current_user.id == administrator.id else '' }}">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </button>
+                    {% endfor %}
                 </ul>
 
-                <input
-                    type="hidden"
-                    name="admin_ids-{{ current_user.id }}"
-                    value="{{ current_user.id }}"
-                    id="admin_ids-{{ current_user.id }}"
-                />
+                {% for administrator in organ.administrators %}
+                    <input
+                        type="hidden"
+                        name="admin_ids-{{ administrator.id }}"
+                        value="{{ administrator.id }}"
+                        id="admin_ids-{{ administrator.id }}"
+                    />
+                {% endfor %}
 
-                <div class="text-center mt-3">
-                    {{ form.submit(class = "btn btn-primary w-100") }}
-                </div>
+                <button type="submit" class="btn btn-primary mt-4">
+                    <i class="bi bi-save me-2"></i> 
+                    Salvar Alterações
+                </button>
             </form>
-        <div>
-    <div>
-</main>
+        </div>
+    </div>
+</div>
+
 
 <script>
     $(document).ready(() => {
         const current_id = '{{ current_user.id }}';
-        const selectedAdmins = [parseInt(current_id)];
-
+        let selectedAdmins = [parseInt(current_id)];
+    
+        console.log(selectedAdmins)
         $('#admin_autocomplete').autocomplete({
             appendTo: "#result-container",
             source: (request, response) => {
                 $("#loading").removeClass("d-none");
-
+    
                 $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
                     response(data.users);
                     $("#loading").addClass("d-none");
@@ -131,7 +170,7 @@
             select: (event, ui) => {
                 if (selectedAdmins.includes(ui.item.id)) return false;
                 selectedAdmins.push(ui.item.id);
-
+    
                 const adminItem = $(`
                 <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${ui.item.id}">
                     ${ui.item.name} <span class="badge bg-secondary">${ui.item.title || "Sem título"}</span>
@@ -140,10 +179,12 @@
                     </button>
                 </li>
                 `);
+
                 $('#selected_admins').append(adminItem);
+
                 $(`<input type="hidden" name="admin_ids-${ui.item.id}" value="${ui.item.id}" id="admin_ids-${ui.item.id}" />`)
                     .appendTo('#analysis-form');
-
+    
                 return false;
             }
         }).data("ui-autocomplete")._renderItem = (ul, item) => {
@@ -151,16 +192,66 @@
             const div = $("<div>").addClass("d-flex justify-content-between align-items-center").appendTo(listItem);
             const name = $("<span>").text(item.name).appendTo(div);
             const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
-
+    
             return listItem;
         };
-
+    
         $(document).on('click', '.remove-admin', () => {
             const listItem = $(this).closest('li');
             const id = listItem.data('id');
             selectedAdmins = selectedAdmins.filter(adminId => adminId !== id);
             listItem.remove();
             $(`#admin_ids-${id}`).remove();
+        });
+    });
+
+    $(document).ready(function () {
+        var expert_ids = '[{{ organ.experts | map(attribute="id") | join(", ") }}]';
+        var selectedExperts = JSON.parse(expert_ids);
+
+        $('#expert_autocomplete').autocomplete({
+            appendTo: "#result-container_expert",
+            source: function (request, response) {
+                $("#loading_expert").removeClass("d-none");
+                $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, function (data) {
+                    response(data.users);
+                    $("#loading_expert").addClass("d-none");
+                });
+            },
+            focus: function (event, ui) {
+                return false;
+            },
+            select: function (event, ui) {
+                if (selectedExperts.includes(ui.item.id)) return false;
+                selectedExperts.push(ui.item.id);
+                const expertItem = $(`
+                    <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${ui.item.id}">
+                        ${ui.item.name} <span class="badge bg-secondary">${ui.item.title || "Sem título"}</span>
+                        <button class="remove-expert btn btn-outline-danger btn-sm">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </li>
+                `);
+
+                $('#selected_experts').append(expertItem);
+
+                $(`<input type="hidden" name="expert_ids-${ui.item.id}" value="${ui.item.id}" id="expert_ids-${ui.item.id}" />`).appendTo('#organ-form');
+                return false;
+            }
+        }).data("ui-autocomplete")._renderItem = function (ul, item) {
+            const listItem = $("<li>").appendTo(ul);
+            const div = $("<div>").addClass("d-flex justify-content-between align-items-center").appendTo(listItem);
+            const name = $("<span>").text(item.name).appendTo(div);
+            const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
+            return listItem;
+        };
+
+        $(document).on('click', '.remove-expert', function () {
+            const listItem = $(this).closest('li');
+            const id = listItem.data('id');
+            selectedExperts = selectedExperts.filter(expertId => expertId !== id);
+            listItem.remove();
+            $(`#expert_ids-${id}`).remove();
         });
     });
 </script>

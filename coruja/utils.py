@@ -78,8 +78,23 @@ class DatabaseManager:
 
         return Organ.query.filter_by(id=organ_id).first()
 
-    def update_organ(self, organ: Organ):
-        ...
+    def update_organ(
+        self,
+        organ: Organ,
+        form: Dict[str, Any],
+    ) -> Organ:
+        administrators: List[int] = form.pop("admin_ids", [])
+
+        for key, value in form.items():
+            setattr(organ, key, value)
+
+        for administrator_id in administrators:
+            administrator = self.get_user(administrator_id)
+            organ.add_administrator(administrator)
+
+        db.session.commit()
+
+        return organ
 
     @overload
     def get_institutions(self, user_id: int) -> List[Institution]:
@@ -418,7 +433,8 @@ class DatabaseManager:
 
         Args:
             analysis_risk_id (int): ID da analise
-            or_404 (bool, optional): Se True, abort(404) caso não exista uma analise de risco com o ID especificado. Defaults to True
+            or_404 (bool, optional): Se True, abort(404) caso não exista uma analise de
+                risco com o ID especificado. Defaults to True
 
         Returns:
             AnalysisRisk: O objeto de analise
