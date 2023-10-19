@@ -12,6 +12,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
+from ..decorators import proxy_access
 from ..forms import OrganForm
 from ..utils import database_manager, form_to_dict
 
@@ -20,6 +21,7 @@ bp = Blueprint("organ", __name__, url_prefix="/orgao")
 
 @bp.route("/<int:organ_id>")
 @login_required
+@proxy_access(kind_object="organ", kind_access="read")
 def get_organ(organ_id: int):
     """Rota para retornar a página de detalhes de um órgão.
 
@@ -38,6 +40,8 @@ def get_organ(organ_id: int):
 
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
+# @proxy_access(kind_object="organ", kind_access="create")
+# basicamente está comentado pois não foi implementado uma verificação via permissions da role (ainda)
 def get_post_organ_creation():
     """
     Rota para criar um novo órgão.
@@ -70,6 +74,7 @@ def get_post_organ_creation():
 
 @bp.route("/<int:organ_id>/editar", methods=["GET", "POST"])
 @login_required
+@proxy_access(kind_object="organ", kind_access="update")
 def edit_organ(organ_id: int):
     form = OrganForm()
     organ = database_manager.get_organ(organ_id)
