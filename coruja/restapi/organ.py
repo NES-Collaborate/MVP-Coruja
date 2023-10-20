@@ -42,7 +42,7 @@ def get_organ(organ_id: int):
 @login_required
 # @proxy_access(kind_object="organ", kind_access="create")
 # basicamente está comentado pois não foi implementado uma verificação via permissions da role (ainda)
-def get_post_organ_creation():
+def create_organ():
     """
     Rota para criar um novo órgão.
 

@@ -96,9 +96,9 @@
                     <p>Você não participa de nenhum órgão no momento.</p>
                 {% endif %}
         
-                {% if current_user.is_adm %}
+                {% if current_user.role.name == 'admin' %}
                     <a
-                        href="{{ url_for('application.create_organ') }}"
+                        href="{{ url_for('organ.create_organ') }}"
                         class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center mt-4"
                     >
                         <span>Criar Órgão</span>

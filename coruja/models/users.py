@@ -7,6 +7,7 @@ from flask_login import UserMixin
 
 from ..extensions.database import db
 from .configurations import BaseTable
+from .relationships import permissions_roles
 
 
 class Permission(BaseTable):
@@ -25,13 +26,6 @@ class Permission(BaseTable):
         self.label = label
         self.type = type
         self.description = description
-
-
-permissions_roles = db.Table(
-    "permissions_roles",
-    db.Column("role_id", db.String, db.ForeignKey("role.id")),
-    db.Column("permission_id", db.String, db.ForeignKey("permission.id")),
-)
 
 
 class Role(BaseTable):
@@ -86,11 +80,11 @@ class User(BaseTable, UserMixin):
         last_seen: Optional[datetime] = None,
         role: Optional[Role] = None,
     ):
+        _password = hashpw(password.encode("utf-8"), gensalt())
+        self.password = _password.decode("utf-8")
+
         self.name = name
         self.cpf = cpf
-        self.password = hashpw(password.encode("utf-8"), gensalt()).decode(
-            "utf-8"
-        )
         self.email_personal = email_personal
         self.email_professional = email_professional
         self.address = address
@@ -101,6 +95,10 @@ class User(BaseTable, UserMixin):
     @property
     def telephones(self):
         return json.loads(self._telephones) if self._telephones else []
+
+    @property
+    def cpf_censored(self) -> str:
+        return self.__censor_cpf(self.cpf)
 
     @telephones.setter
     def telephones(self, value) -> None:
@@ -122,25 +120,31 @@ class User(BaseTable, UserMixin):
         return checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
     def as_dict(
-        self, filter_params: Optional[list] = [], censor_cpf: bool = True
+        self,
+        filter_params: Optional[list] = [],
+        censor_cpf: bool = True,
     ) -> dict:
-        """Retorna um dicionário com os atributos da classe
+        """Retorna um dicionário com os atributos da classe.
 
         Args:
-            filter_params (Optional[list], optional): Especifica os campos que devem ser
-                retornados, quando vazio retorna todos. Defaults to [].
-            censor_cpf (bool, optional): Se True, censura o CPF. Defaults to True.
+            filter_params (Optional[list], optional): Especifica os campos que
+                devem ser retornados, quando vazio retorna todos. O padrão é [].
+            censor_cpf (bool, optional): Se True, censura o CPF. O padrão é True.
 
         Returns:
-            dict: Dicionário com os atributos da classe
+            dict: Dicionário com os atributos da classe.
         """
-        return {
-            c.name: self.__censor_cpf(getattr(self, c.name))
-            if c.name == "cpf" and censor_cpf
-            else getattr(self, c.name)
-            for c in self.__table__.columns
-            if c.name in filter_params and filter_params
-        }
+        result = {}
+        for column in self.__table__.columns:  # type: ignore
+            if filter_params and column.name in filter_params:
+                if censor_cpf and column.name == "cpf":
+                    result[column.name] = self.__censor_cpf(
+                        getattr(self, column.name)
+                    )
+                else:
+                    result[column.name] = getattr(self, column.name)
+
+        return result
 
     def __censor_cpf(self, cpf: str) -> str:
         """
@@ -156,7 +160,3 @@ class User(BaseTable, UserMixin):
             str: O CPF censurado.
         """
         return f"{cpf[:3]}.***.**{cpf[-3]}-{cpf[-2:]}"
-
-    @property
-    def cpf_censored(self) -> str:
-        return self.__censor_cpf(self.cpf)

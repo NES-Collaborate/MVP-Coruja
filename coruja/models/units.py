@@ -2,23 +2,19 @@ from typing import Optional
 
 from ..extensions.database import db
 from .configurations import BaseTable
+from .relationships import unit_analysis, units_administrators, units_staff
 from .users import User
-
-units_administrators = db.Table(
-    "units_administrators",
-    db.Column("unit_id", db.Integer, db.ForeignKey("unit.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-)
-
-units_staff = db.Table(
-    "units_staff",
-    db.Column("unit_id", db.Integer, db.ForeignKey("unit.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-)
 
 
 class Unit(BaseTable):
     description = db.Column(db.String)
+    is_template = db.Column(db.Boolean, default=False)
+
+    analysis = db.relationship(
+        "Analysis",
+        secondary=unit_analysis,
+        backref=db.backref("units", lazy="dynamic"),
+    )
     administrators = db.relationship(
         "User",
         secondary=units_administrators,
@@ -29,8 +25,6 @@ class Unit(BaseTable):
         secondary=units_staff,
         backref=db.backref("units_staffed", lazy="dynamic"),
     )
-
-    is_template = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
