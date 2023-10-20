@@ -1,0 +1,38 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<div class="container">
+    <h1>Access changes</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>object_old</th>
+                <th>object_new</th>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for change in changes %}
+                <tr>
+                    <td>{{ change.user.name }}</td>
+                    <td>{{ change.object_old }}</td>
+                    <td>{{ change.object_new }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.get_changes', page=pagination.page-1) }}">Anterior</a>
+            </li>
+            <li class="page-item {% if not has_next_page %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.get_changes', page=pagination.page+1) }}">Próximo</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+{% endblock %}

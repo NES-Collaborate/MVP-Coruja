@@ -1,6 +1,6 @@
 from .actives import Active, ActiveScore
 from .analysis import Analysis, AnalysisRisk, AnalysisVulnerability
-from .configurations import AccessLog
+from .configurations import AccessLog, Change
 from .dangers import (
     AdverseAction,
     AdverseActionScore,
@@ -57,4 +57,5 @@ __all__ = [
     "VulnerabilitySubCategory",
     "analytics_administrators",
     "institution_administrators",
+    "Change",
 ]
