@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h2 class="mb-4">
-        <i class="bi bi-buildings-fill"></i> 
+<div class="container my-5">
+    <h2 class="mb-4 text-center">
+        <i class="bi bi-buildings-fill"></i>
         {{ organ.name }}
     </h2>
 
@@ -11,36 +11,36 @@
         <div class="col-md-12">
             <div class="card shadow">
                 <div class="card-header">
-                    <i class="bi bi-info-circle"></i> 
+                    <i class="bi bi-info-circle"></i>
                     Informações Gerais
                 </div>
-    
+
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <p>
-                                <strong>Endereço:</strong> 
+                                <strong>Endereço:</strong>
                                 {{ organ.address }}
                             </p>
                         </div>
                         <div class="col-md-6">
                             <p>
-                                <strong>CNPJ:</strong> 
+                                <strong>CNPJ:</strong>
                                 {{ organ.cnpj }}
                             </p>
                         </div>
                     </div>
-    
+
                     <div class="row">
                         <div class="col-md-6">
                             <p>
-                                <strong>E-mail:</strong> 
+                                <strong>E-mail:</strong>
                                 {{ organ.email }}
                             </p>
                         </div>
                         <div class="col-md-6">
                             <p>
-                                <strong>Telefone:</strong> 
+                                <strong>Telefone:</strong>
                                 {{ organ.telephone }}
                             </p>
                         </div>
@@ -53,55 +53,131 @@
     <div class="row mt-5">
         <div class="col-md-12">
             <h2 class="h2 fw-normal mb-4 text-center">
-                <i class="bi bi-building-gear"></i> 
-                Instituições
+                <i class="bi bi-building-gear"></i> Instituições
             </h2>
-        
-            {% if institutions %}
-                <table class="table table-striped text-center">
-                    <thead>
-                        <tr>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Endereço</th>
-                            <th colspan="2">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for institution in institutions %}
-                            <tr>
-                                <td>{{ institution.name }}</td>
-                                <td>{{ institution.address }}</td>
-                                <td>
-                                    <a href="{{ url_for('institution.get_institution', institution_id=institution.id) }}" class="btn btn-outline-info btn-sm">
-                                        Acessar
-                                    </a>
-                                    <a href="{{ url_for('institution.edit_institution', institution_id=institution.id) }}" class="btn btn-outline-info btn-sm">
-                                        Editar
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
 
-            {% else %}
-                <p class="text-center">A organização {{ organ.name }} não possui instituições associadas.</p>
-            {% endif %}
-        
+            <!-- Botão para criar nova instituição -->
             {% if current_user.role.name == 'admin' %}
-                <div class="text-center">
-                    <a
-                        href="{{ url_for('institution.create_institution') }}"
-                        class="btn btn-primary mb-3"
-                    >
-                        <span>Criar Instituição</span>
-                        <span class="ms-2">
-                            <i class="bi bi-plus"></i>
-                        </span>
-                    </a>
-                </div>
+            <div class="text-center mb-4">
+                <a href="{{ url_for('institution.create_institution') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle-fill"></i> Criar Instituição
+                </a>
+            </div>
             {% endif %}
+
+            <!-- Input para pesquisa de instituição -->
+            {% if institutions %}
+            <input type="text" id="institutionSearchBar" class="form-control mb-4"
+                placeholder="Pesquisar instituição pelo nome...">
+            {% endif %}
+
+            <!-- Cards de Instituições -->
+            <div id="institutionCards" class="row">
+                {% if institutions %}
+                {% for institution in institutions %}
+                <div class="col-md-4 mb-4 institution-card">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h5 class="card-title institution-name">{{ institution.name }}</h5>
+                            <p class="card-text">{{ institution.address }}</p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('institution.get_institution', institution_id=institution.id) }}"
+                                    class="btn btn-outline-info">
+                                    <i class="bi bi-box-arrow-in-right"></i> Acessar
+                                </a>
+                                <a href="{{ url_for('institution.edit_institution', institution_id=institution.id) }}"
+                                    class="btn btn-outline-primary">
+                                    <i class="bi bi-pencil-fill"></i> Editar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-center w-100">A organização {{ organ.name }} não possui instituições associadas.</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const institutionSearchBar = document.getElementById('institutionSearchBar');
+        const institutionCards = document.querySelectorAll('.institution-card');
+
+        if (institutionSearchBar) {
+            institutionSearchBar.addEventListener('input', function () {
+                const query = institutionSearchBar.value.toLowerCase();
+
+                institutionCards.forEach(function (card) {
+                    const nomeInstituicao = card.querySelector('.institution-name').innerText.toLowerCase();
+                    if (nomeInstituicao.includes(query)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(() => {
+        const current_id = '{{ current_user.id }}';
+        const selectedAdmins = [parseInt(current_id)];
+
+        $('#admin_autocomplete').autocomplete({
+            appendTo: "#result-container",
+            source: (request, response) => {
+                $("#loading").removeClass("d-none");
+
+                $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
+                    response(data.users);
+                    $("#loading").addClass("d-none");
+                });
+            },
+            focus: (event, ui) => {
+                return false;
+            },
+            select: (event, ui) => {
+                if (selectedAdmins.includes(ui.item.id)) return false;
+                selectedAdmins.push(ui.item.id);
+
+                const adminItem = $(`
+                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${ui.item.id}">
+                    ${ui.item.name} <span class="badge bg-secondary">${ui.item.title || "Sem título"}</span>
+                    <button class="remove-admin btn btn-outline-danger btn-sm">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </li>
+                `);
+                $('#selected_admins').append(adminItem);
+                $(`<input type="hidden" name="admin_ids-${ui.item.id}" value="${ui.item.id}" id="admin_ids-${ui.item.id}" />`)
+                    .appendTo('#analysis-form');
+
+                return false;
+            }
+        }).data("ui-autocomplete")._renderItem = (ul, item) => {
+            const listItem = $("<li>").appendTo(ul);
+            const div = $("<div>").addClass("d-flex justify-content-between align-items-center").appendTo(listItem);
+            const name = $("<span>").text(item.name).appendTo(div);
+            const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
+
+            return listItem;
+        };
+
+        $(document).on('click', '.remove-admin', () => {
+            const listItem = $(this).closest('li');
+            const id = listItem.data('id');
+            selectedAdmins = selectedAdmins.filter(adminId => adminId !== id);
+            listItem.remove();
+            $(`#admin_ids-${id}`).remove();
+        });
+    });
+</script>
 {% endblock %}
