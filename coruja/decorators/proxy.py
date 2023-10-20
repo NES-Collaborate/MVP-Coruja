@@ -123,7 +123,7 @@ def can_access_analysis_vulnerability(
 
 object_map: Mapping[str, Callable] = {
     "organ": can_access_organ,
-    "instituition": can_access_institution,
+    "institution": can_access_institution,
     "unit": can_access_unit,
     "analysis": can_access_analysis,
     "analysis_risk": can_access_analysis_risk,

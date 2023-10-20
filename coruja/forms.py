@@ -131,6 +131,7 @@ class InstitutionForm(FlaskForm):
         - name (str): O campo para inserir o nome da instituição.
         - address (str): O campo para inserir o endereço da instituição.
         - description (str): O campo para inserir a descrição da instituição.
+        - cnpj (str, optional): O campo para inserir o CNPJ da instituição.
     """
 
     csrf_token = HiddenField()
@@ -138,7 +139,32 @@ class InstitutionForm(FlaskForm):
         "Nome", validators=[DataRequired("Este campo é obrigatório")]
     )
     address = StringField("Endereço")
-    description = StringField("Descrição")
+    cnpj = StringField(
+        "CNPJ",
+        validators=[
+            Regexp(
+                r"^\d{2}.\d{3}.\d{3}\/\d{4}-\d{2}$",
+                message="Insira um CNPJ válido",
+            )
+        ],
+    )
+    email = EmailField(
+        "E-mail",
+        validators=[
+            DataRequired("Este campo é obrigatório"),
+            Email("Digite um endereço de e-mail válido"),
+        ],
+    )
+    telephone = StringField(
+        "Telefone",
+        validators=[
+            DataRequired("Este campo é obrigatório"),
+            Regexp(
+                r"^\(\d{2,3}\) \d{4,5}-\d{4}$",
+                message="Formato de telefone inválido. Use (99) 99999-9999.",
+            ),
+        ],
+    )
     admin_ids = FieldList(HiddenField(), min_entries=1)
     submit = SubmitField("Criar instituição")
 

@@ -7,10 +7,9 @@
         {{ organ.name }}
     </h2>
 
-    <!-- Informações Gerais do Orgão -->
     <div class="row">
-        <div class="card-shadow">
-            <div class="card">
+        <div class="col-md-12">
+            <div class="card shadow">
                 <div class="card-header">
                     <i class="bi bi-info-circle"></i> 
                     Informações Gerais
@@ -52,62 +51,56 @@
     </div>
 
     <div class="row mt-5">
-        <div class="px-3 mx-auto my-auto w-75">
-            <div class="text-center">
-                <h2 class="h2 fw-normal mb-4">
-                    <i class="bi bi-building-gear"></i> 
-                    Instituições
-                </h2>
+        <div class="col-md-12">
+            <h2 class="h2 fw-normal mb-4 text-center">
+                <i class="bi bi-building-gear"></i> 
+                Instituições
+            </h2>
         
-                {% if institutions %}
-                    <table class = "table table-stripped text-center">
+            {% if institutions %}
+                <table class="table table-striped text-center">
+                    <thead>
                         <tr>
-                            <th scope = "col">Nome</th>
-                            <th scope = "col">Endereço</th>
-                            <th></th>
-                            <th></th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Endereço</th>
+                            <th colspan="2">Ações</th>
                         </tr>
-        
+                    </thead>
+                    <tbody>
                         {% for institution in institutions %}
                             <tr>
                                 <td>{{ institution.name }}</td>
-                                
                                 <td>{{ institution.address }}</td>
-                                
                                 <td>
-                                    <a href="#" class="btn btn-outline-info btn-sm">
+                                    <a href="{{ url_for('institution.get_institution', institution_id=institution.id) }}" class="btn btn-outline-info btn-sm">
                                         Acessar
                                     </a>
-                                </td>
-                                
-                                <td>
-                                    <a href="#" class="btn btn-outline-info btn-sm">
+                                    <a href="{{ url_for('institution.edit_institution', institution_id=institution.id) }}" class="btn btn-outline-info btn-sm">
                                         Editar
                                     </a>
                                 </td>
-
-                                <td>
-                                </td>
                             </tr>
                         {% endfor %}
-                    </table>
+                    </tbody>
+                </table>
 
-                {% else %}
-                    <p>Você não participa de nenhum órgão no momento.</p>
-                {% endif %}
+            {% else %}
+                <p class="text-center">A organização {{ organ.name }} não possui instituições associadas.</p>
+            {% endif %}
         
-                {% if current_user.role.name == 'admin' %}
+            {% if current_user.role.name == 'admin' %}
+                <div class="text-center">
                     <a
-                        href="{{ url_for('organ.create_organ') }}"
-                        class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center mt-4"
+                        href="{{ url_for('institution.create_institution') }}"
+                        class="btn btn-primary mb-3"
                     >
-                        <span>Criar Órgão</span>
-                        <span class="ml-2 text-sm">
-                            <i class="fas fa-info-circle"></i>
+                        <span>Criar Instituição</span>
+                        <span class="ms-2">
+                            <i class="bi bi-plus"></i>
                         </span>
                     </a>
-                {% endif %}
-            </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
