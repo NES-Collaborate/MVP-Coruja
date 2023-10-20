@@ -12,12 +12,10 @@ bp = Blueprint("application", __name__, url_prefix="/app")
 def home():
     form = OrganForm()
     organs = database_manager.get_organs(getattr(current_user, "id"))
-    institutions = database_manager.get_institutions(getattr(current_user, "id"))
 
     return render_template(
         "application/home.html",
         organs=organs,
-        institutions=institutions,
         form=form,
     )
 
