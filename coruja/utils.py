@@ -414,7 +414,7 @@ class DatabaseManager:
 
         for administrator_id in administrators:
             administrator = self.get_user(administrator_id)
-            institution.add_administrator(administrator)
+            institution.add_administrator(administrator, commit_changes=False)
 
         self.__db.session.commit()
         return institution

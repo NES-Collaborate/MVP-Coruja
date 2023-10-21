@@ -12,7 +12,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from ..decorators import proxy_access
+from ..decorators import can_access_institution, proxy_access
 from ..forms import OrganForm
 from ..utils import database_manager, form_to_dict
 
@@ -29,7 +29,8 @@ def get_organ(organ_id: int):
         organ_id (int): ID do orgão a ser visualizado.
     """
     organ = database_manager.get_organ(organ_id)
-    institutions = database_manager.get_institutions(current_user.id)  # type: ignore
+
+    institutions = [institution for institution in organ.institutions if can_access_institution(institution.id, current_user)]  # type: ignore [organ and current_user aren't None]
 
     return render_template(
         "organ/organ.html",

@@ -12,7 +12,7 @@
     {% if current_user.role.name == 'admin' %}
         <div class="position-fixed bottom-0 end-0 m-5">
             <a
-            href="{{ url_for('institution.create_institution') }}"
+            href="{{ url_for('institution.create_institution', parent_id=organ.id) }}"
             class="btn btn-primary m-5 btn-lg btn-circle" 
             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Instituição"
             >

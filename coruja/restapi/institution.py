@@ -23,13 +23,12 @@ def create_institution():
     if not parent_id:
         flash("Órgão não especificado", "danger")
         return redirect(url_for("application.home"))
-    
-    @proxy_access(kind_object="organ", kind_access="update")
-    def get_organ(parent_id: int):
-        return database_manager.get_organ(parent_id)
-    
-    organ = get_organ(parent_id)
 
+    @proxy_access(kind_object="organ", kind_access="update")
+    def get_organ(*, organ_id: int):
+        return database_manager.get_organ(organ_id)
+
+    organ = get_organ(organ_id=parent_id)
 
     if request.method == "POST" and form.validate_on_submit():
         institution_data = form_to_dict(form)["data"]
@@ -42,7 +41,7 @@ def create_institution():
             administrators=administrators,
         )
 
-        organ.add_institution(institution) # type: ignore [organ isn't None]
+        organ.add_institution(institution)  # type: ignore [organ isn't None]
 
         flash(
             f"Instituição {institution_data.get('name')!r} criada com sucesso",
