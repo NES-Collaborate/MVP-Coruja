@@ -1,19 +1,19 @@
-{% extends "base.html" %}
-{% from "macros.html" import render_form %}
+{% extends 'base.html' %}
+{% from 'macros.html' import render_form %}
 
 {% block content %}
-<div class="container my-4 px-3 mx-auto w-50">
+<main class="container my-4 px-3 mx-auto w-50">
     <h3 class="h3 fw-normal mb-3">
-        <i class="bi bi-pencil-square"></i> 
-        Editar {{organ.name}}
+        <i class="bi bi-buildings-fill"></i> 
+        Criar Unidade
     </h3>
 
-    <div class="card shadow">
+    <div class="card shadow mb-3">
         <div class="card-body">
-            {{ render_form(form, current_user, True) }}
-        </div>
-    </div>
-</div>
+            {{ render_form(form, current_user, False) }}
+        <div>
+    <div>
+</main>
 {% endblock %}
 
 {% block javascript %}
@@ -25,8 +25,11 @@
         $('#admin_autocomplete').autocomplete({
             appendTo: "#result-container",
             source: (request, response) => {
+                $("#loading").removeClass("d-none");
+
                 $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
                     response(data.users);
+                    $("#loading").addClass("d-none");
                 });
             },
             focus: (event, ui) => {
