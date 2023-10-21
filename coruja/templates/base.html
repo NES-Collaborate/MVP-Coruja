@@ -66,7 +66,7 @@
                             </a>
                         {% else %}
                             <a 
-                                class="nav-link text-white {{ 'active' if active_page == 'login' else '' }}" 
+                                class="nav-link text {{ 'active' if active_page == 'login' else '' }}" 
                                 href="{{ url_for('auth.login') }}" 
                             >
                                 Entrar

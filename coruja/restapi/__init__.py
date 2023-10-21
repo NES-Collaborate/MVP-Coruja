@@ -19,4 +19,3 @@ def init_apis(app: Flask) -> None:
     init_admin(app)
     init_institution(app)
     init_unit(app)
-

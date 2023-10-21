@@ -63,14 +63,13 @@ def get_institution(institution_id: int):
     """
 
     institution = database_manager.get_institution(institution_id)
-    #units = database_manager.get_units(current_user.id)
+    # units = database_manager.get_units(current_user.id)
     units = None
 
     return render_template(
-        "institution/institution.html",
-        institution = institution,
-        units = units
-        )
+        "institution/institution.html", institution=institution, units=units
+    )
+
 
 @bp.route("/<int:institution_id>/editar", methods=["GET", "POST"])
 @login_required
@@ -87,7 +86,9 @@ def edit_institution(institution_id: int):
 
     # TODO: Checagem do submit do form
 
-    return render_template("institution/edit.html", form = form, institution = institution)
+    return render_template(
+        "institution/edit.html", form=form, institution=institution
+    )
 
 
 def init_api(app: Flask) -> None:
