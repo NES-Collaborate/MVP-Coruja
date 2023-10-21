@@ -42,7 +42,7 @@ def get_organ(organ_id: int):
 @login_required
 # @proxy_access(kind_object="organ", kind_access="create")
 # basicamente está comentado pois não foi implementado uma verificação via permissions da role (ainda)
-def create_organ():
+def get_post_organ_creation():
     """
     Rota para criar um novo órgão.
 
@@ -81,8 +81,8 @@ def edit_organ(organ_id: int):
     Args:
         organ_id (int): ID do orgão a ser editado.
     """
-    form = OrganForm()
     organ = database_manager.get_organ(organ_id)
+    form = OrganForm(obj=organ)
 
     if form.validate_on_submit() and organ:
         form = form_to_dict(form)["data"]

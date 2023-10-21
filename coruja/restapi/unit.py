@@ -21,7 +21,7 @@ bp = Blueprint("unit", __name__, url_prefix="/unidade")
 
 @bp.route("/<int:unit_id>")
 @login_required
-@proxy_access(kind_object="organ", kind_access="read")
+@proxy_access(kind_object="unit", kind_access="read")
 def get_unit(unit_id : int):
     
     unit = database_manager.get_unit(unit_id)
@@ -36,16 +36,16 @@ def get_unit(unit_id : int):
 
 @bp.route("/criar", methods=['GET', 'POST'])
 @login_required
-def create_unit():
+def get_post_unit_creation():
     
-    return "oi"
+    return ""
 
 
 @bp.route("/<int:unit_id>/editar", methods=['GET', 'POST'])
 @login_required
 @proxy_access(kind_object="unit", kind_access="update")
 def edit_unit(unit_id: int):
-    return "oi"
+    return ""
 
 def init_api(app: Flask) -> None:
     app.register_blueprint(bp)

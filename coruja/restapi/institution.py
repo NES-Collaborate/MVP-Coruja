@@ -42,11 +42,42 @@ def get_post_institution_creation():
     return render_template("institution/create.html", form=form)
 
 
-@bp.route("/<int:institution_id>", methods=["GET", "POST"])
+@bp.route("/<int:institution_id>")
 @login_required
 @proxy_access(kind_object="institution", kind_access="read")
 def get_institution(institution_id: int):
-    return "Em construção"
+    """Rota para retornar a página de detalhes de uma instituição.
+
+    Args:
+        institution_id (int): ID da instituição a ser visualizada.
+    """
+
+    institution = database_manager.get_institution(institution_id)
+    #units = database_manager.get_units(current_user.id)
+    units = None
+
+    return render_template(
+        "institution/institution.html",
+        institution = institution,
+        units = units
+        )
+
+@bp.route("/<int:institution_id>/editar", methods=["GET", "POST"])
+@login_required
+@proxy_access(kind_object="institution", kind_access="update")
+def edit_institution(institution_id: int):
+    """Rota para edição de uma instituição específica pelo seu ID.
+
+    Args:
+        insitution_id (int): ID da instituição a ser editada.
+    """
+
+    institution = database_manager.get_institution(institution_id)
+    form = InstitutionForm(obj=institution)
+
+    # TODO: Checagem do submit do form
+
+    return render_template("institution/edit.html", form = form, institution = institution)
 
 
 def init_api(app: Flask) -> None:
