@@ -12,7 +12,7 @@ bp = Blueprint("institution", __name__, url_prefix="/instituicao")
 
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
-def get_post_institution_creation():
+def create_institution():
     """
     Rota para criar uma nova instituição.
 

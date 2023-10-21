@@ -32,7 +32,7 @@ def get_unit(unit_id: int):
 
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
-def get_post_unit_creation():
+def create_unit():
     return ""
 
 
