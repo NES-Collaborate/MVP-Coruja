@@ -40,6 +40,7 @@ class Analysis(BaseTable):
         description: Optional[str] = None,
         is_template: Optional[bool] = False
     ):
+        super().__init__()
         self.description = description
         self.is_template = is_template
 
