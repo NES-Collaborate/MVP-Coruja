@@ -2,7 +2,7 @@
 {% from "macros.html" import render_form %}
 
 {% block content %}
-<div class="container my-4 px-3 mx-auto w-50">
+<div class="container mt-4 px-3 mx-auto w-50">
     <h3 class="h3 fw-normal mb-3">
         <i class="bi bi-pencil-square"></i> 
         Editar {{organ.name}}
@@ -16,7 +16,7 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
+{% block javascript %}
 <script>
     $(document).ready(() => {
         const current_id = '{{ current_user.id }}';

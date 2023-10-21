@@ -27,32 +27,8 @@
                 </a>
             </div>
         {% endif %}
-    </div>
 
         {{render_table(organs, "organ")}}
     </div>
 </div>
-{% endblock %}
-
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchBar = document.getElementById('searchBar');
-        const orgaoCards = document.querySelectorAll('.orgao-card');
-
-        searchBar.addEventListener('input', function () {
-            const query = searchBar.value.toLowerCase();
-
-            orgaoCards.forEach(function (card) {
-                const nomeOrgao = card.querySelector('.orgao-name').innerText.toLowerCase();
-                if (nomeOrgao.includes(query)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
-    });
-</script>
 {% endblock %}
