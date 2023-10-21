@@ -1,8 +1,10 @@
 {% extends "base.html" %}
-
+{% set active_page = "admin" %}
 
 
 {% block content %}
+<div class="container my-auto px-3 mx-auto w-50">
+    <a class="btn btn-primary" href="{{ url_for('admin.get_records') }}">Logs de Acesso</a>
+</div>
 
-<a class="btn btn-primary" href="{{ url_for('admin.get_records') }}">Logs de Acesso</a>
 {% endblock %}
