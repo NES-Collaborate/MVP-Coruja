@@ -1,5 +1,3 @@
-from typing import Dict
-
 from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
@@ -19,12 +17,21 @@ def create_institution():
     Esta rota é acessível através dos métodos GET e POST. Se o usuário
     atual não for autorizado a criar instituições, retorne um erro 403.
     """
-    # Inicialização do formulário
     form = InstitutionForm()
 
-    # Verifica se o método é POST e o formulário é válido
+    parent_id = request.args.get("parent_id", default=None, type=int)
+    if not parent_id:
+        flash("Órgão não especificado", "danger")
+        return redirect(url_for("application.home"))
+    
+    @proxy_access(kind_object="organ", kind_access="update")
+    def get_organ(parent_id: int):
+        return database_manager.get_organ(parent_id)
+    
+    organ = get_organ(parent_id)
+
+
     if request.method == "POST" and form.validate_on_submit():
-        # Coleta os dados do formulário e remove campos indesejados
         institution_data = form_to_dict(form)["data"]
         administrators = institution_data.pop("admin_ids", [])
         for field in ["csrf_token", "submit"]:
@@ -34,6 +41,8 @@ def create_institution():
             **institution_data,
             administrators=administrators,
         )
+
+        organ.add_institution(institution) # type: ignore [organ isn't None]
 
         flash(
             f"Instituição {institution_data.get('name')!r} criada com sucesso",

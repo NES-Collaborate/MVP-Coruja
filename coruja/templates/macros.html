@@ -1,7 +1,7 @@
 <!-- Macros para formularios -->
 
-{% macro render_form(form, current_user, isEdit) %}
-    <form method="POST" autocomplete="off">
+{% macro render_form(form, current_user, isEdit, formId = 'form') %}
+    <form method="POST" autocomplete="off" id="{{ formId }}">
         {{ form.hidden_tag() }}
 
         {% for field in form if field.type not in ['HiddenField', 'SubmitField', 'FieldList'] and field.name != 'csrf_token' %}
