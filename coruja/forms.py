@@ -7,7 +7,7 @@ from wtforms import (
     StringField,
     SubmitField,
 )
-from wtforms.validators import DataRequired, Email, Regexp, ValidationError
+from wtforms.validators import DataRequired, Email, Optional, Regexp, ValidationError
 
 
 def validate_cpf(form, field):
@@ -142,6 +142,7 @@ class InstitutionForm(FlaskForm):
     cnpj = StringField(
         "CNPJ",
         validators=[
+            Optional(),
             Regexp(
                 r"^\d{2}.\d{3}.\d{3}\/\d{4}-\d{2}$",
                 message="Insira um CNPJ válido",
