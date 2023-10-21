@@ -8,7 +8,7 @@
             <div class="form-floating mb-3">
                 {{ field(class = "form-control", placeholder="{{field.label}}")}}
 
-                <label for="floatingName">{{field.label}}</label>
+                <label for="floatingName">{{field.label}} {% if is_field_required(field) %} <span class="text-danger">* (Obrigatório)</span>{% endif %}</label>
 
                 {% for error in field.errors %}
                     <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
