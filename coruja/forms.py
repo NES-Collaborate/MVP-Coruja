@@ -139,7 +139,6 @@ class InstitutionForm(FlaskForm):
         "Nome", validators=[DataRequired("Este campo é obrigatório")]
     )
     address = StringField("Endereço")
-    description = StringField("Descrição")
     cnpj = StringField(
         "CNPJ",
         validators=[
