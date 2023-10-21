@@ -131,6 +131,7 @@ class InstitutionForm(FlaskForm):
         - name (str): O campo para inserir o nome da instituição.
         - address (str): O campo para inserir o endereço da instituição.
         - description (str): O campo para inserir a descrição da instituição.
+        - cnpj (str, optional): O campo para inserir o CNPJ da instituição.
     """
 
     csrf_token = HiddenField()

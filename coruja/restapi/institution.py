@@ -12,31 +12,41 @@ bp = Blueprint("institution", __name__, url_prefix="/instituicao")
 
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
-def get_post_institution_creation():
+def create_institution():
     """
     Rota para criar uma nova instituição.
 
     Esta rota é acessível através dos métodos GET e POST. Se o usuário
     atual não for autorizado a criar instituições, retorne um erro 403.
     """
-
+    # Inicialização do formulário
     form = InstitutionForm()
 
+    # Verifica se o método é POST e o formulário é válido
     if request.method == "POST" and form.validate_on_submit():
-        institution_data: Dict[str, str | bool] = form_to_dict(form)["data"]
-        institution_administrators = institution_data.pop("admin_ids", [])
-        institution_data.pop("csrf_token", None)
-        institution_data.pop("submit", None)
+        # Coleta os dados do formulário e remove campos indesejados
+        institution_data = form_to_dict(form)["data"]
+        administrators = institution_data.pop("admin_ids", [])
+        for field in ["csrf_token", "submit"]:
+            institution_data.pop(field, None)
 
-        database_manager.add_institution(
+        institution = database_manager.add_institution(
             **institution_data,
-            administrators=institution_administrators,
+            administrators=administrators,
         )
+
         flash(
             f"Instituição {institution_data.get('name')!r} criada com sucesso",
             "success",
         )
-        return redirect(url_for("institution.get_institution"))
+        return redirect(
+            url_for(
+                "institution.get_institution", institution_id=institution.id
+            )
+        )
+
+    if request.method == "GET":
+        return render_template("institution/create.html", form=form)
 
     flash("Encontramos um erro ao tentar criar a instituição", "danger")
     return render_template("institution/create.html", form=form)

@@ -23,36 +23,36 @@
 
     <!-- Informações Gerais do Orgão -->
     <div class="row">
-        <div class="card-shadow">
-            <div class="card">
+        <div class="col-md-12">
+            <div class="card shadow">
                 <div class="card-header">
-                    <i class="bi bi-info-circle"></i> 
+                    <i class="bi bi-info-circle"></i>
                     Informações Gerais
                 </div>
-    
+
                 <div class="card-body">
                     <div class="row row-cols-2">
                         <div class="col">
                             <p>
-                                <strong>Endereço:</strong> 
+                                <strong>Endereço:</strong>
                                 {{ organ.address }}
                             </p>
                         </div>
                         <div class="col">
                             <p>
-                                <strong>CNPJ:</strong> 
+                                <strong>CNPJ:</strong>
                                 {{ organ.cnpj }}
                             </p>
                         </div>
                         <div class="col">
                             <p>
-                                <strong>E-mail:</strong> 
+                                <strong>E-mail:</strong>
                                 {{ organ.email }}
                             </p>
                         </div>
                         <div class="col">
                             <p>
-                                <strong>Telefone:</strong> 
+                                <strong>Telefone:</strong>
                                 {{ organ.telephone }}
                             </p>
                         </div>
@@ -78,4 +78,83 @@
             </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const institutionSearchBar = document.getElementById('institutionSearchBar');
+        const institutionCards = document.querySelectorAll('.institution-card');
+
+        if (institutionSearchBar) {
+            institutionSearchBar.addEventListener('input', function () {
+                const query = institutionSearchBar.value.toLowerCase();
+
+                institutionCards.forEach(function (card) {
+                    const nomeInstituicao = card.querySelector('.institution-name').innerText.toLowerCase();
+                    if (nomeInstituicao.includes(query)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(() => {
+        const current_id = '{{ current_user.id }}';
+        const selectedAdmins = [parseInt(current_id)];
+
+        $('#admin_autocomplete').autocomplete({
+            appendTo: "#result-container",
+            source: (request, response) => {
+                $("#loading").removeClass("d-none");
+
+                $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
+                    response(data.users);
+                    $("#loading").addClass("d-none");
+                });
+            },
+            focus: (event, ui) => {
+                return false;
+            },
+            select: (event, ui) => {
+                if (selectedAdmins.includes(ui.item.id)) return false;
+                selectedAdmins.push(ui.item.id);
+
+                const adminItem = $(`
+                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${ui.item.id}">
+                    ${ui.item.name} <span class="badge bg-secondary">${ui.item.title || "Sem título"}</span>
+                    <button class="remove-admin btn btn-outline-danger btn-sm">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </li>
+                `);
+                $('#selected_admins').append(adminItem);
+                $(`<input type="hidden" name="admin_ids-${ui.item.id}" value="${ui.item.id}" id="admin_ids-${ui.item.id}" />`)
+                    .appendTo('#analysis-form');
+
+                return false;
+            }
+        }).data("ui-autocomplete")._renderItem = (ul, item) => {
+            const listItem = $("<li>").appendTo(ul);
+            const div = $("<div>").addClass("d-flex justify-content-between align-items-center").appendTo(listItem);
+            const name = $("<span>").text(item.name).appendTo(div);
+            const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
+
+            return listItem;
+        };
+
+        $(document).on('click', '.remove-admin', () => {
+            const listItem = $(this).closest('li');
+            const id = listItem.data('id');
+            selectedAdmins = selectedAdmins.filter(adminId => adminId !== id);
+            listItem.remove();
+            $(`#admin_ids-${id}`).remove();
+        });
+    });
+</script>
 {% endblock %}
