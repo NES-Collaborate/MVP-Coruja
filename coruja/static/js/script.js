@@ -33,8 +33,14 @@ if (themeToggle && themeIcon) {
 function setThemeIcon(theme) {
     if (theme === "dark") {
         themeIcon.className = "bi bi-moon";
+        // Altera tema da navbar
+        $('#app_navbar').addClass("bg-dark")
+        $('#app_navbar').removeClass("bg-light")
     } else {
         themeIcon.className = "bi bi-sun";
+        // Altera tema da navbar
+        $('#app_navbar').removeClass("bg-dark")
+        $('#app_navbar').addClass("bg-light")
     }
     // Adicionar animação
     themeIcon.classList.add("animate__animated", "animate__flip");

@@ -5,18 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Projeto Coruja</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <link href="https://code.jquery.com/ui/1.13.2/themes/dark-hive/jquery-ui.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
     {% block css %}{% endblock %}
   </head>
   <body class="d-flex h-100 text-center text-bg-auto">
     <div class="container d-flex w-100 h-100 p-3 mx-auto flex-column">
-        <nav class="navbar navbar-expand-md bg-dark sticky-top border-bottom" data-bs-theme="auto">
+        <nav class="navbar navbar-expand-md bg-dark sticky-top border-bottom" id = "app_navbar" data-bs-theme="auto">
             <div class="container">
                 <a class="navbar-brand h1" href="/app/home">
                     Projeto Coruja
@@ -70,6 +72,11 @@
                                 Entrar
                             </a>
                         {% endif %}
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" id="themeToggle" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Alterar tema">
+                                <i id="themeIcon" class="bi bi-moon"></i>
+                            </button>
                         </li>
                     </ul>
                 </div>
