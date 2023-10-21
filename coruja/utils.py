@@ -187,6 +187,24 @@ class DatabaseManager:
         )
         return institution
 
+    def update_institution(
+        self,
+        institution: Institution,
+        form: Dict[str, Any],
+    ) -> Institution:
+        administrators: List[int] = form.pop("admin_ids", [])
+
+        for key, value in form.items():
+            setattr(institution, key, value)
+
+        for administrator_id in administrators:
+            administrator = self.get_user(administrator_id)
+            institution.add_administrator(administrator)
+
+        db.session.commit()
+
+        return institution
+
     def get_analysis(
         self,
         analysis_id: int,

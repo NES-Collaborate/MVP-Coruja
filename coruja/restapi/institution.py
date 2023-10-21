@@ -92,8 +92,19 @@ def edit_institution(institution_id: int):
     institution = database_manager.get_institution(institution_id)
     form = InstitutionForm(obj=institution)
 
-    # TODO: Checagem do submit do form
+    if form.validate_on_submit() and institution:
+        form = form_to_dict(form)["data"]
+        form.pop("csrf_token", None)
+        form.pop("submit", None)
 
+        if institution := database_manager.update_institution(institution, form):
+            flash("Instituição atualizada com sucesso", "success")
+            return redirect(url_for(
+                "institution.get_institution",
+                institution_id=institution_id,
+            ))
+
+        flash("Ocorreu um erro ao atualizar a instituição", "danger")
     return render_template(
         "institution/edit.html", form=form, institution=institution
     )
