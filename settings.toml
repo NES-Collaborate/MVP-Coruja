@@ -37,4 +37,4 @@ DEBUG_TB_PANELS = [
     "flask_debugtoolbar.panels.profiler.ProfilerDebugPanel",
     "flask_debugtoolbar.panels.config_vars.ConfigVarsDebugPanel",
 ]
-APP_NAME = "Projeto Coruja"
+APP_NAME = "App Arso"
