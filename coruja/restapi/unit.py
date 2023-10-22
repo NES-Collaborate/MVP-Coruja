@@ -37,8 +37,9 @@ def get_unit(unit_id : int):
 @bp.route("/criar", methods=['GET', 'POST'])
 @login_required
 def get_post_unit_creation():
-    
-    return ""
+
+
+    return render_template("unit/create.html")
 
 
 @bp.route("/<int:unit_id>/editar", methods=['GET', 'POST'])
