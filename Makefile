@@ -1,10 +1,16 @@
 install:
 	@pip install -r requirements.txt
 init:
-	@python -m flask initdb
+	@python -m flask db init
+	@python -m flask db migrate
+	@python -m flask db upgrade
+	@python -m flask createroles
 	@python -m flask createsu >> access.txt
 server:
 	@python -m flask run --debug
+migrate:
+	@python -m flask db migrate
+	@python -m flask db upgrade
 format:
 	@python -m black -l 79 .
 	@python -m isort .
