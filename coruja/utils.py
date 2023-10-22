@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional, overload
 
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
 
@@ -7,6 +8,8 @@ from .extensions.database import db
 from .models import (
     Active,
     ActiveScore,
+    AdverseAction,
+    AdverseActionScore,
     Analysis,
     AnalysisRisk,
     AnalysisVulnerability,
@@ -185,6 +188,24 @@ class DatabaseManager:
             if or_404
             else Institution.query.filter_by(id=institution_id).first()
         )
+        return institution
+
+    def update_institution(
+        self,
+        institution: Institution,
+        form: Dict[str, Any],
+    ) -> Institution:
+        administrators: List[int] = form.pop("admin_ids", [])
+
+        for key, value in form.items():
+            setattr(institution, key, value)
+
+        for administrator_id in administrators:
+            administrator = self.get_user(administrator_id)
+            institution.add_administrator(administrator)
+
+        db.session.commit()
+
         return institution
 
     def get_analysis(
@@ -414,7 +435,7 @@ class DatabaseManager:
 
         for administrator_id in administrators:
             administrator = self.get_user(administrator_id)
-            institution.add_administrator(administrator)
+            institution.add_administrator(administrator, commit_changes=False)
 
         self.__db.session.commit()
         return institution
@@ -479,6 +500,64 @@ class DatabaseManager:
             ).first()
         )
         return analysis_vulnerability
+
+    def get_active(self, active_id: int, or_404: bool = True) -> Active | None:
+        """Obtém um ativo por ID
+
+        Args:
+            active_id (int): ID do ativo
+            or_404 (bool, optional): Se True, abort(404) caso não exista um ativo com o ID especificado. Defaults to True
+
+        Returns:
+            Active: O objeto do ativo
+            None: Caso não exista um ativo com o ID especificado
+        """
+        active = (
+            Active.query.filter_by(id=active_id).first_or_404(
+                "Ativo não encontrado"
+            )
+            if or_404
+            else Active.query.filter_by(id=active_id).first()
+        )
+        return active
+
+    def get_adverse_actions(
+        self,
+        *,
+        threat_id: int,
+        user_id: int | None = None,
+        with_scores: bool = True,
+    ) -> List[Dict]:
+        """Obtém uma lista de ações adversas
+
+        Args:
+            threat_id (int): ID da Ameaça com a qual está relacionadas as ações adversas
+            with_scores (bool, optional): Se True, atribui scores. Padrão é True.
+            user_id (int | None, optional): ID do usuário que atribuiu notas
+                (Caso `with_scores=True`). Padrão é `flask_login.current_user`.
+
+        Returns:
+            List[AdverseAction]: A lista de ações adversas
+        """
+        user_id = user_id or current_user.id  # type: ignore [current_user isn't None]
+        _adverse_actions = AdverseAction.query.filter_by(
+            threat_id=threat_id
+        ).all()
+        _new_adverse_actions = []
+        for adverse_action in _adverse_actions:
+            adverse_action = adverse_action.as_dict()
+            if with_scores:
+                adverse_action_scores = AdverseActionScore.query.filter_by(
+                    adverse_action_id=adverse_action.id, user_id=user_id
+                ).first()
+                adverse_action["scores"] = (
+                    adverse_action_scores.as_dict()
+                    if adverse_action_scores
+                    else {}
+                )
+            _new_adverse_actions.append(adverse_action)
+
+        return _new_adverse_actions
 
 
 database_manager = DatabaseManager()

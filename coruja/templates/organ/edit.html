@@ -5,18 +5,18 @@
 <div class="container mt-4 px-3 mx-auto w-50">
     <h3 class="h3 fw-normal mb-3">
         <i class="bi bi-pencil-square"></i> 
-        Editar {{organ.name}}
+        Editar {{ organ.name }}
     </h3>
 
     <div class="card shadow">
         <div class="card-body">
-            {{ render_form(form, current_user, True) }}
+            {{ render_form(form, current_user, True, formId = 'edit-organ') }}
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block javascript %}
+{% block scripts %}
 <script>
     $(document).ready(() => {
         const current_id = '{{ current_user.id }}';
@@ -46,7 +46,7 @@
                 `);
                 $('#selected_admins').append(adminItem);
                 $(`<input type="hidden" name="admin_ids-${ui.item.id}" value="${ui.item.id}" id="admin_ids-${ui.item.id}" />`)
-                    .appendTo('#analysis-form');
+                    .appendTo('#edit-organ');
 
                 return false;
             }

@@ -1,5 +1,3 @@
-from typing import Dict
-
 from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
@@ -12,19 +10,27 @@ bp = Blueprint("institution", __name__, url_prefix="/instituicao")
 
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
-def get_post_institution_creation():
+def create_institution():
     """
     Rota para criar uma nova instituição.
 
     Esta rota é acessível através dos métodos GET e POST. Se o usuário
     atual não for autorizado a criar instituições, retorne um erro 403.
     """
-    # Inicialização do formulário
     form = InstitutionForm()
 
-    # Verifica se o método é POST e o formulário é válido
+    parent_id = request.args.get("parent_id", default=None, type=int)
+    if not parent_id:
+        flash("Órgão não especificado", "danger")
+        return redirect(url_for("application.home"))
+
+    @proxy_access(kind_object="organ", kind_access="update")
+    def get_organ(*, organ_id: int):
+        return database_manager.get_organ(organ_id)
+
+    organ = get_organ(organ_id=parent_id)
+
     if request.method == "POST" and form.validate_on_submit():
-        # Coleta os dados do formulário e remove campos indesejados
         institution_data = form_to_dict(form)["data"]
         administrators = institution_data.pop("admin_ids", [])
         for field in ["csrf_token", "submit"]:
@@ -34,6 +40,8 @@ def get_post_institution_creation():
             **institution_data,
             administrators=administrators,
         )
+
+        organ.add_institution(institution)  # type: ignore [organ isn't None]
 
         flash(
             f"Instituição {institution_data.get('name')!r} criada com sucesso",
@@ -63,14 +71,13 @@ def get_institution(institution_id: int):
     """
 
     institution = database_manager.get_institution(institution_id)
-    #units = database_manager.get_units(current_user.id)
+    # units = database_manager.get_units(current_user.id)
     units = None
 
     return render_template(
-        "institution/institution.html",
-        institution = institution,
-        units = units
-        )
+        "institution/institution.html", institution=institution, units=units
+    )
+
 
 @bp.route("/<int:institution_id>/editar", methods=["GET", "POST"])
 @login_required
@@ -85,9 +92,26 @@ def edit_institution(institution_id: int):
     institution = database_manager.get_institution(institution_id)
     form = InstitutionForm(obj=institution)
 
-    # TODO: Checagem do submit do form
+    if form.validate_on_submit() and institution:
+        form = form_to_dict(form)["data"]
+        form.pop("csrf_token", None)
+        form.pop("submit", None)
 
-    return render_template("institution/edit.html", form = form, institution = institution)
+        if institution := database_manager.update_institution(
+            institution, form
+        ):
+            flash("Instituição atualizada com sucesso", "success")
+            return redirect(
+                url_for(
+                    "institution.get_institution",
+                    institution_id=institution_id,
+                )
+            )
+
+        flash("Ocorreu um erro ao atualizar a instituição", "danger")
+    return render_template(
+        "institution/edit.html", form=form, institution=institution
+    )
 
 
 def init_api(app: Flask) -> None:

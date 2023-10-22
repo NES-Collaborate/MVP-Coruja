@@ -79,6 +79,13 @@ class AdverseActionScore(BaseTable):
         self.user_id = user_id
         self.adverse_action_id = adverse_action_id
 
+    def as_dict(self):
+        return {
+            "motivation": self.motivation,
+            "capacity": self.capacity,
+            "accessibility": self.accessibility,
+        }
+
 
 class VulnerabilityCategory(BaseTable):
     name = db.Column(db.String(255), nullable=False)

@@ -21,7 +21,7 @@ class Organ(BaseTable):
         backref=db.backref("organs_administered", lazy=True),
     )
 
-    intitutions = db.relationship(
+    institutions = db.relationship(
         "Institution",
         secondary=organ_institutions,
         backref=db.backref("organs", lazy=True),
@@ -50,8 +50,8 @@ class Organ(BaseTable):
             db.session.commit()
 
     def add_institution(self, institution: Institution):
-        if not self.intitutions:
-            self.intitutions = []
+        if not self.institutions:
+            self.institutions = []
 
-        self.intitutions.append(institution)
+        self.institutions.append(institution)
         db.session.commit()

@@ -29,14 +29,32 @@ def create_default_roles():
         Permission(label="organ", type="read", description="Acessar Órgãos"),
         Permission(label="organ", type="update", description="Editar Órgãos"),
         Permission(label="organ", type="delete", description="Deletar Órgãos"),
-        Permission(label="institution", type="create", description="Criar Instituições"),
-        Permission(label="institution", type="read", description="Acessar Instituições"),
-        Permission(label="institution", type="update", description="Editar Instituições"),
-        Permission(label="institution", type="delete", description="Deletar Instituições"),
+        Permission(
+            label="institution",
+            type="create",
+            description="Criar Instituições",
+        ),
+        Permission(
+            label="institution",
+            type="read",
+            description="Acessar Instituições",
+        ),
+        Permission(
+            label="institution",
+            type="update",
+            description="Editar Instituições",
+        ),
+        Permission(
+            label="institution",
+            type="delete",
+            description="Deletar Instituições",
+        ),
         Permission(label="unit", type="create", description="Criar unidades"),
         Permission(label="unit", type="read", description="Acessar unidades"),
         Permission(label="unit", type="update", description="Editar unidades"),
-        Permission(label="unit", type="delete", description="Deletar unidades"),
+        Permission(
+            label="unit", type="delete", description="Deletar unidades"
+        ),
     ]
     db.session.add_all(permissions)
     db.session.commit()

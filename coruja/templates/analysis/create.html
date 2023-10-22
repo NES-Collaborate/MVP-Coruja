@@ -1,43 +1,19 @@
 {% extends "base.html" %}
+{% from "macros.html" import render_form %}
 
 {% block content %}
-<div class="container">
-    <h2 class="mb-4"><i class="bi bi-file-earmark-plus"></i> Criar nova análise</h2>
-    <div class="card shadow">
+<main class="container my-4 px-3 mx-auto w-50">
+    <h3 class="h3 fw-normal mb-3">
+        <i class="bi bi-file-earmark-plus"></i> 
+        Criar Análise
+    </h3>
+
+    <div class="card shadow mb-3">
         <div class="card-body">
-            <form id="analysis-form" method="post">
-                {{ form.hidden_tag() }}
-                <div class="mb-4">
-                    <label for="description" class="form-label"><i class="bi bi-card-text me-2"></i>Descrição</label>
-                    {{ form.description(class="form-control", placeholder="Descrição") }}
-                </div>
-                <div class="mb-4 position-relative">
-                    <label for="admin_autocomplete" class="form-label"><i
-                            class="bi bi-person-search me-2"></i>Administradores</label>
-                    <input type="text" class="form-control" id="admin_autocomplete"
-                        placeholder="Pesquisar por admins...">
-                    <div id="loading" class="position-absolute top-100 start-0 d-none">
-                        <div class="spinner-border spinner-border-sm text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                    <div id="result-container" class="position-absolute w-100 bg-light rounded-bottom"></div>
-                </div>
-                <ul id="selected_admins" class="list-group mt-2 rounded">
-                    <li class="list-group-item d-flex justify-content-between align-items-center"
-                        data-id="{{ current_user.id }}">
-                        {{ current_user.name }} [{{ current_user.cpf_censored }}] (você mesmo)
-                        <span class="badge bg-info">Administrador</span>
-                    </li>
-                </ul>
-                <input type="hidden" name="admin_ids-{{ current_user.id }}" value="{{ current_user.id }}"
-                    id="admin_ids-{{ current_user.id }}" />
-                <button type="submit" class="btn btn-primary mt-4"><i class="bi bi-plus-square me-2"></i>Criar
-                    Análise</button>
-            </form>
-        </div>
-    </div>
-</div>
+            {{ render_form(form, current_user, False, formId="analysis-form") }}
+        <div>
+    <div>
+</main>
 {% endblock %}
 
 {% block scripts %}

@@ -10,6 +10,7 @@ EXTENSIONS = [
     "coruja.restapi:init_apis",
     "coruja.middlewares:init_middlewares",
     "coruja.extensions.commands:init_app",
+    "coruja.extensions.jinja:init_app",
 ]
 
 [development]
@@ -36,4 +37,4 @@ DEBUG_TB_PANELS = [
     "flask_debugtoolbar.panels.profiler.ProfilerDebugPanel",
     "flask_debugtoolbar.panels.config_vars.ConfigVarsDebugPanel",
 ]
-APP_NAME = "Projeto Coruja"
+APP_NAME = "App Arso"

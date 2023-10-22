@@ -19,37 +19,29 @@ from ..utils import database_manager, form_to_dict
 
 bp = Blueprint("unit", __name__, url_prefix="/unidade")
 
+
 @bp.route("/<int:unit_id>")
 @login_required
 @proxy_access(kind_object="unit", kind_access="read")
-def get_unit(unit_id : int):
-    
+def get_unit(unit_id: int):
     unit = database_manager.get_unit(unit_id)
-    analysis = database_manager.get_analysis(current_user.id) # type: ignore
+    analysis = database_manager.get_analysis(current_user.id)  # type: ignore
 
-    return render_template(
-        "unit/unit.html",
-        unit = unit,
-        analysis = analysis
-        )
+    return render_template("unit/unit.html", unit=unit, analysis=analysis)
 
 
-@bp.route("/criar", methods=['GET', 'POST'])
+@bp.route("/criar", methods=["GET", "POST"])
 @login_required
-def get_post_unit_creation():
+def create_unit():
+    return ""
 
 
-    return render_template("unit/create.html")
-
-
-@bp.route("/<int:unit_id>/editar", methods=['GET', 'POST'])
+@bp.route("/<int:unit_id>/editar", methods=["GET", "POST"])
 @login_required
 @proxy_access(kind_object="unit", kind_access="update")
 def edit_unit(unit_id: int):
     return ""
 
+
 def init_api(app: Flask) -> None:
     app.register_blueprint(bp)
-
-
-
