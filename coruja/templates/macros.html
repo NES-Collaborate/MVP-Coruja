@@ -8,10 +8,20 @@
             <div class="form-floating mb-3">
                 {{ field(class = "form-control", placeholder="{{field.label}}")}}
 
-                <label for="floatingName">{{field.label}} {% if is_field_required(field) %} <span class="text-danger">* (Obrigatório)</span>{% endif %}</label>
+                <label for="floatingName">
+                    {{field.label}} 
+
+                    {% if is_field_required(field) %} 
+                    <span class="text-danger">
+                        * (Obrigatório)
+                    </span>
+                    {% endif %}
+                </label>
 
                 {% for error in field.errors %}
-                    <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
+                    <span class="text-danger mt-1" style="font-size:smaller">
+                        {{ error }}
+                    </span>
                 {% endfor %}
             </div>
         {% endfor %}
@@ -66,8 +76,8 @@
     {% if object %}
         <table class="table table-borderless table-sm table-auto text-start">
             <tr>
-                <th scope="col">Nome</th>
-                <th scope="col">Endereço</th>
+                <th class="col-md-7 m-2">Nome</th>
+                <th class="col-lg-8">Endereço</th>
             </tr>
 
             {% for obj in object %}
@@ -77,19 +87,32 @@
 
                     <td class="text-center">
                         <div class="dropdown">
-                            <span class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-three-dots"></i>
                             </span>
+
                             {% set params = {"{}_id".format(route) : obj.id} %}
                             <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" 
-                                href="{{ url_for('{}.get_{}'.format(route, route), **params) }}">Acessar</a></li>
-                            <li><a class="dropdown-item" 
-                                href="{{ url_for('{}.edit_{}'.format(route, route), **params) }}">Editar</a></li>
+                                <li>
+                                    <a
+                                        class="dropdown-item"
+                                        href="{{ url_for('{}.get_{}'.format(route, route), **params) }}"
+                                    >
+                                        Acessar
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a 
+                                        class="dropdown-item" 
+                                        href="{{ url_for('{}.edit_{}'.format(route, route), **params) }}"
+                                    >
+                                        Editar
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </td>
-
                 </tr>
             {% endfor %}
         </table>
