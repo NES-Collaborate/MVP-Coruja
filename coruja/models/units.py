@@ -1,16 +1,19 @@
 from typing import Optional
 
 from ..extensions.database import db
+from .analysis import Analysis
 from .configurations import BaseTable
 from .relationships import unit_analysis, units_administrators, units_staff
 from .users import User
 
 
 class Unit(BaseTable):
+    name = db.Column(db.String(255), nullable=False)
+    address = db.Column(db.String(255))
     description = db.Column(db.String)
     is_template = db.Column(db.Boolean, default=False)
 
-    analysis = db.relationship(
+    analyses = db.relationship(
         "Analysis",
         secondary=unit_analysis,
         backref=db.backref("units", lazy="dynamic"),
@@ -29,9 +32,13 @@ class Unit(BaseTable):
     def __init__(
         self,
         *,
+        name: str,
+        address: str,
         description: Optional[str] = None,
         is_template: Optional[bool] = False
     ) -> None:
+        self.name = name
+        self.address = address
         self.description = description
         self.is_template = is_template
 
@@ -40,5 +47,11 @@ class Unit(BaseTable):
             self.administrators = []
 
         self.administrators.append(user)
+
+    def add_analysis(self, analysis: Analysis):
+        if not self.analyses:
+            self.analyses = []
+
+        self.analyses.append(analysis)
 
         db.session.commit()

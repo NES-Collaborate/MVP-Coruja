@@ -72,18 +72,28 @@
     </form>
 {% endmacro %}
 
-{% macro render_table(object, route) %}
+{% macro render_table(object, route, is_analysis) %}
     {% if object %}
         <table class="table table-borderless table-sm table-auto text-start">
             <tr>
-                <th class="col-md-7 m-2">Nome</th>
-                <th class="col-lg-8">Endereço</th>
+                {% if not is_analysis %}
+                    <th class="col-md-7 m-2">Nome</th>
+                    <th class="col-lg-8">Endereço</th>
+                {% else %}
+                    <th scope="col">Data</th>
+                    <th scope="col">Descrição</th>
+                {% endif %}
             </tr>
 
             {% for obj in object %}
                 <tr>
-                    <td>{{ obj.name }}</td>
-                    <td>{{ obj.address }}</td>
+                    {% if not is_analysis %}
+                        <td>{{ obj.name }}</td>
+                        <td>{{ obj.address }}</td>
+                    {% else %}
+                        <td>{{ obj.created_at }}</td>
+                        <td>{{ obj.description }}</td>
+                    {% endif %}
 
                     <td class="text-center">
                         <div class="dropdown">

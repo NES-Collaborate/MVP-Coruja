@@ -107,10 +107,10 @@ def create_admin():
 
 
 def init_app(app: Flask) -> None:
-    @app.cli.command("initdb")
+    @app.cli.command("createroles")
     def _():
-        """Inicializa o banco de dados."""
-        init_database()
+        """Cria as regras de acesso padrão."""
+        create_default_roles()
 
     @app.cli.command("createsu")
     def _():

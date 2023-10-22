@@ -163,7 +163,7 @@ class DatabaseManager:
             )
             .all()
         )
-
+    
     def get_institution(
         self, institution_id: int, or_404: bool = True
     ) -> Institution | None:
@@ -207,6 +207,24 @@ class DatabaseManager:
         db.session.commit()
 
         return institution
+
+    def update_unit(
+        self,
+        unit: Unit,
+        form: Dict[str, Any],
+    ) -> Unit:
+        administrators: List[int] = form.pop("admin_ids", [])
+
+        for key, value in form.items():
+            setattr(unit, key, value)
+
+        for administrator_id in administrators:
+            administrator = self.get_user(administrator_id)
+            unit.add_administrator(administrator)
+
+        db.session.commit()
+
+        return unit
 
     def get_analysis(
         self,
@@ -442,6 +460,20 @@ class DatabaseManager:
 
         self.__db.session.commit()
         return institution
+
+    def add_unit(self, **kwargs) -> Unit:
+        administrators = kwargs.pop("administrators", [])
+        unit = Unit(**kwargs)
+
+        self.__db.session.add(unit)
+        self.__db.session.commit()
+
+        for administrator_id in administrators:
+            administrator = self.get_user(administrator_id)
+            unit.add_administrator(administrator)
+
+        self.__db.session.commit()
+        return unit
 
     def is_organ_administrator(self, user: User | Any) -> bool:
         # TODO: implementar verificação de permission pela role
