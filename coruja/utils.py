@@ -385,15 +385,18 @@ class DatabaseManager:
                 active_scores: List[ActiveScore] = ActiveScore.query.filter_by(
                     active_id=active.id
                 ).all()
+                denominator = (
+                    len(active_scores) if len(active_scores) > 0 else 1
+                )
                 active.average_substitutability = sum(
                     score.substitutability for score in active_scores
-                ) / len(active_scores)
+                ) / (denominator)
                 active.average_replacement_cost = sum(
                     score.replacement_cost for score in active_scores
-                ) / len(active_scores)
+                ) / (denominator)
                 active.average_essentiality = sum(
                     score.essentiality for score in active_scores
-                ) / len(active_scores)
+                ) / (denominator)
         return actives
 
     def add_organ(self, **kwargs) -> None:

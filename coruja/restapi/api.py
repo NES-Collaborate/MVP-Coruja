@@ -91,90 +91,13 @@ def get_threats():
             "adverses_actions"
         ] = database_manager.get_adverse_actions(threat_id=_id)
 
-    # _result = {
-    #     "id1": {
-    #         "title": "Threat 1",
-    #         "description": "This is the description for Threat 1",
-    #         "adverse_actions": {
-    #             "id_1": {"title": "Action 1", "description": "Description 1", "score": 5},
-    #             "id_2": {"title": "Action 2", "description": "Description 2", "score": 3}
-    #         }
-    #     },
-    #     "id2": {
-    #         "title": "Threat 2",
-    #         "description": "This is the description for Threat 2",
-    #         "adverse_actions": {
-    #             "id_3": {"title": "Action 3", "description": "Description 3", "score": 4},
-    #             "id_4": {"title": "Action 4", "description": "Description 4", "score": 2}
-    #         }
-    #     },
-    #     "id3": {
-    #         "title": "Threat 3",
-    #         "description": "This is the description for Threat 3",
-    #         "adverse_actions": {
-    #             "id_5": {"title": "Action 5", "description": "Description 5", "score": 1},
-    #             "id_6": {"title": "Action 6", "description": "Description 6", "score": 6}
-    #         }
-    #     },
-    #     "id4": {
-    #         "title": "Threat 4",
-    #         "description": "This is the description for Threat 4",
-    #         "adverse_actions": {
-    #             "id_7": {"title": "Action 7", "description": "Description 7", "score": 3},
-    #             "id_8": {"title": "Action 8", "description": "Description 8", "score": 5}
-    #         }
-    #     },
-    #     "id5": {
-    #         "title": "Threat 5",
-    #         "description": "This is the description for Threat 5",
-    #         "adverse_actions": {
-    #             "id_9": {"title": "Action 9", "description": "Description 9", "score": 2},
-    #             "id_10": {"title": "Action 10", "description": "Description 10", "score": 7}
-    #         }
-    #     },
-    #     "id6": {
-    #         "title": "Threat 6",
-    #         "description": "This is the description for Threat 6",
-    #         "adverse_actions": {
-    #             "id_11": {"title": "Action 11", "description": "Description 11", "score": 4},
-    #             "id_12": {"title": "Action 12", "description": "Description 12", "score": 1}
-    #         }
-    #     },
-    #     "id7": {
-    #         "title": "Threat 7",
-    #         "description": "This is the description for Threat 7",
-    #         "adverse_actions": {
-    #             "id_13": {"title": "Action 13", "description": "Description 13", "score": 5},
-    #             "id_14": {"title": "Action 14", "description": "Description 14", "score": 6}
-    #         }
-    #     },
-    #     "id8": {
-    #         "title": "Threat 8",
-    #         "description": "This is the description for Threat 8",
-    #         "adverse_actions": {
-    #             "id_15": {"title": "Action 15", "description": "Description 15", "score": 2},
-    #             "id_16": {"title": "Action 16", "description": "Description 16", "score": 8}
-    #         }
-    #     },
-    #     "id9": {
-    #         "title": "Threat 9",
-    #         "description": "This is the description for Threat 9",
-    #         "adverse_actions": {
-    #             "id_17": {"title": "Action 17", "description": "Description 17", "score": 3},
-    #             "id_18": {"title": "Action 18", "description": "Description 18", "score": 4}
-    #         }
-    #     },
-    #     "id10": {
-    #         "title": "Threat 10",
-    #         "description": "This is the description for Threat 10",
-    #         "adverse_actions": {
-    #             "id_19": {"title": "Action 19", "description": "Description 19", "score": 5},
-    #             "id_20": {"title": "Action 20", "description": "Description 20", "score": 1}
-    #         }
-    #     }
-    # }
-
     return jsonify(_result)
+
+
+@bp.route("/update-adveser-action-score", methods=["POST"])
+@login_required
+def update_adverse_action_score():
+    return ""
 
 
 def init_api(app: Flask) -> None:
