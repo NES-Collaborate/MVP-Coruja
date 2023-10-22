@@ -78,9 +78,13 @@ class AdverseActionScore(BaseTable):
         self.accessibility = accessibility
         self.user_id = user_id
         self.adverse_action_id = adverse_action_id
-    
+
     def as_dict(self):
-        return {"motivation": self.motivation, "capacity": self.capacity, "accessibility": self.accessibility}
+        return {
+            "motivation": self.motivation,
+            "capacity": self.capacity,
+            "accessibility": self.accessibility,
+        }
 
 
 class VulnerabilityCategory(BaseTable):

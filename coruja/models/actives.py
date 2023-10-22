@@ -10,7 +10,7 @@ class Active(BaseTable):
     description = db.Column(db.String)
     analysis_risk_id = db.Column(db.Integer, db.ForeignKey("analysis_risk.id"))
     is_template = db.Column(db.Boolean, default=False)
-    
+
     associated_threats = db.relationship(
         "Threat",
         foreign_keys=[Threat.active_id],

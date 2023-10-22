@@ -1,13 +1,15 @@
 from typing import Any, Dict, List, Optional, overload
 
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
-from flask_login import current_user
 
 from .extensions.database import db
 from .models import (
     Active,
     ActiveScore,
+    AdverseAction,
+    AdverseActionScore,
     Analysis,
     AnalysisRisk,
     AnalysisVulnerability,
@@ -17,8 +19,6 @@ from .models import (
     User,
     institution_administrators,
     organ_administrators,
-    AdverseAction,
-    AdverseActionScore
 )
 
 
@@ -500,7 +500,7 @@ class DatabaseManager:
             ).first()
         )
         return analysis_vulnerability
-    
+
     def get_active(self, active_id: int, or_404: bool = True) -> Active | None:
         """Obtém um ativo por ID
 
@@ -520,9 +520,14 @@ class DatabaseManager:
             else Active.query.filter_by(id=active_id).first()
         )
         return active
-    
 
-    def get_adverse_actions(self, *, threat_id: int, user_id: int|None = None, with_scores: bool = True) -> List[Dict]:
+    def get_adverse_actions(
+        self,
+        *,
+        threat_id: int,
+        user_id: int | None = None,
+        with_scores: bool = True,
+    ) -> List[Dict]:
         """Obtém uma lista de ações adversas
 
         Args:
@@ -534,20 +539,25 @@ class DatabaseManager:
         Returns:
             List[AdverseAction]: A lista de ações adversas
         """
-        user_id = user_id or current_user.id # type: ignore [current_user isn't None]
-        _adverse_actions = AdverseAction.query.filter_by(threat_id=threat_id).all()
+        user_id = user_id or current_user.id  # type: ignore [current_user isn't None]
+        _adverse_actions = AdverseAction.query.filter_by(
+            threat_id=threat_id
+        ).all()
         _new_adverse_actions = []
         for adverse_action in _adverse_actions:
             adverse_action = adverse_action.as_dict()
             if with_scores:
                 adverse_action_scores = AdverseActionScore.query.filter_by(
-                    adverse_action_id=adverse_action.id,
-                    user_id=user_id
+                    adverse_action_id=adverse_action.id, user_id=user_id
                 ).first()
-                adverse_action["scores"] = adverse_action_scores.as_dict() if adverse_action_scores else {}
+                adverse_action["scores"] = (
+                    adverse_action_scores.as_dict()
+                    if adverse_action_scores
+                    else {}
+                )
             _new_adverse_actions.append(adverse_action)
-        
+
         return _new_adverse_actions
-        
+
 
 database_manager = DatabaseManager()

@@ -3,9 +3,9 @@ from flask_login import current_user, login_required
 from sqlalchemy import or_
 
 from coruja.decorators.proxy import can_access_analysis_risk
-from ..utils import database_manager
 
 from ..models import User
+from ..utils import database_manager
 
 bp = Blueprint("api", __name__, url_prefix="/api/v1")
 
@@ -44,23 +44,27 @@ def get_users():
     return jsonify({"users": _users})
 
 
-
 @bp.route("/get-actives", methods=["POST"])
 @login_required
 def get_actives():
     data = request.get_json()
     if "ar_id" not in data:
         return jsonify({"error": "Missing analysis_risk_id"}), 400
-    
+
     analysis_risk = None
-    if can_access_analysis_risk(data["ar_id"], current_user): # type: ignore [current_user isn't None]
-        analysis_risk = database_manager.get_analysis_risk(data["ar_id"], or_404=False)
+    if can_access_analysis_risk(data["ar_id"], current_user):  # type: ignore [current_user isn't None]
+        analysis_risk = database_manager.get_analysis_risk(
+            data["ar_id"], or_404=False
+        )
     else:
-        return jsonify({"error": "You don't have access to this analysis_risk"}), 403
-    
-    _actives = analysis_risk.associated_actives # type: ignore [analysis_risk isn't None]
-    
-    return jsonify({"actives": [active.as_dict() for active in _actives]}) # type: ignore
+        return (
+            jsonify({"error": "You don't have access to this analysis_risk"}),
+            403,
+        )
+
+    _actives = analysis_risk.associated_actives  # type: ignore [analysis_risk isn't None]
+
+    return jsonify({"actives": [active.as_dict() for active in _actives]})  # type: ignore
 
 
 @bp.route("/get-threats", methods=["POST"])
@@ -69,19 +73,23 @@ def get_threats():
     data = request.get_json()
     if "ac_id" not in data or "ar_id" not in data:
         return jsonify({"error": "Missing active_id or analysis_risk_id"}), 400
-    
-    if not can_access_analysis_risk(data["ar_id"], current_user): # type: ignore [current_user isn't None]
-        return jsonify({"error": "You don't have access to this analysis_risk"}), 403
-    
-    
+
+    if not can_access_analysis_risk(data["ar_id"], current_user):  # type: ignore [current_user isn't None]
+        return (
+            jsonify({"error": "You don't have access to this analysis_risk"}),
+            403,
+        )
+
     _active = database_manager.get_active(data["ac_id"], or_404=False)
     if not _active:
         return jsonify({"error": "Active not found"}), 404
-    
-    _result = {threat.id: {"title": threat.title, "description": threat.description, "adverses_actions": []} for threat in _active.associated_threats} # type: ignore
-    
+
+    _result = {threat.id: {"title": threat.title, "description": threat.description, "adverses_actions": []} for threat in _active.associated_threats}  # type: ignore
+
     for _id in _result:
-        _result[_id]["adverses_actions"] = database_manager.get_adverse_actions(threat_id=_id)
+        _result[_id][
+            "adverses_actions"
+        ] = database_manager.get_adverse_actions(threat_id=_id)
 
     # _result = {
     #     "id1": {
@@ -166,10 +174,8 @@ def get_threats():
     #     }
     # }
 
-    
     return jsonify(_result)
 
-    
-    
+
 def init_api(app: Flask) -> None:
     app.register_blueprint(bp)

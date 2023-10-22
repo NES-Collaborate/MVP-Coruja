@@ -97,12 +97,16 @@ def edit_institution(institution_id: int):
         form.pop("csrf_token", None)
         form.pop("submit", None)
 
-        if institution := database_manager.update_institution(institution, form):
+        if institution := database_manager.update_institution(
+            institution, form
+        ):
             flash("Instituição atualizada com sucesso", "success")
-            return redirect(url_for(
-                "institution.get_institution",
-                institution_id=institution_id,
-            ))
+            return redirect(
+                url_for(
+                    "institution.get_institution",
+                    institution_id=institution_id,
+                )
+            )
 
         flash("Ocorreu um erro ao atualizar a instituição", "danger")
     return render_template(

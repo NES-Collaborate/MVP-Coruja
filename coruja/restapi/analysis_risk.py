@@ -1,5 +1,3 @@
-
-
 from flask import Blueprint, Flask, render_template
 from flask_login import login_required
 
@@ -13,7 +11,7 @@ bp = Blueprint("analysis_risk", __name__, url_prefix="/analise-risco")
 @login_required
 @proxy_access(kind_object="analysis_risk", kind_access="read")
 def get_analysis_risk(analysis_risk_id: int):
-    """Rota para obter uma analise de risco, deve renderizar uma página 
+    """Rota para obter uma analise de risco, deve renderizar uma página
     dinâmica para atribuição de notas
 
     Args:
@@ -22,10 +20,13 @@ def get_analysis_risk(analysis_risk_id: int):
 
     analysis_risk = database_manager.get_analysis_risk(analysis_risk_id)
 
-    actives = analysis_risk.associated_actives # type: ignore [analysis_risk isn't None]
+    actives = analysis_risk.associated_actives  # type: ignore [analysis_risk isn't None]
 
-    return render_template("analysis_risk/analysis_risk.html", analysis_risk=analysis_risk, actives=actives)
-
+    return render_template(
+        "analysis_risk/analysis_risk.html",
+        analysis_risk=analysis_risk,
+        actives=actives,
+    )
 
 
 def init_api(app: Flask) -> None:
