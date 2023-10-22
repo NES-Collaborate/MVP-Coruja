@@ -3,19 +3,13 @@
 {% block content %}
 <div class="container-fluid">
   <div class="row">
-    <!-- sidebar -->
     <div class="col-md-3 text-left">
       <div class="d-flex flex-column p-3">
         <h6 class="mb-3">Ativos</h6>
-        <div id="actives" style="height: 60vh; overflow-y: auto;">
-          <!-- Lista de ativos será preenchida aqui -->
-        </div>
+        <div id="actives" class="h-75 overflow-y-auto"></div>
       </div>
     </div>
-
-    <div class="col-md-9" id="threats">
-      <!-- Ameaças são preenchidas aqui -->
-    </div>
+    <div class="col-md-9" id="threats"></div>
   </div>
 </div>
 {% endblock %}
@@ -41,42 +35,82 @@
         }),
         success: (data, textStatus, jqXHR) => {
           let accordion = $('<div class="accordion" id="accordionCool">');
-          let counter = 0; // Contador para gerar IDs únicos para elementos de acordeão
+          let counter = 0;
           for (let threatId in data) {
             counter++;
             let threat = data[threatId];
-            let accordionItem = $(`
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="heading${counter}">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${counter}" aria-expanded="true" aria-controls="collapse${counter}">
-                  ${threat.title}
-                </button>
-              </h2>
-              <div id="collapse${counter}" class="accordion-collapse collapse" aria-labelledby="heading${counter}" data-bs-parent="#accordionCool">
-                <div class="accordion-body">
-                  <strong>${threat.description}</strong>
-                  <ul>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          `);
+            let accordionItem = $(
+              `<div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading${counter}">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${counter}" aria-expanded="true" aria-controls="collapse${counter}">
+                                            ${threat.title}
+                                        </button>
+                                    </h2>
+                                    <div id="collapse${counter}" class="accordion-collapse collapse" aria-labelledby="heading${counter}" data-bs-parent="#accordionCool">
+                                        <div class="accordion-body">
+                                            <strong>${threat.description}</strong>
+                                            <ul></ul>
+                                        </div>
+                                    </div>
+                                </div>`
+            );
             let ul = accordionItem.find("ul");
+            ul.css("list-style-type", "none");
             for (let actionId in threat.adverse_actions) {
               let action = threat.adverse_actions[actionId];
-              ul.append(`<li>${action.title} - ${action.description} (Score: ${action.score})</li>`);
+              let scoreContainer = $(
+                `<div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>${action.title} - ${action.description}</span>
+                                        <div class="d-flex align-items-center">
+                                            <div class="border rounded px-2 text-center" style="width: 50px;" data-id="${actionId}" data-bs-toggle="tooltip" title="Clique para editar">${action.score}</div>
+                                            <div class="ms-2 text bg-success rounded-circle d-flex justify-content-center align-items-center" style="width: 30px; height: 30px; display: none;" data-id="${actionId}" data-bs-toggle="tooltip" title="Clique aqui para salvar">
+                                                <i class="bi bi-check-lg"></i>
+                                            </div>
+                                        </div>
+                                    </div>`
+              );
+              ul.append(scoreContainer);
+              scoreContainer.find(".border").click(function () {
+                $(this).tooltip('dispose');
+                let scoreDiv = $(this);
+                let score = scoreDiv.text();
+                let id = scoreDiv.data("id");
+                let input = $('<input type="text" class="form-control" style="width: 50px; height: 30px">').val(score);
+                scoreDiv.replaceWith(input);
+                scoreContainer.find(".bg-success").show();
+
+                scoreContainer.find(".bg-success").click(function () {
+                  var newScore = input.val();
+                  $.ajax({
+                    url: '{{ url_for("api.update_adverse_action_score") }}',
+                    type: 'POST',
+                    data: JSON.stringify({
+                      ad_id: id, score: newScore
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    headers: {
+                      'X-CSRFToken': csrf_token
+                    },
+                    success: (data, textStatus, jqXHR) => {
+                      input.replaceWith('<div class="border rounded px-2 text-center" style="width: 50px;" data-id="' + id + '" data-bs-toggle="tooltip" title="Clique para editar">' + newScore + '</div>');
+                      $(this).hide();
+                    },
+                    error: (error) => {
+                      console.log(error);
+                    }
+                  });
+                });
+              });
             }
             accordion.append(accordionItem);
           }
           $('#threats').append(accordion);
-        },
-        error: (jqXHR, textStatus, errorThrown) => {
-          console.log(errorThrown);
+          $('[data-bs-toggle="tooltip"]').tooltip();
         }
       });
     }
 
-    
     $.ajax({
       url: '{{ url_for("api.get_actives") }}',
       type: 'POST',
@@ -95,16 +129,15 @@
           let listItem = $(`<button class="list-group-item list-group-item-action py-2" data-id="${active.id}">${active.title}</button>`);
           listItem.click(() => {
             renderThreats(active.id);
-          })
+          });
           listGroup.append(listItem);
         });
         $('#actives').append(listGroup);
       },
-      error: (jqXHR, textStatus, errorThrown) => {
-        console.log(errorThrown)
+      error: (error) => {
+        console.log(error);
       }
     });
-
   });
 </script>
 {% endblock %}

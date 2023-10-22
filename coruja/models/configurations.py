@@ -5,7 +5,6 @@ from sqlalchemy import event
 from ..extensions.database import db
 from ..extensions.sessions import session
 
-
 class BaseTable(db.Model):
     __abstract__ = True
 
