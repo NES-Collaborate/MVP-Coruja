@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, flash, redirect, render_template, url_for
+from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from ..decorators import proxy_access
@@ -25,8 +25,9 @@ def get_analysis(analysis_id: int):
 @login_required
 @proxy_access(kind_object="analysis", kind_access="update")
 def edit_analysis(analysis_id: int):
-    form = AnalysisForm()
+
     analysis = database_manager.get_analysis(analysis_id)
+    form = AnalysisForm(obj=analysis)
 
     if form.validate_on_submit():
         description = form.description.data
@@ -54,8 +55,20 @@ def edit_analysis(analysis_id: int):
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
 # @proxy_access(kind_object="analysis", kind_access="create")
-def add_analysis():
+def create_analysis():
     form = AnalysisForm()
+
+    parent_id = request.args.get("parent_id", default=None, type=int)
+    if not parent_id:
+        flash("Unidade não especificada", "danger")
+        return redirect(url_for("application.home"))
+    
+    @proxy_access(kind_object="unit", kind_access="update")
+    def get_unit(*, unit_id: int):
+        return database_manager.get_unit(unit_id)
+
+    unit = get_unit(unit_id=parent_id)
+
     if form.validate_on_submit():
         description = form.description.data
         admin_ids = form.admin_ids.data
@@ -65,6 +78,7 @@ def add_analysis():
         )
 
         if analysis:
+            unit.add_analysis(analysis) # type: ignore
             flash("Análise criada com sucesso.", "success")
             return redirect(
                 url_for("analysis.get_analysis", analysis_id=analysis.id),

@@ -1,69 +1,16 @@
 {% extends "base.html" %}
+{% from "macros.html" import render_form %}
 
 {% block content %}
-<div class="container">
-    <h2 class="mb-4"><i class="bi bi-pencil-square"></i> Editar Análise</h2>
+<div class="container my-4 px-3 mx-auto w-50">
+    <h3 class="h3 fw-normal mb-3">
+        <i class="bi bi-pencil-square"></i> 
+        Editar {{analysis.name}}
+    </h3>
+
     <div class="card shadow">
         <div class="card-body">
-            <form id="analysis-form" method="post">
-                {{ form.hidden_tag() }}
-                <div class="mb-4">
-                    <label for="description" class="form-label"><i class="bi bi-card-text me-2"></i>Descrição</label>
-                    {{ form.description(class="form-control", placeholder="Descrição", value=analysis.description) }}
-                </div>
-                <div class="mb-4 position-relative">
-                    <label for="admin_autocomplete" class="form-label"><i
-                            class="bi bi-person-search me-2"></i>Administradores</label>
-                    <input type="text" class="form-control" id="admin_autocomplete"
-                        placeholder="Pesquisar por admins...">
-                    <div id="loading" class="position-absolute top-100 start-0 d-none">
-                        <div class="spinner-border spinner-border-sm text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                    <div id="result-container" class="position-absolute w-100 bg-light rounded-bottom"></div>
-                </div>
-                <ul id="selected_admins" class="list-group mt-2 rounded">
-                    {% for admin in analysis.administrators %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ admin.id }}">
-                            {{ admin.name }} [{{ admin.cpf_censored }}] <span class="badge bg-secondary">{{ admin.title or 'Sem Título'}}</span>
-                            <button class="remove-admin btn btn-outline-danger btn-sm {{ 'disabled' if current_user.id == admin.id else '' }}">
-                                <i class="bi bi-x-circle-fill"></i>
-                            </button>
-                    {% endfor %}
-                </ul>
-                {% for admin in analysis.administrators %}
-                    <input type="hidden" name="admin_ids-{{ admin.id }}" value="{{ admin.id }}" id="admin_ids-{{ admin.id }}" />
-                {% endfor %}
-                
-                <!-- Experts -->
-                <div class="mb-4 position-relative">
-                    <label for="expert_autocomplete" class="form-label"><i class="bi bi-person-search me-2"></i>Especialistas</label>
-                    <input type="text" class="form-control" id="expert_autocomplete" placeholder="Pesquisar por especialistas...">
-                    <div id="loading_expert" class="position-absolute top-100 start-0 d-none">
-                        <div class="spinner-border spinner-border-sm text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                    <div id="result-container_expert" class="position-absolute w-100 bg-light rounded-bottom"></div>
-                </div>
-                <ul id="selected_experts" class="list-group mt-2 rounded">
-                    {% for expert in analysis.experts %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ expert.id }}">
-                            {{ expert.name }} [{{ expert.cpf_censored }}] <span class="badge bg-secondary">{{ expert.title or 'Sem Título'}}</span>
-                            <button class="remove-expert btn btn-outline-danger btn-sm {{ 'disabled' if current_user.id == expert.id else '' }}">
-                                <i class="bi bi-x-circle-fill"></i>
-                            </button>
-                        </li>
-                    {% endfor %}
-                </ul>
-                {% for expert in analysis.experts %}
-                    <input type="hidden" name="expert_ids-{{ expert.id }}" value="{{ expert.id }}" id="expert_ids-{{ expert.id }}" />
-                {% endfor %}
-
-
-                <button type="submit" class="btn btn-primary mt-4"><i class="bi bi-save me-2"></i>Salvar Alterações</button>
-            </form>
+            {{ render_form(form, current_user, True) }}
         </div>
     </div>
 </div>
@@ -71,26 +18,24 @@
 
 {% block scripts %}
 <script>
-    $(document).ready(function () {
-        // id in analysis.administrators
-        var admin_ids = '[{{ analysis.administrators | map(attribute="id") | join(", ") }}]';
-        var selectedAdmins = JSON.parse(admin_ids);
+    $(document).ready(() => {
+        const current_id = '{{ current_user.id }}';
+        const selectedAdmins = [parseInt(current_id)];
 
         $('#admin_autocomplete').autocomplete({
             appendTo: "#result-container",
-            source: function (request, response) {
-                $("#loading").removeClass("d-none");
-                $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, function (data) {
+            source: (request, response) => {
+                $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
                     response(data.users);
-                    $("#loading").addClass("d-none");
                 });
             },
-            focus: function (event, ui) {
+            focus: (event, ui) => {
                 return false;
             },
-            select: function (event, ui) {
+            select: (event, ui) => {
                 if (selectedAdmins.includes(ui.item.id)) return false;
                 selectedAdmins.push(ui.item.id);
+
                 const adminItem = $(`
                 <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${ui.item.id}">
                     ${ui.item.name} <span class="badge bg-secondary">${ui.item.title || "Sem título"}</span>
@@ -98,75 +43,28 @@
                         <i class="bi bi-x-circle-fill"></i>
                     </button>
                 </li>
-            `);
+                `);
                 $('#selected_admins').append(adminItem);
-                $(`<input type="hidden" name="admin_ids-${ui.item.id}" value="${ui.item.id}" id="admin_ids-${ui.item.id}" />`).appendTo('#analysis-form');
+                $(`<input type="hidden" name="admin_ids-${ui.item.id}" value="${ui.item.id}" id="admin_ids-${ui.item.id}" />`)
+                    .appendTo('#analysis-form');
+
                 return false;
             }
-        }).data("ui-autocomplete")._renderItem = function (ul, item) {
+        }).data("ui-autocomplete")._renderItem = (ul, item) => {
             const listItem = $("<li>").appendTo(ul);
             const div = $("<div>").addClass("d-flex justify-content-between align-items-center").appendTo(listItem);
             const name = $("<span>").text(item.name).appendTo(div);
             const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
+
             return listItem;
         };
 
-        $(document).on('click', '.remove-admin', function () {
+        $(document).on('click', '.remove-admin', () => {
             const listItem = $(this).closest('li');
             const id = listItem.data('id');
             selectedAdmins = selectedAdmins.filter(adminId => adminId !== id);
             listItem.remove();
             $(`#admin_ids-${id}`).remove();
-        });
-    });
-</script>
-
-<script>
-    $(document).ready(function () {
-        var expert_ids = '[{{ analysis.experts | map(attribute="id") | join(", ") }}]';
-        var selectedExperts = JSON.parse(expert_ids);
-
-        $('#expert_autocomplete').autocomplete({
-            appendTo: "#result-container_expert",
-            source: function (request, response) {
-                $("#loading_expert").removeClass("d-none");
-                $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, function (data) {
-                    response(data.users);
-                    $("#loading_expert").addClass("d-none");
-                });
-            },
-            focus: function (event, ui) {
-                return false;
-            },
-            select: function (event, ui) {
-                if (selectedExperts.includes(ui.item.id)) return false;
-                selectedExperts.push(ui.item.id);
-                const expertItem = $(`
-                    <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${ui.item.id}">
-                        ${ui.item.name} <span class="badge bg-secondary">${ui.item.title || "Sem título"}</span>
-                        <button class="remove-expert btn btn-outline-danger btn-sm">
-                            <i class="bi bi-x-circle-fill"></i>
-                        </button>
-                    </li>
-                `);
-                $('#selected_experts').append(expertItem);
-                $(`<input type="hidden" name="expert_ids-${ui.item.id}" value="${ui.item.id}" id="expert_ids-${ui.item.id}" />`).appendTo('#analysis-form');
-                return false;
-            }
-        }).data("ui-autocomplete")._renderItem = function (ul, item) {
-            const listItem = $("<li>").appendTo(ul);
-            const div = $("<div>").addClass("d-flex justify-content-between align-items-center").appendTo(listItem);
-            const name = $("<span>").text(item.name).appendTo(div);
-            const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
-            return listItem;
-        };
-
-        $(document).on('click', '.remove-expert', function () {
-            const listItem = $(this).closest('li');
-            const id = listItem.data('id');
-            selectedExperts = selectedExperts.filter(expertId => expertId !== id);
-            listItem.remove();
-            $(`#expert_ids-${id}`).remove();
         });
     });
 </script>
