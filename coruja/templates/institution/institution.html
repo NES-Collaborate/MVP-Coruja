@@ -2,82 +2,85 @@
 {% from "macros.html" import render_table %}
 
 {% block content %}
-<!-- Floating Button para criar Unidade -->
-{% if current_user.role.name == 'admin' %}
-    <div class="position-fixed bottom-0 end-0 m-5">
-        <a
-        href="{{ url_for('unit.create_unit', parent_id=institution.id) }}"
-        class="btn btn-outline-primary m-5 btn-lg"
-        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Unidade"
-        >
-        <i class="bi bi-plus-lg"></i>
-        </a>
-    </div>
-{% endif %}
 
-<div class="d-flex flex-column mx-auto my-5 w-75 px-3">
-    <h2 class="h2 fw-normal mb-4 mb-4">
-        <i class="bi bi-building-gear"></i> 
-        {{ institution.name }}
-    </h2>
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-sm-8 col-md-12 col-lg-8">
 
-    <!-- Informações Gerais do Orgão -->
-    <div class="row">
-        <div class="card-shadow">
-            <div class="card border-0 shadow-lg rounded">
-                <div class="card-header py-3 border-0">
-                    <i class="bi bi-info-circle"></i> 
-                    &nbsp;Informações Gerais
-                </div>
-    
-                <div class="card-body">
-                    <div class="row row-cols-2">
-                        <div class="col py-3">
-                            <p>
-                                <strong>Endereço:</strong> 
-                                {{ institution.address }}
-                            </p>
-                        </div>
-                        <div class="col py-3">
-                            <p>
-                                <strong>CNPJ:</strong> 
-                                {{ institution.cnpj }}
-                            </p>
-                        </div>
-                        <div class="col">
-                            <p>
-                                <strong>E-mail:</strong> 
-                                {{ institution.email }}
-                            </p>
-                        </div>
-                        <div class="col">
-                            <p>
-                                <strong>Telefone:</strong> 
-                                {{ institution.telephone }}
-                            </p>
+        <h2 class="h2 fw-normal my-4">
+            <i class="bi bi-building-gear"></i> 
+            {{ institution.name }}
+        </h2>
+
+        <!-- Informações Gerais do Orgão -->
+        <div class="row">
+            <div class="card-shadow">
+                <div class="card border-0 shadow-lg rounded">
+                    <div class="card-header border-0">
+                        <i class="bi bi-info-circle"></i> 
+                        &nbsp;Informações Gerais
+                    </div>
+        
+                    <div class="card-body">
+                        <div class="row row-cols-2">
+                            <div class="col py-3">
+                                <p>
+                                    <strong>Endereço:</strong> 
+                                    {{ institution.address }}
+                                </p>
+                            </div>
+                            <div class="col py-3">
+                                <p>
+                                    <strong>CNPJ:</strong> 
+                                    {{ institution.cnpj }}
+                                </p>
+                            </div>
+                            <div class="col">
+                                <p>
+                                    <strong>E-mail:</strong> 
+                                    {{ institution.email }}
+                                </p>
+                            </div>
+                            <div class="col">
+                                <p>
+                                    <strong>Telefone:</strong> 
+                                    {{ institution.telephone }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="row mt-4">
+            <div class="text-center">
+                <h3 class="fw-normal mb-4">
+                    <i class="bi bi-building-fill"></i> 
+                    Unidades
+                </h3>
+                <form class="d-flex mb-4 w-50 m-auto" role="search">
+                    <div class="input-group shadow-lg">
+                        <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
+                        <input class="form-control border-0 p-2" type="text" placeholder="Buscar pelo nome da unidade">
+                    </div>
+                </form>
+                {{ render_table(units, "unit") }}
+            </div>
+        </div>
+
+        <!-- Floating Button para criar Unidade -->
+        {% if current_user.role.name == 'admin' %}
+        <div class="position-fixed bottom-0 end-0 m-5">
+            <a
+            href="{{ url_for('unit.create_unit', parent_id=institution.id) }}"
+            class="btn btn-outline-primary m-5 btn-lg"
+            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Unidade"
+            >
+            <i class="bi bi-plus-lg"></i>
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<div class="d-flex flex-column mx-auto my-auto w-75 px-3">
-    <div class="row mt-4 mb-5">
-        <div class="text-center my-5">
-            <h3 class="fw-normal mb-4">
-                <i class="bi bi-building-fill"></i> 
-                Unidades
-            </h3>
-            <form class="d-flex mb-4 w-50 m-auto" role="search">
-                <div class="input-group shadow-lg">
-                    <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
-                    <input class="form-control border-0 p-2" type="text" placeholder="Buscar pelo nome da unidade">
-                </div>
-            </form>
-            {{ render_table(units, "unit") }}
-        </div>
-    </div>
-</div>
 {% endblock %}
