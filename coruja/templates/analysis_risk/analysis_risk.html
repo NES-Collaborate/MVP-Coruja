@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- sidebar -->
+    <div class="col-md-3 text-left">
+      <div class="d-flex flex-column p-3">
+        <h6 class="mb-3">Ativos</h6>
+        <div id="actives" style="height: 60vh; overflow-y: auto;">
+          <!-- Lista de ativos será preenchida aqui -->
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9" id="threats">
+      <!-- Ameaças são preenchidas aqui -->
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function () {
+    var csrf_token = '{{ csrf_token() }}';
+
+    function renderThreats(activeId) {
+      $('#threats').empty();
+      $.ajax({
+        url: '{{ url_for("api.get_threats") }}',
+        type: 'POST',
+        headers: {
+          'X-CSRFToken': csrf_token
+        },
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({
+          'ar_id': '{{ analysis_risk.id }}',
+          'ac_id': activeId,
+        }),
+        success: (data, textStatus, jqXHR) => {
+          let accordion = $('<div class="accordion" id="accordionCool">');
+          let counter = 0; // Contador para gerar IDs únicos para elementos de acordeão
+          for (let threatId in data) {
+            counter++;
+            let threat = data[threatId];
+            let accordionItem = $(`
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading${counter}">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${counter}" aria-expanded="true" aria-controls="collapse${counter}">
+                  ${threat.title}
+                </button>
+              </h2>
+              <div id="collapse${counter}" class="accordion-collapse collapse" aria-labelledby="heading${counter}" data-bs-parent="#accordionCool">
+                <div class="accordion-body">
+                  <strong>${threat.description}</strong>
+                  <ul>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          `);
+            let ul = accordionItem.find("ul");
+            for (let actionId in threat.adverse_actions) {
+              let action = threat.adverse_actions[actionId];
+              ul.append(`<li>${action.title} - ${action.description} (Score: ${action.score})</li>`);
+            }
+            accordion.append(accordionItem);
+          }
+          $('#threats').append(accordion);
+        },
+        error: (jqXHR, textStatus, errorThrown) => {
+          console.log(errorThrown);
+        }
+      });
+    }
+
+    
+    $.ajax({
+      url: '{{ url_for("api.get_actives") }}',
+      type: 'POST',
+      headers: {
+        'X-CSRFToken': csrf_token
+      },
+      contentType: 'application/json',
+      dataType: 'json',
+      data: JSON.stringify({
+        'ar_id': '{{ analysis_risk.id }}'
+      }),
+      success: (data, textStatus, jqXHR) => {
+        $('#actives').empty();
+        let listGroup = $('<div class="list-group">');
+        data.actives.forEach((active, index) => {
+          let listItem = $(`<button class="list-group-item list-group-item-action py-2" data-id="${active.id}">${active.title}</button>`);
+          listItem.click(() => {
+            renderThreats(active.id);
+          })
+          listGroup.append(listItem);
+        });
+        $('#actives').append(listGroup);
+      },
+      error: (jqXHR, textStatus, errorThrown) => {
+        console.log(errorThrown)
+      }
+    });
+
+  });
+</script>
+{% endblock %}

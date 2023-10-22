@@ -8,6 +8,7 @@ from .auth import init_api as init_auth
 from .institution import init_api as init_institution
 from .organ import init_api as init_organ
 from .unit import init_api as init_unit
+from .analysis_risk import init_api as init_analysis_risk
 
 
 def init_apis(app: Flask) -> None:
@@ -19,3 +20,4 @@ def init_apis(app: Flask) -> None:
     init_admin(app)
     init_institution(app)
     init_unit(app)
+    init_analysis_risk(app)

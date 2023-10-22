@@ -97,7 +97,7 @@ def can_access_analysis_risk(analysis_risk_id: int, user: User) -> bool:
     Returns:
         bool: Se usuário especificado tem permissão para acessar a analise
     """
-    analysis_risk = database_manager.get_analysis_risk(analysis_risk_id)
+    analysis_risk = database_manager.get_analysis(analysis_risk_id)
     can_access = is_object_administrator(analysis_risk, user)
     return can_access or can_access_analysis(analysis_risk.analysis_id, user)  # type: ignore [analysis_risk isn't None]
 

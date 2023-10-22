@@ -2,6 +2,7 @@ from typing import Optional
 
 from ..extensions.database import db
 from .configurations import BaseTable
+from .dangers import Threat
 
 
 class Active(BaseTable):
@@ -9,6 +10,14 @@ class Active(BaseTable):
     description = db.Column(db.String)
     analysis_risk_id = db.Column(db.Integer, db.ForeignKey("analysis_risk.id"))
     is_template = db.Column(db.Boolean, default=False)
+    
+    associated_threats = db.relationship(
+        "Threat",
+        foreign_keys=[Threat.active_id],
+        backref=db.backref("active_threat", lazy=True),
+        lazy=True,
+        overlaps="associated_threats",
+    )
 
     def __init__(
         self,
