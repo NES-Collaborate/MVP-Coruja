@@ -8,15 +8,17 @@
         <thead>
             <tr>
                 <th>User</th>
-                <th>object_old</th>
-                <th>object_new</th>
+                <th>Objeto</th>
+                <th>OLD</th>
+                <th>NEW</th>
                 </th>
             </tr>
         </thead>
         <tbody>
-            {% for change in changes %}
+            {% for change in logs %}
                 <tr>
                     <td>{{ change.user.name }}</td>
+                    <td>{{ change.object_type }}</td>
                     <td>{{ change.object_old }}</td>
                     <td>{{ change.object_new }}</td>
                 </tr>

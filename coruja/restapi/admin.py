@@ -1,13 +1,7 @@
 from flask import Blueprint, Flask, abort, render_template, request
 from flask_login import current_user, login_required
 
-from ..models import (
-    AccessLog,
-    Change,
-    Vulnerability,
-    VulnerabilityCategory,
-    VulnerabilitySubCategory,
-)
+from ..models import AccessLog, Change, VulnerabilityCategory
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
