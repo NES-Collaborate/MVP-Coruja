@@ -39,6 +39,7 @@ __all__ = [
     "Organ",
     "Active",
     "Threat",
+    "Change",
     "Analysis",
     "AccessLog",
     "Permission",
@@ -63,11 +64,19 @@ __all__ = [
     "VulnerabilitySubCategory",
     "analytics_administrators",
     "institution_administrators",
-    "Change",
 ]
 
 
-def serialize(model_instance):
+def serialize(model_instance: "db.Model"): # type: ignore
+    """Serialize a model instance into a dictionary
+
+    Args:
+        model_instance (db.Model): Model instance
+
+    Returns:
+        dict: Dictionary
+    """
+
     serialized_data = {}
     for c in model_instance.__table__.columns:
         value = getattr(model_instance, c.name)
@@ -78,10 +87,22 @@ def serialize(model_instance):
 
 
 def capture_initial_state(target, query_context):
+    """Obtém o estado inicial de um determinado model
+
+    Args:
+        target (db.Model): Model
+        query_context (QueryContext): Contexto de consulta
+    """
     target._original_state = serialize(target)
 
 
 def capture_and_compare_changes(session, flush_context):
+    """Obtém as mudanças feitas por um flush commit
+
+    Args:
+        session (Session): Sessão do commit
+        flush_context (FlushContext): Contexto de flush
+    """
     for obj in session.dirty:
         if not hasattr(obj, "_original_state"):
             continue
