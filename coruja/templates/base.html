@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="pt" class="h-100" data-bs-theme="dark">
+<html lang="pt" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,11 +16,11 @@
     <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
     {% block css %}{% endblock %}
   </head>
-  <body class="d-flex h-100 text-center text-bg-auto">
-    <div class="container d-flex w-100 h-100 p-3 mx-auto flex-column">
-        <nav class="navbar navbar-expand-md bg-dark sticky-top border-bottom" id = "app_navbar" data-bs-theme="auto">
+  <body class="text-center text-bg-auto">
+    <div class="container p-3 mx-auto flex-column">
+        <nav class="navbar navbar-expand-md sticky-top" style="--bs-bg-opacity: .8;" id="app_navbar" data-bs-theme="auto">
             <div class="container">
-                <a class="navbar-brand h1" href="/app/home">
+                <a class="h1 navbar-brand" href="/app/home">
                     {{ config.APP_NAME }}
                 </a>
                 <button
@@ -37,46 +37,49 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav flex-grow-1 justify-content-end">
-                        <li class="nav-item">
-                            <a
-                                class="nav-link {{ 'active' if active_page == 'home' else '' }}"
-                                href="{{ url_for('application.home') }}"
-                            >
-                                <i class="bi bi-house"></i> Página Inicial
-                            </a>
-                        </li>
-
                         {% if current_user.role and current_user.role.name == 'admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link {{ 'active' if active_page == 'admin' else '' }}" 
-                                href="{{ url_for('admin.index') }}"
-                            >
-                                <i class="bi bi-person-gear"></i> Administração
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a
+                                    class="nav-link {{ 'active' if active_page == 'admin' else '' }}" 
+                                    href="{{ url_for('admin.index') }}"
+                                    title="Administração"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                >
+                                    <i class="bi bi-person-gear"></i>
+                                </a>
+                            </li>
                         {% endif %}
 
                         <li class="nav-item">
-                        {% if current_user.is_authenticated %}
                             <a
-                                class="nav-link text"
-                                href="{{ url_for('auth.logout') }}"
+                                id="themeToggle"
+                                class="nav-link"
+                                class="pe-auto"
+                                title="Alterar tema"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="bottom"
                             >
-                                Sair
-                            </a>
-                        {% else %}
-                            <a 
-                                class="nav-link text {{ 'active' if active_page == 'login' else '' }}" 
-                                href="{{ url_for('auth.login') }}" 
-                            >
-                                Entrar
-                            </a>
-                        {% endif %}
-                        </li>
-                        <li class="nav-item">
-                            <button type="button" id="themeToggle" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Alterar tema">
                                 <i id="themeIcon" class="bi bi-moon"></i>
-                            </button>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            {% if current_user.is_authenticated %}
+                                <a
+                                    class="nav-link text-danger"
+                                    href="{{ url_for('auth.logout') }}"
+                                >
+                                    <i class="bi bi-box-arrow-right"></i>
+                                </a>
+                            {% else %}
+                                <a 
+                                    class="nav-link text-primary {{ 'active' if active_page == 'login' else '' }}" 
+                                    href="{{ url_for('auth.login') }}" 
+                                >
+                                <i class="bi bi-box-arrow-left"></i>
+                                </a>
+                            {% endif %}
                         </li>
                     </ul>
                 </div>
@@ -104,17 +107,6 @@
         <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11;">
         </div>
         {% block content %}{% endblock %}
-
-        <footer class="mt-auto fs-6">
-            <p>
-                {{ config.APP_NAME }} - por 
-                <a
-                    class="text text-info"
-                    href="https://sites.google.com/view/nes-alagoas">
-                    Novo Ensino Suplementar
-                </a>
-            </p>
-        </footer>
     </div>
     {% block scripts %}{% endblock %}
     </body>
