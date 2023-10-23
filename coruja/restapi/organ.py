@@ -30,7 +30,11 @@ def get_organ(organ_id: int):
     """
     organ = database_manager.get_organ(organ_id)
 
-    institutions = [institution for institution in organ.institutions if can_access_institution(institution.id, current_user)]  # type: ignore [organ and current_user aren't None]
+    institutions = [
+        institution
+        for institution in organ.institutions  # type: ignore [organ aren't None]
+        if can_access_institution(institution.id, current_user)  # type: ignore [current_user aren't None]
+    ]
 
     return render_template(
         "organ/organ.html",
@@ -69,7 +73,7 @@ def create_organ():
             flash(f"Orgão {organ.get('name')} criado com sucesso", "success")
             return redirect(url_for("application.home"))
 
-        flash("Encontramos um erro ao tentar criar o órgão", "danger")
+        flash("Ocorreu um erro ao criar o órgão", "danger")
     return render_template("organ/create.html", form=form)
 
 

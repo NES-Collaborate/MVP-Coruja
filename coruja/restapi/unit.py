@@ -28,9 +28,9 @@ bp = Blueprint("unit", __name__, url_prefix="/unidade")
 @proxy_access(kind_object="unit", kind_access="read")
 def get_unit(unit_id: int):
     unit = database_manager.get_unit(unit_id)
-    
-    analyses = [analysis for analysis in unit.analyses if can_access_analysis(analysis.id, current_user)] # type: ignore
-    print(unit.analyses) #type: ignore
+
+    analyses = [analysis for analysis in unit.analyses if can_access_analysis(analysis.id, current_user)]  # type: ignore
+    print(unit.analyses)  # type: ignore
 
     return render_template("unit/unit.html", unit=unit, analyses=analyses)
 
@@ -93,7 +93,7 @@ def edit_unit(unit_id: int):
                 )
             )
 
-    return render_template("unit/edit.html", form = form, unit = unit)
+    return render_template("unit/edit.html", form=form, unit=unit)
 
 
 def init_api(app: Flask) -> None:

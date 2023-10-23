@@ -16,7 +16,7 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    flash("Por favor, faça login antes de acessar a página", "danger")
+    flash("Faça login antes de acessar a página", "danger")
 
     return redirect(url_for("auth.login"))
 
@@ -42,7 +42,8 @@ def handle_404(err: NotFound):
         flash(err.description, "warning")
     else:
         flash(
-            "Desculpe, a página que você procura não foi encontrada", "warning"
+            "A página que você procura não foi encontrada",
+            "warning",
         )
     return redirect(url_for("application.home"))
 

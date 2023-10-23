@@ -25,7 +25,6 @@ def get_analysis(analysis_id: int):
 @login_required
 @proxy_access(kind_object="analysis", kind_access="update")
 def edit_analysis(analysis_id: int):
-
     analysis = database_manager.get_analysis(analysis_id)
     form = AnalysisForm(obj=analysis)
 
@@ -42,12 +41,12 @@ def edit_analysis(analysis_id: int):
         )
 
         if analysis:
-            flash("Análise atualizada com sucesso.", "success")
+            flash("Análise atualizada com sucesso", "success")
             return redirect(
                 url_for("analysis.get_analysis", analysis_id=analysis.id),
             )
         else:
-            flash("Ocorreu um erro ao atualizar a análise.", "danger")
+            flash("Ocorreu um erro ao atualizar a análise", "danger")
 
     return render_template("analysis/edit.html", form=form, analysis=analysis)
 
@@ -62,7 +61,7 @@ def create_analysis():
     if not parent_id:
         flash("Unidade não especificada", "danger")
         return redirect(url_for("application.home"))
-    
+
     @proxy_access(kind_object="unit", kind_access="update")
     def get_unit(*, unit_id: int):
         return database_manager.get_unit(unit_id)
@@ -78,13 +77,13 @@ def create_analysis():
         )
 
         if analysis:
-            unit.add_analysis(analysis) # type: ignore
-            flash("Análise criada com sucesso.", "success")
+            unit.add_analysis(analysis)  # type: ignore
+            flash("Análise criada com sucesso", "success")
             return redirect(
                 url_for("analysis.get_analysis", analysis_id=analysis.id),
             )
         else:
-            flash("Ocorreu um erro ao criar a análise.", "danger")
+            flash("Ocorreu um erro ao criar a análise", "danger")
 
     return render_template("analysis/create.html", form=form)
 

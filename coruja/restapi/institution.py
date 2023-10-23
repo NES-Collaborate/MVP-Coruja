@@ -58,7 +58,7 @@ def create_institution():
     if request.method == "GET":
         return render_template("institution/create.html", form=form)
 
-    flash("Encontramos um erro ao tentar criar a instituição", "danger")
+    flash("Ocorreu um erro ao criar a instituição", "danger")
     return render_template("institution/create.html", form=form)
 
 
@@ -74,7 +74,7 @@ def get_institution(institution_id: int):
 
     institution = database_manager.get_institution(institution_id)
     # units = database_manager.get_units(current_user.id)
-    units = [unit for unit in institution.units if can_access_unit(unit.id, current_user)] # type: ignore
+    units = [unit for unit in institution.units if can_access_unit(unit.id, current_user)]  # type: ignore
 
     return render_template(
         "institution/institution.html", institution=institution, units=units

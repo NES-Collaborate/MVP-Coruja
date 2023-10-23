@@ -14,11 +14,10 @@ def login():
         user = User.query.filter_by(cpf=form.cpf.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            flash("Login bem-sucedido!", "success")
             next = request.args.get("next") or url_for("application.home")
             return redirect(next)
         else:
-            flash("CPF ou Senha incorretos", "danger")
+            flash("CPF e/ou senha incorreto", "danger")
     return render_template("auth/login.html", form=form)
 
 
@@ -26,7 +25,6 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash("Logout bem-sucedido!", "success")
     return redirect(url_for("auth.login"))
 
 
