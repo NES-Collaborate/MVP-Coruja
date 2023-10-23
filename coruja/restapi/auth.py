@@ -25,8 +25,7 @@ def login():
 @bp.route("/logout")
 @login_required
 def logout():
-    """Rota de logout (deslogar)
-    """
+    """Rota de logout (deslogar)"""
     logout_user()
     return redirect(url_for("auth.login"))
 

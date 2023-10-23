@@ -25,16 +25,14 @@ def load_user(user_id: int) -> User | None:
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    """Trata o caso de usuário não estar logado (não autorizado)
-    """
+    """Trata o caso de usuário não estar logado (não autorizado)"""
     flash("Faça login antes de acessar a página", "danger")
 
     return redirect(url_for("auth.login"))
 
 
 def _before_request():
-    """Função chamada antes de cada requisição
-    """
+    """Função chamada antes de cada requisição"""
     is_static = request.path.startswith("/static/")
     is_favicon = request.path.startswith("/favicon.ico")
     if current_user.is_authenticated and not (is_static or is_favicon):  # type: ignore

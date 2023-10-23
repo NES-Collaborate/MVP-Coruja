@@ -67,8 +67,7 @@ def edit_analysis(analysis_id: int):
 @login_required
 # @proxy_access(kind_object="analysis", kind_access="create")
 def create_analysis():
-    """Renderiza a pagina de criação de uma nova Análise
-    """
+    """Renderiza a pagina de criação de uma nova Análise"""
     form = AnalysisForm()
 
     parent_id = request.args.get("parent_id", default=None, type=int)

@@ -501,7 +501,7 @@ class DatabaseManager:
         """Adiciona uma unidade ao banco de dados e atribui administradores
 
         Args:
-            **kwargs (dict): Argumentos de palavra-chave contendo os atributos 
+            **kwargs (dict): Argumentos de palavra-chave contendo os atributos
                 definidos pelo formulário de edição
 
         Returns:
