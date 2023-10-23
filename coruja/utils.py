@@ -86,6 +86,15 @@ class DatabaseManager:
         organ: Organ,
         form: Dict[str, Any],
     ) -> Organ:
+        """Atualiza um orgão com base em seus dados
+
+        Args:
+            organ (Organ): O orgão a ser atualizado
+            form (Dict[str, Any]): Os dados a serem atualizados
+
+        Returns:
+            Organ: O orgão atualizado
+        """
         administrators: List[int] = form.pop("admin_ids", [])
 
         for key, value in form.items():
@@ -140,6 +149,15 @@ class DatabaseManager:
         *,
         organ_id: Optional[int] = None,
     ) -> List[Institution]:
+        """Obtém instituições associadas a um usuario com base em seu ID e o órgão
+
+        Args:
+            user_id (int): O ID do usuário
+            organ_id (Optional[int], optional): O ID do orgão. Defaults to None.
+
+        Returns:
+            List[Institution]: Uma lista de objetos Institution
+        """
         user_institution_alias = aliased(institution_administrators)
 
         if organ_id is None:
@@ -163,7 +181,7 @@ class DatabaseManager:
             )
             .all()
         )
-    
+
     def get_institution(
         self, institution_id: int, or_404: bool = True
     ) -> Institution | None:
@@ -195,6 +213,15 @@ class DatabaseManager:
         institution: Institution,
         form: Dict[str, Any],
     ) -> Institution:
+        """Atualiza uma instituição com base em seus dados
+
+        Args:
+            institution (Institution): A instituição a ser atualizada
+            form (Dict[str, Any]): Os dados a serem atualizados
+
+        Returns:
+            Institution: A instituição atualizada
+        """
         administrators: List[int] = form.pop("admin_ids", [])
 
         for key, value in form.items():
@@ -213,6 +240,15 @@ class DatabaseManager:
         unit: Unit,
         form: Dict[str, Any],
     ) -> Unit:
+        """Atualiza uma unidade com base em seus dados
+
+        Args:
+            unit (Unit): A unidade a ser atualizada
+            form (Dict[str, Any]): Os dados a serem atualizados
+
+        Returns:
+            Unit: A unidade atualizada
+        """
         administrators: List[int] = form.pop("admin_ids", [])
 
         for key, value in form.items():
@@ -462,6 +498,15 @@ class DatabaseManager:
         return institution
 
     def add_unit(self, **kwargs) -> Unit:
+        """Adiciona uma unidade ao banco de dados e atribui administradores
+
+        Args:
+            **kwargs (dict): Argumentos de palavra-chave contendo os atributos 
+                definidos pelo formulário de edição
+
+        Returns:
+            Unit: A unidade adicionada ao banco de dados
+        """
         administrators = kwargs.pop("administrators", [])
         unit = Unit(**kwargs)
 
@@ -476,6 +521,16 @@ class DatabaseManager:
         return unit
 
     def is_organ_administrator(self, user: User | Any) -> bool:
+        """Verifica se um usuário é administrador de um organ
+
+        Na Realidade, é uma verificação para permissão de criar órgãos
+
+        Args:
+            user (User | Any): Usuário
+
+        Returns:
+            bool: Se o usuário é administrador de um organ
+        """
         # TODO: implementar verificação de permission pela role
         role = user.role
         if not role:

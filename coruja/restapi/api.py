@@ -47,6 +47,22 @@ def get_users():
 @bp.route("/get-actives", methods=["POST"])
 @login_required
 def get_actives():
+    """Obtém uma lista de ativos com base ID de Análise de Risco (`ar_id`).
+
+    Returns:
+        Uma resposta JSON contendo uma lista de ativos que correspondem aos
+        critérios de busca. A resposta tem a seguinte estrutura:
+        >>> {
+        ...    "actives": [
+        ...        {
+        ...            "id": int,
+        ...            "title": str,
+        ...            "description": str
+        ...        },
+        ...        ...
+        ...    ]
+        ... }
+    """
     data = request.get_json()
     if "ar_id" not in data:
         return jsonify({"error": "Missing analysis_risk_id"}), 400
@@ -70,6 +86,30 @@ def get_actives():
 @bp.route("/get-threats", methods=["POST"])
 @login_required
 def get_threats():
+    """Obtém uma lista de ameaças com base no ID do Ativo (`ac_id`) e de Análise de Risco (`ar_id`).
+
+    Returns:
+        Uma resposta JSON contendo uma lista de ameastras que correspondem aos
+        criterras de busca. A resposta tem a seguinte estrutura:
+        >>> {
+        ...    "threats": [
+        ...        {
+        ...            "id": int,
+        ...            "title": str,
+        ...            "description": str,
+        ...            "adverses_actions": [
+        ...                {
+        ...                    "id": int,
+        ...                    "name": str,
+        ...                    "description": str
+        ...                },
+        ...                ...
+        ...            ]
+        ...        },
+        ...        ...
+        ...    ]
+        ... }
+    """
     data = request.get_json()
     if "ac_id" not in data or "ar_id" not in data:
         return jsonify({"error": "Missing active_id or analysis_risk_id"}), 400

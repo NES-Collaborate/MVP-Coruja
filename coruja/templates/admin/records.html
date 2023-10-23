@@ -32,10 +32,10 @@
     <nav aria-label="Page navigation">
         <ul class="pagination">
             <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin.get_records', page=pagination.page-1) }}">Anterior</a>
+                <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page-1) }}">Anterior</a>
             </li>
             <li class="page-item {% if not has_next_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin.get_records', page=pagination.page+1) }}">Próximo</a>
+                <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page+1) }}">Próximo</a>
             </li>
         </ul>
     </nav>

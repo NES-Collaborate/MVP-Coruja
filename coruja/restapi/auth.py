@@ -9,6 +9,7 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
+    """Rota de login"""
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(cpf=form.cpf.data).first()
@@ -24,6 +25,8 @@ def login():
 @bp.route("/logout")
 @login_required
 def logout():
+    """Rota de logout (deslogar)
+    """
     logout_user()
     return redirect(url_for("auth.login"))
 

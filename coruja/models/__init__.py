@@ -120,7 +120,7 @@ def capture_and_compare_changes(session, flush_context):
             )
             session.add(change)
 
-
+# Código abaixo registra eventos para cada subclasse de BaseTable
 for name, value in locals().copy().items():
     if (
         isinstance(value, type)

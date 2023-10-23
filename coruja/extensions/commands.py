@@ -8,6 +8,8 @@ from ..models import Permission, Role, User
 
 
 def create_default_roles():
+    """Cria os 'cargos' padrões dos usuários
+    """
     print("Creating default roles...")
     permissions = [
         Permission(
@@ -71,6 +73,8 @@ def create_default_roles():
 
 
 def init_database():
+    """Cria as tabelas do banco de dados e alimenta com dados padrões
+    """
     print("Creating tables...")
 
     db.drop_all()
@@ -83,6 +87,8 @@ def init_database():
 
 
 def create_admin():
+    """Cria um usuário administrador
+    """
     print("Creating admin user...")
 
     password = "".join(choices(ascii_lowercase, k=10))

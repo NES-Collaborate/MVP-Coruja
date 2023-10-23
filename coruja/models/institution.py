@@ -60,6 +60,11 @@ class Institution(BaseTable):
             db.session.commit()
 
     def add_unit(self, unit: Unit):
+        """Adiciona uma unidade à lista de unidades relacionadas à uma instituição
+
+        Args:
+            unit (Unit): Unidade a ser adicionada
+        """
         if not self.units:
             self.units = []
 

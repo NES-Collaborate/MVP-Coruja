@@ -45,6 +45,12 @@ class Role(BaseTable):
     def add_permission(
         self, permission: Permission, commit_changes: bool = False
     ) -> None:
+        """Adiciona uma permissão a uma role
+
+        Args:
+            permission (Permission): Permissão a ser adicionada
+            commit_changes (bool, optional): Se True, salva as alterações no banco. Defaults to False.
+        """
         if not self.permissions:
             self.permissions = []
 

@@ -10,6 +10,8 @@ bp = Blueprint("application", __name__, url_prefix="/app")
 @bp.route("/home")
 @login_required
 def home():
+    """Rota principal da aplicação
+    """
     form = OrganForm()
     organs = database_manager.get_organs(getattr(current_user, "id"))
 

@@ -80,6 +80,11 @@ class AdverseActionScore(BaseTable):
         self.adverse_action_id = adverse_action_id
 
     def as_dict(self):
+        """Retorna campos principais da tabela como dicionário
+
+        Returns:
+            dict: Dicionário
+        """
         return {
             "motivation": self.motivation,
             "capacity": self.capacity,

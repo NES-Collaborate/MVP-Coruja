@@ -9,6 +9,7 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 @bp.route("/")
 @login_required
 def index():
+    """Rota principal de admin"""
     if current_user.role.name == "admin":  # type: ignore
         return render_template("admin/index.html")
     else:
@@ -17,7 +18,9 @@ def index():
 
 @bp.route("/logs-acesso", methods=["GET"])
 @login_required
-def get_records():
+def get_logs():
+    """Rota que renderiza os logs de acesso paginados
+    """
     page = request.args.get("page", 1, type=int)
     pagination = AccessLog.query.paginate(page=page, per_page=10)
     all_access_logs = pagination.items
@@ -33,6 +36,8 @@ def get_records():
 @bp.route("/changes", methods=["GET"])
 @login_required
 def get_changes():
+    """Página que renderiza os logs de mudanças paginados
+    """
     page = request.args.get("page", 1, type=int)
     pagination = Change.query.paginate(page=page, per_page=10)
     all_changes = pagination.items
@@ -51,6 +56,8 @@ bp2 = Blueprint("admin_configurations", __name__, url_prefix="/admin/config")
 @bp2.route("/categorias", methods=["GET"])
 @login_required
 def view_categories():
+    """Visualização das categorias de vulnerabilidades
+    """
     page = request.args.get("page", 1, type=int)
     pagination = VulnerabilityCategory.query.paginate(page=page, per_page=10)
     all_categories = pagination.items

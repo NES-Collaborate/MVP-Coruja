@@ -12,6 +12,11 @@ bp = Blueprint("analysis", __name__, url_prefix="/analise")
 @login_required
 @proxy_access(kind_object="analysis", kind_access="read")
 def get_analysis(analysis_id: int):
+    """Renderiza detalhes sobre uma determinada Análise
+
+    Args:
+        analysis_id (int): ID da Análise
+    """
     analysis = database_manager.get_analysis(analysis_id)
     # TODO: Criar métodos para retornar uma lista de experts com seus respectivos
     # "progressos" dentro de uma determinada análise (notasDadas/notasPossíveis)
@@ -25,6 +30,13 @@ def get_analysis(analysis_id: int):
 @login_required
 @proxy_access(kind_object="analysis", kind_access="update")
 def edit_analysis(analysis_id: int):
+    """Renderiza a página de edição de uma determinada Análise
+
+    Permite submeter a edição de uma determinada Análise
+
+    Args:
+        analysis_id (int): ID da Análise
+    """
     analysis = database_manager.get_analysis(analysis_id)
     form = AnalysisForm(obj=analysis)
 
@@ -55,6 +67,8 @@ def edit_analysis(analysis_id: int):
 @login_required
 # @proxy_access(kind_object="analysis", kind_access="create")
 def create_analysis():
+    """Renderiza a pagina de criação de uma nova Análise
+    """
     form = AnalysisForm()
 
     parent_id = request.args.get("parent_id", default=None, type=int)

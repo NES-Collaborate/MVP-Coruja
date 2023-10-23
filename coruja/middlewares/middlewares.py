@@ -10,18 +10,31 @@ from ..models import AccessLog, User
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id: int) -> User | None:
+    """Carrega um determinado usuário por ID
+
+    Args:
+        user_id (int): ID do usuário
+
+    Returns:
+        User: Usuário
+        None: Se o usuário não foi encontrado
+    """
     return User.query.filter_by(id=user_id).first()
 
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
+    """Trata o caso de usuário não estar logado (não autorizado)
+    """
     flash("Faça login antes de acessar a página", "danger")
 
     return redirect(url_for("auth.login"))
 
 
 def _before_request():
+    """Função chamada antes de cada requisição
+    """
     is_static = request.path.startswith("/static/")
     is_favicon = request.path.startswith("/favicon.ico")
     if current_user.is_authenticated and not (is_static or is_favicon):  # type: ignore
@@ -38,6 +51,11 @@ def _before_request():
 
 
 def handle_404(err: NotFound):
+    """Trata erros 404
+
+    Args:
+        err (NotFound): Erro
+    """
     if err.description != NotFound.description and err.description:
         flash(err.description, "warning")
     else:
@@ -49,6 +67,11 @@ def handle_404(err: NotFound):
 
 
 def handle_403(err: Forbidden):
+    """Trata erros 403
+
+    Args:
+        err (Forbidden): Erro
+    """
     if err.description != Forbidden.description and err.description:
         flash(err.description, "warning")
     else:
