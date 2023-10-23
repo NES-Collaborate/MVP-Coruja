@@ -3,11 +3,11 @@
 
 {% block content %}
 
-<div class="container my-auto px-3 mx-auto w-75">
-    <h1>Access Logs</h1>
+<div class="container my-4">
+    <h1 class="mb-4">Access Logs</h1>
     
-    <table class="table">
-        <thead>
+    <table class="table table-hover table-striped">
+        <thead class="table-dark">
             <tr>
                 <th>User</th>
                 <th>IP</th>
@@ -29,7 +29,7 @@
         </tbody>
     </table>
     
-    <nav aria-label="Page navigation">
+    <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination">
             <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
                 <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page-1) }}">Anterior</a>

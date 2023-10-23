@@ -1,12 +1,23 @@
 {% extends "base.html" %}
 {% set active_page = "admin" %}
 
-
 {% block content %}
 <div class="container my-auto px-3 mx-auto w-50">
-    <a class="btn btn-primary" href="{{ url_for('admin.get_logs') }}">Logs de Acesso</a>
-    <a class="btn btn-primary" href="{{ url_for('admin.get_changes') }}">Logs Mudanças</a>
+    <style>
+        .btn-block {
+            display: block;
+            width: 100%;
+            height: 60px; /* Torna o botão mais alto */
+            margin-bottom: 10px;
+            line-height: 50px; /* Centraliza o texto verticalmente */
+        }
+        .btn-container {
+            margin-top: 50px; /* Adiciona espaço antes do primeiro botão */
+        }
+    </style>
+    <div class="btn-container">
+        <a class="btn btn-primary btn-block" href="{{ url_for('admin.get_logs') }}">Logs de Acesso</a>
+        <a class="btn btn-primary btn-block" href="{{ url_for('admin.get_changes') }}">Logs Mudanças</a>
+    </div>
 </div>
-
-
 {% endblock %}
