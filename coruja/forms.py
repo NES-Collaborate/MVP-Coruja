@@ -24,33 +24,6 @@ def validate_cpf(form, field):
     if not cpf.isnumeric() or len(cpf) != 11:
         raise ValidationError("CPF Inválido")
 
-    # total_sum = 0
-    # weight = 10
-
-    # # Calcula o primeiro dígito verificador
-    # for n in cpf[:-2]:
-    #     total_sum += int(n) * weight
-    #     weight -= 1
-
-    # verifying_digit = 11 - (total_sum % 11)
-    # verifying_digit = 0 if verifying_digit > 9 else verifying_digit
-
-    # if verifying_digit != int(cpf[-2]):
-    #     raise ValidationError("CPF Inválido")
-
-    # # Calcula o segundo dígito verificador
-    # total_sum = 0
-    # weight = 11
-    # for n in cpf[:-1]:
-    #     total_sum += int(n) * weight
-    #     weight -= 1
-
-    # verifying_digit = 11 - (total_sum % 11)
-    # verifying_digit = 0 if verifying_digit > 9 else verifying_digit
-
-    # if verifying_digit != int(cpf[-1]):
-    #     raise ValidationError("CPF Inválido")
-
 
 class LoginForm(FlaskForm):
     """
@@ -113,8 +86,8 @@ class OrganForm(FlaskForm):
         validators=[
             DataRequired("Este campo é obrigatório"),
             Regexp(
-                r"^\(\d{2,3}\) \d{4,5}-\d{4}$",
-                message="Formato de telefone inválido. Use (99) 99999-9999.",
+                r"^(\(\d{2,3}\) \d{4,5}-\d{4}|\d{10,11})$",
+                message="Formato de telefone inválido",
             ),
         ],
     )
