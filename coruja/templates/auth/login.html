@@ -2,27 +2,33 @@
 {% set active_page = "login" %}
 
 {% block content %}
-    <main class="container my-auto px-3 mx-auto w-50">
-        <h3 class="h3 fw-normal mb-3">Login</h3>
+<main class="container mx-auto my-5 w-50">    
+    <h3 class="fw-normal my-5">Login</h3>
+    
+    <div class="card p-4 border-0 shadow-lg">
         <form method="POST" class="" novalidate autocomplete="off">
             {{ form.hidden_tag() }}
+
             <div class="form-floating mb-3">
-                {{ form.cpf(class = "form-control", placeholder="CPF")}}
+                {{ form.cpf(class="form-control border-0 shadow-sm", placeholder="CPF")}}
+
                 <label for="floatingCpf">CPF</label>
                 {% for error in form.cpf.errors %}
                     <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
                 {% endfor %}
-            </div>            
+            </div>         
             <div class="form-floating mb-3">
-                {{ form.password(class = "form-control", placeholder="Senha")}}
+                {{ form.password(class="form-control border-0 shadow-sm", placeholder="Senha")}}
+
                 <label for="floatingPassword">Senha</label>
                 {% for error in form.password.errors %}
                     <span class="text-danger mt-1" style="font-size:smaller">{{ error }}</span>
                 {% endfor %}
             </div>
             <div class="text-center">
-                {{ form.submit(class = "btn btn-primary w-100") }}
+                {{ form.submit(class = "btn btn-outline-primary w-100") }}
             </div>
         </form>
-    </main>
+    </div>
+</main>
 {% endblock %}

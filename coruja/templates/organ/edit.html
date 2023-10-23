@@ -8,7 +8,7 @@
         Editar {{ organ.name }}
     </h3>
 
-    <div class="card shadow">
+    <div class="card shadow mb-3 border-0">
         <div class="card-body">
             {{ render_form(form, current_user, True, formId = 'edit-organ') }}
         </div>
@@ -52,7 +52,7 @@
             }
         }).data("ui-autocomplete")._renderItem = (ul, item) => {
             const listItem = $("<li>").appendTo(ul);
-            const div = $("<div>").addClass("d-flex justify-content-between align-items-center").appendTo(listItem);
+            const div = $("<div>").addClass("d-flex justify-content-between align-items-center bg-info").appendTo(listItem);
             const name = $("<span>").text(item.name).appendTo(div);
             const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
 
