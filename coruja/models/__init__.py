@@ -67,7 +67,7 @@ __all__ = [
 ]
 
 
-def serialize(model_instance: "db.Model"): # type: ignore
+def serialize(model_instance: "db.Model"):  # type: ignore
     """Serialize a model instance into a dictionary
 
     Args:
@@ -109,6 +109,15 @@ def capture_and_compare_changes(session, flush_context):
 
         current_state = serialize(obj)
         original_state = obj._original_state
+        if (
+            isinstance(obj, User)
+            and current_state["last_seen"] != original_state["last_seen"]
+            and any(
+                current_state[key] != original_state[key]
+                for key in current_state
+            )
+        ):
+            continue
         if original_state != current_state:
             obj.updated_at = datetime.now()
             current_state["updated_at"] = obj.updated_at
@@ -119,6 +128,7 @@ def capture_and_compare_changes(session, flush_context):
                 object_type=obj.__class__.__name__,
             )
             session.add(change)
+
 
 # Código abaixo registra eventos para cada subclasse de BaseTable
 for name, value in locals().copy().items():
