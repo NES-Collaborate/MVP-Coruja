@@ -4,8 +4,19 @@
 {% block content %}
 
 <div class="container my-4">
-    <h1 class="mb-4">Access Logs</h1>
+    <h2 class="h2 fw-normal mb-4">
+        <i class="bi bi-clock-fill"></i> 
+        Access Logs
+    </h2>
     
+    
+    <form class="d-flex mb-4 w-50 m-auto" role="search" id="search-form">
+        <div class="input-group">
+            <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
+            <input class="form-control border-0 p-2 shadow-lg" id="search-input" type="text" placeholder="Buscar pelo ID do usuario">
+        </div>
+    </form>
+
     <table class="table table-hover table-striped">
         <thead class="table-dark">
             <tr>
@@ -16,7 +27,7 @@
                 <th>Endpoint</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="log-table-body">
             {% for log in logs %}
                 <tr>
                     <td>{{ log.user.name }} ({{ log.user.cpf_censored }})</td>
@@ -39,7 +50,70 @@
             </li>
         </ul>
     </nav>
-    
+    <!-- Botão para baixar logs -->
+    <button id="download-logs" class="btn btn-primary rounded-circle download-button" title="Clique para baixar os logs">
+        <a href="{{url_for('admin.download_logs')}}"><i class="bi bi-download thick-icon"></i></a>
+    </button>
+
 </div>
+<style>
+    .download-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+    }
+    .thick-icon {
+        font-weight: bold;
+        font-size: 24px;
+    }
+</style>
+<script>
+    $(document).ready(function(){
+        $('#search-input').on('input', function(e){
+            var query = $(this).val();
+            $.ajax({
+                url: '/get-users',  // substitua por sua URL correta
+                type: 'GET',
+                data: { query: query },
+                success: function(response) {
+                    var users = response.users;
+    
+                    // Limpa a tabela atual
+                    $('#log-table-body').empty();
+    
+                    // Preenche a tabela com novos dados
+                    users.forEach(function(user){
+                        var newRow = '<tr><td>' + user.name + ' (' + user.cpf + ')</td><td>IP_HERE</td><td>USER_AGENT_HERE</td><td>ACCESS_AT_HERE</td><td>ENDPOINT_HERE</td></tr>';
+                        $('#log-table-body').append(newRow);
+                    });
+                }
+            });
+        });
+    });
+    document.getElementById('download-logs').addEventListener('click', function() {
+        // Suponha que 'logs' seja a variável que contém todos os logs filtrados
+        var logs = [...]; // Preencha essa variável como achar adequado
+
+        // Enviar solicitação POST para download de logs
+        fetch('/admin/download_logs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ logs: logs })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+
 
 {% endblock %}
