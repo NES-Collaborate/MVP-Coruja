@@ -102,6 +102,10 @@ def view_categories():
         has_next_page=pagination.has_next,
     )
 
+@bp2.route("/category_form", methods=["GET"])
+@login_required
+def category_form():
+    return render_template("admin/category_form.html")
 
 def init_api(app: Flask):
     app.register_blueprint(bp)
