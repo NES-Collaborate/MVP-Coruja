@@ -19,12 +19,18 @@ def index():
         abort(403)
 
 
-@bp.route("/logs-acesso", methods=["GET"])
+@bp.route("/logs-acesso", methods=["GET", "POST"])
 @login_required
 def get_logs():
     """Rota que renderiza os logs de acesso paginados"""
+    query = AccessLog.query
+
+    user_id = request.args.get("user_id", "")
+    if user_id:
+        query = query.filter_by(user_id=user_id)
+
     page = request.args.get("page", 1, type=int)
-    pagination = AccessLog.query.paginate(page=page, per_page=10)
+    pagination = query.paginate(page=page, per_page=10)
     all_access_logs = pagination.items
 
     return render_template(

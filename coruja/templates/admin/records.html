@@ -9,12 +9,13 @@
         Logs de Acesso
     </h2>
     
-    
     <form class="d-flex mb-4 w-50 m-auto" role="search" id="search-form">
         <div class="input-group">
             <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
             <input class="form-control border-0 p-2 shadow-lg" id="search-input" type="text" placeholder="Buscar pelo ID do usuario">
+            <div id="result-container"></div>
         </div>
+        <input type="hidden" name="user_id" id="user-id">
     </form>
 
     <table class="table table-hover table-striped">
@@ -42,11 +43,14 @@
     
     <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination">
+            {% set params = request.args.copy() %}
+            {% set _ = params.pop('page', None) %}
+            {% set _ = params.pop('per_page', None) %}
             <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page-1) }}">Anterior</a>
+                <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page-1, **params) }}">Anterior</a>
             </li>
             <li class="page-item {% if not has_next_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page+1) }}">Próximo</a>
+                <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page+1, **params) }}">Próximo</a>
             </li>
         </ul>
     </nav>
@@ -56,6 +60,10 @@
     </button>
 
 </div>
+{% endblock %}
+
+
+{% block css %}
 <style>
     .download-button {
         position: fixed;
@@ -70,50 +78,36 @@
         font-size: 24px;
     }
 </style>
+{% endblock %}
+
+
+{% block scripts %}
 <script>
-    $(document).ready(function(){
-        $('#search-input').on('input', function(e){
-            var query = $(this).val();
-            $.ajax({
-                url: '/get-users',  // substitua por sua URL correta
-                type: 'GET',
-                data: { query: query },
-                success: function(response) {
-                    var users = response.users;
-    
-                    // Limpa a tabela atual
-                    $('#log-table-body').empty();
-    
-                    // Preenche a tabela com novos dados
-                    users.forEach(function(user){
-                        var newRow = '<tr><td>' + user.name + ' (' + user.cpf + ')</td><td>IP_HERE</td><td>USER_AGENT_HERE</td><td>ACCESS_AT_HERE</td><td>ENDPOINT_HERE</td></tr>';
-                        $('#log-table-body').append(newRow);
-                    });
-                }
-            });
-        });
-    });
-    document.getElementById('download-logs').addEventListener('click', function() {
-        // Suponha que 'logs' seja a variável que contém todos os logs filtrados
-        var logs = [...]; // Preencha essa variável como achar adequado
-
-        // Enviar solicitação POST para download de logs
-        fetch('/admin/download_logs', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ logs: logs })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    });
+$(document).ready(() => {
+    $("#search-input").autocomplete({
+        appendTo: "#result-container",
+        source: (request, response) => {
+            $.getJSON("{{ url_for('api.get_users') }}", { query: request.term }, (data) => {
+                response(data.users);
+            })
+        },
+        focus: (event, ui) => {
+            return false;
+        },
+        select: (event, ui) => {
+            $("#user-id").val(ui.item.id);
+            $("#search-input").val(ui.item.name);
+            $("#search-form").submit();
+            return false;
+        }
+    }).data("ui-autocomplete")._renderItem = (ul, item) => {
+        // put hello world in ul
+        const listItem = $("<li>").appendTo(ul);
+        const div = $("<div>").addClass("d-flex justify-content-between align-items-center bg-info").appendTo(listItem);
+        div.html(`${item.name} <span class="badge bg-secondary">${item.title || "Sem Título"}</span>`);
+        return listItem;
+    }
+}
+)
 </script>
-
-
 {% endblock %}
