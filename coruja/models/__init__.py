@@ -16,7 +16,11 @@ from .dangers import (
     VulnerabilityScore,
     VulnerabilitySubCategory,
 )
-from .institution import Institution, institution_administrators, institution_units
+from .institution import (
+    Institution,
+    institution_administrators,
+    institution_units,
+)
 from .organs import Organ
 from .relationships import (
     analytics_administrators,

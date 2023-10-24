@@ -7,7 +7,17 @@ from wtforms import (
     StringField,
     SubmitField,
 )
-from wtforms.validators import DataRequired, Email, Optional, Regexp, ValidationError
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Optional,
+    Regexp,
+    ValidationError,
+)
+
+from coruja.models.organs import Organ
+
+from .utils import ValidationTable
 
 
 def validate_cpf(form, field):
@@ -71,6 +81,10 @@ class OrganForm(FlaskForm):
                 r"^\d{2}.\d{3}.\d{3}\/\d{4}-\d{2}$",
                 message="Insira um CNPJ válido",
             ),
+            ValidationTable(
+                table=Organ,
+                message="Este CNPJ já está cadastrado",
+            ),
         ],
     )
     address = StringField("Endereço")
@@ -79,6 +93,10 @@ class OrganForm(FlaskForm):
         validators=[
             DataRequired("Este campo é obrigatório"),
             Email("Digite um endereço de e-mail válido"),
+            ValidationTable(
+                table=Organ,
+                message="Este e-mail já está cadastrado",
+            ),
         ],
     )
     telephone = StringField(
@@ -89,10 +107,18 @@ class OrganForm(FlaskForm):
                 r"^(\(\d{2,3}\) \d{4,5}-\d{4}|\d{10,11})$",
                 message="Formato de telefone inválido",
             ),
+            ValidationTable(
+                table=Organ,
+                message="Este telefone já está cadastrado",
+            ),
         ],
     )
     admin_ids = FieldList(HiddenField(), min_entries=1)
     submit = SubmitField("Criar orgão")
+
+    def __init__(self, *args, **kwargs):
+        self.is_edit = kwargs.pop("is_edit", False)
+        super().__init__(*args, **kwargs)
 
 
 class InstitutionForm(FlaskForm):

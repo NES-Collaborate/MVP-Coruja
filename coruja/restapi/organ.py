@@ -87,7 +87,7 @@ def edit_organ(organ_id: int):
         organ_id (int): ID do orgão a ser editado.
     """
     organ = database_manager.get_organ(organ_id)
-    form = OrganForm(obj=organ)
+    form = OrganForm(obj=organ, is_edit=True)
 
     if form.validate_on_submit() and organ:
         form = form_to_dict(form)["data"]
