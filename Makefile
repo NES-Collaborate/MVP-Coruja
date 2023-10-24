@@ -1,5 +1,9 @@
 install:
 	@pip install -r requirements.txt
+colab:
+	@pip install -r requirements.txt
+	@pip install -r requirements_dev.txt
+	@pip install -r requirements_test.txt
 init:
 	@python -m flask db init
 	@python -m flask db migrate
