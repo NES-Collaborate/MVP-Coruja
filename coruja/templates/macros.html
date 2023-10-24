@@ -127,16 +127,13 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        console.log("#{{ searchInputId }}")
         const searchInput = document.querySelector('#{{ searchInputId }}');
         const textWithoutResults = document.querySelector('#textWithoutResults');
         const searchResults = document.querySelector('#{{ tableId }}');
 
         if (!searchResults) {
-            console.log('searchResults not found');
             if (searchInput) {
-                console.log('searchInput found');
-                searchInput.classList.add('d-none');
+                searchInput.parentNode.classList.add("d-none");
             }
             return;
         }
