@@ -1,6 +1,6 @@
 <!-- Macros para formularios -->
 
-{% macro render_form(form, current_user, isEdit, formId = 'form') %}
+{% macro render_form(form, current_user, isEdit, formId = 'form', hasAdminList = True) %}
 <form method="POST" autocomplete="off" id="{{ formId }}">
     {{ form.hidden_tag() }}
 
@@ -27,6 +27,7 @@
     </div>
     {% endfor %}
 
+    {% if hasAdminList %}
     <div class="mt-5 position-relative">
         <label for="admin_autocomplete" class="form-label">
             <i class="bi bi-person-gear me-2"></i>
@@ -52,6 +53,7 @@
 
     <input type="hidden" name="admin_ids-{{ current_user.id }}" value="{{ current_user.id }}"
         id="admin_ids-{{ current_user.id }}" />
+    {% endif %}
 
     {% if not isEdit %}
     <div class="text-center mt-3">
