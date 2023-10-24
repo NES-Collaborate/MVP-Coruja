@@ -59,7 +59,7 @@
                         <th scope="col">Título</th>
                         <th scope="col">Descrição</th>
                         <th scope="col">Substituibilidade</th>
-                        <th scope="col">Custo de Substituição</th>
+                        <th scope="col">Resposição</th>
                         <th scope="col">Essencialidade</th>
                         <th scope="col">Score</th>
                       </tr>
@@ -121,7 +121,9 @@
   }
 
   const delLoading = () => {
-    qs("#loadingIcon").remove()
+    const loadingIcon = qs("#loadingIcon")
+    if (!loadingIcon) return
+    loadingIcon.remove()
   }
 
   const fetchData = (url, data, method = 'POST') => {
@@ -150,31 +152,30 @@
       switchActiveTab("generalInfo")
     })
 
+    var data = undefined;
     listen(tabs.risk, "click", async () => {
       switchActiveTab("risk")
       const activesApi = "{{ url_for('api.get_actives')}}"
       const tbody = qs("#risk tbody")
 
-      addLoading(tbody)
+      if (!data) {
+        addLoading(tbody)
+        data = await fetchData(activesApi, {
+          ar_id: analysisRiskId,
+        })
 
-      var data = await fetchData(activesApi, {
-        ar_id: analysisRiskId,
-      })
-
-      delLoading()
-      for (let active of data.actives) {
-        tbody.insertAdjacentHTML("beforeend", 
-          `
-            <tr>
-              <td>${active.title}</td>
-              <td>${active.description}</td>
-              <td>${active.substitutability}</td>
-              <td>${active.replacement_cost}</td>
-              <td>${active.essentiality}</td>
-              <td>${active.score}</td>
-            </tr>
-          `
-        )
+        delLoading()
+        for (let active of data.actives) {
+          let activeHTML = `<tr>
+                <td>${active.title}</td>
+                <td>${active.description}</td>
+                <td>${active.substitutability}</td>
+                <td>${active.replacement_cost}</td>
+                <td>${active.essentiality}</td>
+                <td>${active.score}</td>
+              </tr>`
+          tbody.insertAdjacentHTML("beforeend", activeHTML)
+        }
       }
     })
   })
