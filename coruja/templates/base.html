@@ -68,13 +68,19 @@
                                 <a
                                     class="nav-link text-danger"
                                     href="{{ url_for('auth.logout') }}"
+                                    title="Sair"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
                                 >
                                     <i class="bi bi-box-arrow-right"></i>
                                 </a>
                             {% else %}
                                 <a 
                                     class="nav-link text-primary {{ 'active' if active_page == 'login' else '' }}" 
-                                    href="{{ url_for('auth.login') }}" 
+                                    href="{{ url_for('auth.login') }}"
+                                    title="Entrar"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom" 
                                 >
                                 <i class="bi bi-box-arrow-left"></i>
                                 </a>

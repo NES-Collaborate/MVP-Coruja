@@ -8,13 +8,7 @@ from wtforms import (
     StringField,
     SubmitField,
 )
-from wtforms.validators import (
-    DataRequired,
-    Email,
-    Optional,
-    Regexp,
-    ValidationError,
-)
+from wtforms.validators import DataRequired, Email, Optional, Regexp, ValidationError
 
 from coruja.models.organs import Organ
 
