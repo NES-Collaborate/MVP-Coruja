@@ -35,7 +35,7 @@ def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
     return _new_form
 
 
-class UniqueTable:
+class UniqueData:
     def __init__(self, table: "db.Model", message: str):  # type: ignore
         self.table = table
         self.message = message

@@ -18,7 +18,7 @@ from wtforms.validators import (
 
 from coruja.models.organs import Organ
 
-from .utils import UniqueTable
+from .utils import UniqueData
 
 
 def validate_cpf(form, field):
@@ -82,9 +82,9 @@ class OrganForm(FlaskForm):
                 r"^\d{2}.\d{3}.\d{3}\/\d{4}-\d{2}$",
                 message="Insira um CNPJ válido",
             ),
-            UniqueTable(
+            UniqueData(
                 table=Organ,
-                message="Este CNPJ já está cadastrado",
+                message="Este CNPJ já está associado a outro orgão",
             ),
         ],
     )
@@ -94,9 +94,9 @@ class OrganForm(FlaskForm):
         validators=[
             DataRequired("Este campo é obrigatório"),
             Email("Digite um endereço de e-mail válido"),
-            UniqueTable(
+            UniqueData(
                 table=Organ,
-                message="Este e-mail já está cadastrado",
+                message="Este e-mail já está associado a outro orgão",
             ),
         ],
     )
@@ -108,9 +108,9 @@ class OrganForm(FlaskForm):
                 r"^(\(\d{2,3}\) \d{4,5}-\d{4}|\d{10,11})$",
                 message="Formato de telefone inválido",
             ),
-            UniqueTable(
+            UniqueData(
                 table=Organ,
-                message="Este telefone já está cadastrado",
+                message="Este telefone já está associado a outro orgão",
             ),
         ],
     )
