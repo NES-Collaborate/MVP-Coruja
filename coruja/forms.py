@@ -1,4 +1,3 @@
-import ipdb
 from flask_wtf import FlaskForm
 from wtforms import (
     EmailField,
@@ -16,6 +15,7 @@ from wtforms.validators import (
     ValidationError,
 )
 
+from coruja.models.institution import Institution
 from coruja.models.organs import Organ
 
 from .utils import UniqueData
@@ -83,20 +83,21 @@ class OrganForm(FlaskForm):
                 message="Insira um CNPJ válido",
             ),
             UniqueData(
-                table=Organ,
-                message="Este CNPJ já está associado a outro orgão",
+                message="Este CNPJ já está associado a outro orgão ou instituição",
             ),
         ],
     )
-    address = StringField("Endereço")
+    address = StringField(
+        "Endereço",
+        validators=[DataRequired("Este campo é obrigatório")],
+    )
     email = EmailField(
         "E-mail",
         validators=[
             DataRequired("Este campo é obrigatório"),
             Email("Digite um endereço de e-mail válido"),
             UniqueData(
-                table=Organ,
-                message="Este e-mail já está associado a outro orgão",
+                message="Este e-mail já está associado a outro orgão ou instituição",
             ),
         ],
     )
@@ -109,8 +110,7 @@ class OrganForm(FlaskForm):
                 message="Formato de telefone inválido",
             ),
             UniqueData(
-                table=Organ,
-                message="Este telefone já está associado a outro orgão",
+                message="Este telefone já está associado a outro orgão ou instituição",
             ),
         ],
     )
@@ -138,24 +138,34 @@ class InstitutionForm(FlaskForm):
 
     csrf_token = HiddenField()
     name = StringField(
-        "Nome", validators=[DataRequired("Este campo é obrigatório")]
+        "Nome",
+        validators=[DataRequired("Este campo é obrigatório")],
     )
-    address = StringField("Endereço")
     cnpj = StringField(
         "CNPJ",
         validators=[
-            Optional(),
+            DataRequired("Este campo é obrigatório"),
             Regexp(
                 r"^\d{2}.\d{3}.\d{3}\/\d{4}-\d{2}$",
                 message="Insira um CNPJ válido",
             ),
+            UniqueData(
+                message="Este CNPJ já está associado a outro orgão ou instituição",
+            ),
         ],
+    )
+    address = StringField(
+        "Endereço",
+        validators=[DataRequired("Este campo é obrigatório")],
     )
     email = EmailField(
         "E-mail",
         validators=[
             DataRequired("Este campo é obrigatório"),
             Email("Digite um endereço de e-mail válido"),
+            UniqueData(
+                message="Este e-mail já está associado a outro orgão ou instituição",
+            ),
         ],
     )
     telephone = StringField(
@@ -163,8 +173,11 @@ class InstitutionForm(FlaskForm):
         validators=[
             DataRequired("Este campo é obrigatório"),
             Regexp(
-                r"^\(\d{2,3}\) \d{4,5}-\d{4}$",
+                r"^(\(\d{2,3}\) \d{4,5}-\d{4}|\d{10,11})$",
                 message="Formato de telefone inválido. Use (99) 99999-9999.",
+            ),
+            UniqueData(
+                message="Este telefone já está associado a outro orgão ou instituição",
             ),
         ],
     )
