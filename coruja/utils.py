@@ -39,22 +39,24 @@ def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
 
 
 class UniqueData:
-    def __init__(self, table: "db.Model", message: str):  # type: ignore
-        self.table = table
+    def __init__(self, message: str):  # type: ignore
         self.message = message
 
     def __call__(self, form, field):
-        # Validação para campos únicos nas tabelas
-        if not getattr(self.table, field.name).unique:
-            return
+        for _table in Organ, Institution:
+            ...
+            # Validação para campos únicos nas tabelas
+            atributte = getattr(_table, field.name, None)
+            if atributte and not atributte.unique:
+                return
 
-        # Se o campo do formulário não foi alterado na tabela
-        if form.is_edit and getattr(form.obj, field.name) == field.data:
-            return
+            # Se o campo do formulário não foi alterado na tabela
+            if form.is_edit and getattr(form.obj, field.name) == field.data:
+                return
 
-        # Se o campo do formulário já está cadastrado nesta tabela
-        if self.table.query.filter_by(**{field.name: field.data}).first():
-            raise ValidationError(self.message)
+            # Se o campo do formulário já está cadastrado nesta tabela
+            if _table.query.filter_by(**{field.name: field.data}).first():
+                raise ValidationError(self.message)
 
 
 class DatabaseManager:

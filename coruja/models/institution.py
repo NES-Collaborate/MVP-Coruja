@@ -9,10 +9,10 @@ from .users import User
 
 class Institution(BaseTable):
     name = db.Column(db.String(255), nullable=False)
-    cnpj = db.Column(db.String(255), unique=True)
-    address = db.Column(db.String(255))
+    cnpj = db.Column(db.String(255), nullable=False, unique=True)
+    address = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False, unique=True)
-    telephone = db.Column(db.String(255))
+    telephone = db.Column(db.String(255), nullable=False, unique=True)
     is_template = db.Column(db.Boolean, default=False)
 
     administrators = db.relationship(
@@ -44,7 +44,7 @@ class Institution(BaseTable):
         self.telephone = telephone
         self.is_template = is_template
 
-    def add_administrator(self, user: "User", commit_changes: bool = True):
+    def add_administrator(self, user: User, commit_changes: bool = True):
         """Adiciona um administrador a uma instituição
 
         Args:
