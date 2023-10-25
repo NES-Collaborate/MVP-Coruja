@@ -1,8 +1,10 @@
 from typing import Any, Dict, List, Optional, overload
 
+import ipdb
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
+from wtforms import ValidationError
 
 from .extensions.database import db
 from .models import (
@@ -34,6 +36,25 @@ def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
         _new_form[atributte] = getattr(form, atributte)
 
     return _new_form
+
+
+class UniqueData:
+    def __init__(self, table: "db.Model", message: str):  # type: ignore
+        self.table = table
+        self.message = message
+
+    def __call__(self, form, field):
+        # Validação para campos únicos nas tabelas
+        if not getattr(self.table, field.name).unique:
+            return
+
+        # Se o campo do formulário não foi alterado na tabela
+        if form.is_edit and getattr(form.obj, field.name) == field.data:
+            return
+
+        # Se o campo do formulário já está cadastrado nesta tabela
+        if self.table.query.filter_by(**{field.name: field.data}).first():
+            raise ValidationError(self.message)
 
 
 class DatabaseManager:

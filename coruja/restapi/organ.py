@@ -30,11 +30,10 @@ def get_organ(organ_id: int):
     """
     organ = database_manager.get_organ(organ_id)
 
-    institutions = [
-        institution
-        for institution in organ.institutions  # type: ignore [organ aren't None]
-        if can_access_institution(institution.id, current_user)  # type: ignore [current_user aren't None]
-    ]
+    _access = lambda institution: can_access_institution(
+        institution.id, current_user
+    )
+    institutions = list(filter(_access, organ.institutions))  # type: ignore
 
     return render_template(
         "organ/organ.html",
@@ -46,7 +45,7 @@ def get_organ(organ_id: int):
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
 # @proxy_access(kind_object="organ", kind_access="create")
-# basicamente está comentado pois não foi implementado uma verificação via permissions da role (ainda)
+# TODO: ainda não foi implementado uma verificação via permissions da role
 def create_organ():
     """
     Rota para criar um novo órgão.
@@ -70,10 +69,9 @@ def create_organ():
                 **organ,
                 administrators=organ_administrators,
             )
-            flash(f"Orgão {organ.get('name')} criado com sucesso", "success")
+            flash(f"Orgão {organ.get('name')} criado", "success")
             return redirect(url_for("application.home"))
 
-        flash("Ocorreu um erro ao criar o órgão", "danger")
     return render_template("organ/create.html", form=form)
 
 
@@ -87,7 +85,7 @@ def edit_organ(organ_id: int):
         organ_id (int): ID do orgão a ser editado.
     """
     organ = database_manager.get_organ(organ_id)
-    form = OrganForm(obj=organ)
+    form = OrganForm(obj=organ, is_edit=True)
 
     if form.validate_on_submit() and organ:
         form = form_to_dict(form)["data"]
@@ -95,10 +93,9 @@ def edit_organ(organ_id: int):
         form.pop("submit", None)
 
         if organ := database_manager.update_organ(organ, form):
-            flash("Orgão atualizada com sucesso", "success")
+            flash(f"Orgão {organ.name} atualizado", "success")
             return redirect(url_for("organ.get_organ", organ_id=organ.id))
 
-        flash("Ocorreu um erro ao atualizar o orgão", "danger")
     return render_template("organ/edit.html", form=form, organ=organ)
 
 

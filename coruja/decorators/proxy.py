@@ -1,14 +1,15 @@
 from functools import wraps
-from typing import Callable, Mapping, Optional
+from typing import Any, Callable, Mapping, Optional
 
 from flask import abort
 from flask_login import current_user
+from werkzeug.local import LocalProxy
 
 from ..models import User
 from ..utils import database_manager
 
 
-def is_object_administrator(obj: object, user: User) -> bool:
+def is_object_administrator(obj: object, user: User | LocalProxy) -> bool:
     """Verifica se o usuário é um administrador do objeto
 
     Args:
@@ -41,7 +42,9 @@ def can_access_organ(organ_id: int, user: User) -> bool:
     return can_access or is_object_administrator(organ, user)
 
 
-def can_access_institution(institution_id: int, user: User) -> bool:
+def can_access_institution(
+    institution_id: int, user: User | LocalProxy
+) -> bool:
     """Verifica se o usuário tem permissão para acessar a instituição
 
     Args:

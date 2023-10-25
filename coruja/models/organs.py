@@ -10,9 +10,9 @@ from .users import User
 class Organ(BaseTable):
     name = db.Column(db.String(255), nullable=False)
     cnpj = db.Column(db.String(255), nullable=False, unique=True)
-    address = db.Column(db.String(255))
+    address = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False, unique=True)
-    telephone = db.Column(db.String(255))
+    telephone = db.Column(db.String(255), nullable=False, unique=True)
     is_template = db.Column(db.Boolean, default=False)
 
     administrators = db.relationship(
