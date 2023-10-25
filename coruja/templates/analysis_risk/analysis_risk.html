@@ -1,143 +1,186 @@
-{% extends "base.html" %}
+    {% extends "base.html" %}
 
-{% block content %}
-<div class="container-fluid">
-  <div class="row">
+    {% block css %}
+    <style>
+    .list-group{
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    }
+    </style>
+    {% endblock %}
+
+    {% block content %}
+    <div class="container-fluid mt-3">
+    <div class="row d-flex align-items-center justify-content-center">
     <div class="col-md-3 text-left">
-      <div class="d-flex flex-column p-3">
-        <h6 class="mb-3">Ativos</h6>
-        <div id="actives" class="h-75 overflow-y-auto"></div>
-      </div>
+        <div class="d-flex flex-column p-3">
+            <h6 class="mb-3">Ativos</h6>
+            <div id="actives"></div>
+        </div>
     </div>
     <div class="col-md-9" id="threats"></div>
-  </div>
-</div>
-{% endblock %}
+    </div>
+    </div>
+    {% endblock %}
 
-{% block scripts %}
-<script>
-  $(document).ready(function () {
+    {% block scripts %}
+    <script>
+    $(document).ready(function () {
     var csrf_token = '{{ csrf_token() }}';
 
+    function _accordionItem(counter, title, description) {
+        return `<div class="accordion-item">
+            <h2 class="accordion-header" id="heading${counter}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                 data-bs-target="#collapse${counter}" aria-expanded="false" aria-controls="collapse${counter}">
+                    ${title}
+                </button>
+            </h2>
+            <div id="collapse${counter}" class="accordion-collapse collapse" 
+            aria-labelledby="heading${counter}" data-bs-parent="#accordionCool">
+                <div class="accordion-body">
+                    <strong>${description}</strong>
+                    <ul class=""></ul>
+                </div>
+            </div>
+        </div>`
+    }
+
     function renderThreats(activeId) {
-      $('#threats').empty();
-      $.ajax({
+        $('#threats').empty();
+        $.ajax({
         url: '{{ url_for("api.get_threats") }}',
         type: 'POST',
         headers: {
-          'X-CSRFToken': csrf_token
+            'X-CSRFToken': csrf_token
         },
         contentType: 'application/json',
         dataType: 'json',
         data: JSON.stringify({
-          'ar_id': '{{ analysis_risk.id }}',
-          'ac_id': activeId,
+            'ar_id': '{{ analysis_risk.id }}',
+            'ac_id': activeId,
         }),
         success: (data, textStatus, jqXHR) => {
-          let accordion = $('<div class="accordion" id="accordionCool">');
-          let counter = 0;
-          for (let threatId in data) {
-            counter++;
-            let threat = data[threatId];
-            let accordionItem = $(
-              `<div class="accordion-item">
-                                    <h2 class="accordion-header" id="heading${counter}">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${counter}" aria-expanded="true" aria-controls="collapse${counter}">
-                                            ${threat.title}
-                                        </button>
-                                    </h2>
-                                    <div id="collapse${counter}" class="accordion-collapse collapse" aria-labelledby="heading${counter}" data-bs-parent="#accordionCool">
-                                        <div class="accordion-body">
-                                            <strong>${threat.description}</strong>
-                                            <ul></ul>
-                                        </div>
-                                    </div>
-                                </div>`
-            );
-            let ul = accordionItem.find("ul");
-            ul.css("list-style-type", "none");
-            for (let actionId in threat.adverse_actions) {
-              let action = threat.adverse_actions[actionId];
-              let scoreContainer = $(
-                `<div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span>${action.title} - ${action.description}</span>
-                                        <div class="d-flex align-items-center">
-                                            <div class="border rounded px-2 text-center" style="width: 50px;" data-id="${actionId}" data-bs-toggle="tooltip" title="Clique para editar">${action.score}</div>
-                                            <div class="ms-2 text bg-success rounded-circle d-flex justify-content-center align-items-center" style="width: 30px; height: 30px; display: none;" data-id="${actionId}" data-bs-toggle="tooltip" title="Clique aqui para salvar">
-                                                <i class="bi bi-check-lg"></i>
-                                            </div>
-                                        </div>
-                                    </div>`
-              );
-              ul.append(scoreContainer);
-              scoreContainer.find(".border").click(function () {
-                $(this).tooltip('dispose');
-                let scoreDiv = $(this);
-                let score = scoreDiv.text();
-                let id = scoreDiv.data("id");
-                let input = $('<input type="text" class="form-control" style="width: 50px; height: 30px">').val(score);
-                scoreDiv.replaceWith(input);
-                scoreContainer.find(".bg-success").show();
 
-                scoreContainer.find(".bg-success").click(function () {
-                  var newScore = input.val();
-                  $.ajax({
-                    url: '{{ url_for("api.update_adverse_action_score") }}',
-                    type: 'POST',
-                    data: JSON.stringify({
-                      ad_id: id, score: newScore
-                    }),
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    headers: {
-                      'X-CSRFToken': csrf_token
-                    },
-                    success: (data, textStatus, jqXHR) => {
-                      input.replaceWith('<div class="border rounded px-2 text-center" style="width: 50px;" data-id="' + id + '" data-bs-toggle="tooltip" title="Clique para editar">' + newScore + '</div>');
-                      $(this).hide();
-                    },
-                    error: (error) => {
-                      console.log(error);
+            let accordion = $('<div class="accordion accordion-flush" id="accordionCool">');
+            let counter = 0;
+
+            for (let threatId in data) {
+
+                counter++;
+                let threat = data[threatId];
+                let accordionItem = $(_accordionItem(counter, threat.title, threat.description));
+                let ul = accordionItem.find("ul");
+
+                for (let actionId in threat.adverse_actions) {
+
+                    let action = threat.adverse_actions[actionId];
+                    let scoreContainer = $(
+                    `<div class="d-flex justify-content-between align-items-center mb-2 data-id="${actionId}"">
+                        <span>${action.title} - ${action.description}</span>
+                        <div class="d-flex justify-content-between" id="score-inputs">
+                        </div>
+                    </div>`
+                    );
+
+                    let updateButton = $(
+                        `<button type="button" class="btn btn-success
+                         m-1" disabled><i class="bi bi-check-lg"></i></button>`
+                    )
+
+                    let isFetching = false;
+                    let scoreInputs = scoreContainer.find("#score-inputs");
+                    for (let score in action.score){
+                        let input = $(
+                            `<input class="form-control text-center m-1" style="width: 50px;"
+                            title="${score}" data-bs-toggle="tooltip" data-bs-placement="top" id="${score}"
+                            data-score-type=${score} value = "${action.score[score]}" >`
+                        );
+
+                        input.change(function(){
+                            if(!isFetching) updateButton.prop("disabled", false)
+                        })
+                        scoreInputs.append(input);
                     }
-                  });
-                });
-              });
+
+                    scoreInputs.append(updateButton);
+                    
+                    ul.append(scoreContainer);
+                    let id = scoreContainer.data("id");
+
+                    scoreContainer.find("button").click(function () {
+                        isFetching = true
+                        updateButton.prop("disabled", true);
+                        updateButton.empty();
+                        updateButton.append(`<div class="spinner-border spinner-border-sm" role="status"></div>`);
+                        let scores = {}
+                        for(let score in action.score)
+                        {
+                            let input = scoreContainer.find(`#${score}`);
+                            scores[score] = input.val();
+                        }   
+                        
+                        $.ajax({
+                        url: '{{ url_for("api.update_adverse_action_score") }}',
+                        type: 'POST',
+                        data: JSON.stringify({
+                            ad_id: id, scores: scores
+                        }),
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        headers: {
+                            'X-CSRFToken': csrf_token
+                        },
+                        success: (data, textStatus, jqXHR) => {
+                            isFetching = false;
+                            updateButton.empty();
+                            updateButton.append(`<i class="bi bi-check-lg"></i>`);
+                            console.log(data)
+
+                        },
+                        error: (error) => {
+                            console.log(error);
+                        }
+                        });
+                    });
+                }
+                accordion.append(accordionItem);
             }
-            accordion.append(accordionItem);
-          }
-          $('#threats').append(accordion);
-          $('[data-bs-toggle="tooltip"]').tooltip();
+            $('#threats').append(accordion);
+            $('[data-bs-toggle="tooltip"]').tooltip();
         }
-      });
+        });
     }
 
     $.ajax({
-      url: '{{ url_for("api.get_actives") }}',
-      type: 'POST',
-      headers: {
+        url: '{{ url_for("api.get_actives") }}',
+        type: 'POST',
+        headers: {
         'X-CSRFToken': csrf_token
-      },
-      contentType: 'application/json',
-      dataType: 'json',
-      data: JSON.stringify({
+        },
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({
         'ar_id': '{{ analysis_risk.id }}'
-      }),
-      success: (data, textStatus, jqXHR) => {
+        }),
+        success: (data, textStatus, jqXHR) => {
         $('#actives').empty();
         let listGroup = $('<div class="list-group">');
         data.actives.forEach((active, index) => {
-          let listItem = $(`<button class="list-group-item list-group-item-action py-2" data-id="${active.id}">${active.title}</button>`);
-          listItem.click(() => {
+            let listItem = $(`<button class="list-group-item list-group-item-action py-2" data-id="${active.id}">
+            ${active.title}</button>`);
+            listItem.click(() => {
             renderThreats(active.id);
-          });
-          listGroup.append(listItem);
+            });
+            listGroup.append(listItem);
         });
         $('#actives').append(listGroup);
-      },
-      error: (error) => {
+        },
+        error: (error) => {
         console.log(error);
-      }
+        }
     });
-  });
-</script>
-{% endblock %}
+    });
+    </script>
+    {% endblock %}

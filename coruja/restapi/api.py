@@ -1,3 +1,5 @@
+from time import sleep
+
 from flask import Blueprint, Flask, jsonify, request
 from flask_login import current_user, login_required
 from sqlalchemy import or_
@@ -42,6 +44,8 @@ def get_users():
 
     _users = [user.as_dict(["id", "name", "cpf", "title"]) for user in users]
     return jsonify({"users": _users})
+
+
 
 
 @bp.route("/get-actives", methods=["POST"])
@@ -111,6 +115,7 @@ def get_threats():
         ... }
     """
     data = request.get_json()
+
     if "ac_id" not in data or "ar_id" not in data:
         return jsonify({"error": "Missing active_id or analysis_risk_id"}), 400
 
@@ -137,7 +142,12 @@ def get_threats():
 @bp.route("/update-adveser-action-score", methods=["POST"])
 @login_required
 def update_adverse_action_score():
-    return ""
+    data = request.get_json()
+
+    sleep(2)
+
+    print(data)
+    return jsonify({"oi":"tchau"})
 
 
 def init_api(app: Flask) -> None:
