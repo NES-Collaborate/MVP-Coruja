@@ -104,10 +104,10 @@ class VulnerabilityCategory(BaseTable):
 
     is_template = db.Column(db.Boolean, default=False)
 
-
     def __init__(self, *, name: str, is_template: bool = False):
         self.name = name
         self.is_template = is_template
+
 
 class VulnerabilitySubCategory(BaseTable):
     name = db.Column(db.String(255), nullable=False)
@@ -122,9 +122,11 @@ class VulnerabilitySubCategory(BaseTable):
         lazy=True,
     )
 
-    def __init__(self, *, name: str, category_id: Optional[int] = None):
+    is_template = db.Column(db.Boolean, default=False)
+
+    def __init__(self, *, name: str, is_template: bool = False):
         self.name = name
-        self.category_id = category_id
+        self.is_template = is_template
 
 
 class Vulnerability(BaseTable):

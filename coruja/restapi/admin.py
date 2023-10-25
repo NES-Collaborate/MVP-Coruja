@@ -1,21 +1,27 @@
 import csv
 from io import StringIO
 
-from flask import(
-    Blueprint, 
-    Flask, 
-    abort, 
+from flask import (
+    Blueprint,
+    Flask,
+    abort,
     flash,
-    make_response, 
-    render_template, 
-    redirect, 
-    url_for ,
-    request
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
 )
 from flask_login import current_user, login_required
 
-from ..forms import VulnerabilityCategoryForm
-from ..models import AccessLog, Change, VulnerabilityCategory, VulnerabilitySubCategory
+from ..forms import VulnerabilityCategoryForm, VulnerabilitySubcategoryForm
+from ..models import (
+    AccessLog,
+    Change,
+    Vulnerability,
+    VulnerabilityCategory,
+    VulnerabilitySubCategory,
+)
 from ..utils import database_manager
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -126,28 +132,37 @@ def view_categories():
 def category_form():
     form = VulnerabilityCategoryForm()
     if form.validate_on_submit():
-        name = form.name.data  # Usando form.name.data em vez de request.form.get("name")
-        database_manager.add_vulnerability_category(name)
+        name = (
+            form.name.data
+        )  # Usando form.name.data em vez de request.form.get("name")
+        database_manager.add_vulnerability_category(name)  # type: ignore
         flash(f"Categoria {name} criado com sucesso", "success")
         return redirect(url_for("admin_configurations.view_categories"))
     return render_template("admin/category_form.html", form=form)
 
-@bp2.route("/subcategorias", methods=["GET"])
+
+"""
+@bp.route("/subcategorias-vulnerabilidades", methods=["GET"])
 @login_required
-def view_subcategories():
-    page = request.args.get("page", 1, type=int)
-    pagination = VulnerabilitySubCategory.query.paginate(
-        page=page, per_page=10
-    )
-    subcategories = pagination.items
-    has_prev_page = pagination.has_prev
-    has_next_page = pagination.has_next
+def list_vulnerability_subcategories():
+    pass
+
+"""
+
+
+@bp.route("/nova-subcategorias-vulnerabilidades", methods=["GET", "POST"])
+@login_required
+def create_vulnerability_subcategories():
+    form = VulnerabilitySubcategoryForm()
+    if form.validate_on_submit():
+        name = (
+            form.name.data
+        )  # Usando form.name.data em vez de request.form.get("name")
+        database_manager.add_vulnerability_subcategory(name)  # type: ignore
+        flash(f"Subcategoria {name} criado com sucesso", "success")
+        return redirect(url_for("admin_configurations.view_categories"))
     return render_template(
-        "admin/subcategories.html",
-        subcategories=subcategories,
-        pagination=pagination,
-        has_prev_page=has_prev_page,
-        has_next_page=has_next_page,
+        "admin/create_vulnerability_subcategory.html", form=form
     )
 
 

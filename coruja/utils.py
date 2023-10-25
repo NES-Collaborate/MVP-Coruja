@@ -17,6 +17,7 @@ from .models import (
     Organ,
     Unit,
     User,
+    Vulnerability,
     VulnerabilityCategory,
     VulnerabilitySubCategory,
     institution_administrators,
@@ -653,16 +654,30 @@ class DatabaseManager:
 
     def add_vulnerability_category(self, name: str) -> None:
         """Adiciona uma nova categoria de vulnerabilidade
-        
+
         Args:
             name (str): Nome da nova categoria de vulnerabilidade
         """
-        
-        vulnerability_category = VulnerabilityCategory(name=name, is_template=False)  # Adicionado is_template=False
-        
+
+        vulnerability_category = VulnerabilityCategory(
+            name=name, is_template=False
+        )  # Adicionado is_template=False
+
         self.__db.session.add(vulnerability_category)
         self.__db.session.commit()
 
+    def add_vulnerability_subcategory(self, name: str) -> None:
+        """Adiciona uma nova categoria de vulnerabilidade
+
+        Args:
+            name (str): Nome da nova categoria de vulnerabilidade
+        """
+
+        vulnerability_subcategory = VulnerabilitySubCategory(
+            name=name, is_template=False
+        )
+        self.__db.session.add(vulnerability_subcategory)
+        self.__db.session.commit()
 
 
 database_manager = DatabaseManager()

@@ -46,8 +46,6 @@ def get_users():
     return jsonify({"users": _users})
 
 
-
-
 @bp.route("/get-actives", methods=["POST"])
 @login_required
 def get_actives():
@@ -188,7 +186,7 @@ def update_adverse_action_score():
     sleep(2)
 
     print(data)
-    return jsonify({"oi":"tchau"})
+    return jsonify({"oi": "tchau"})
 
 
 def init_api(app: Flask) -> None:
