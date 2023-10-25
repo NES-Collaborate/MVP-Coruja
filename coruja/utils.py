@@ -42,8 +42,7 @@ class UniqueData:
         self.message = message
 
     def __call__(self, form, field):
-        for _table in Organ, Institution:
-            ...
+        for _table in Organ, Institution, User:
             # Validação para campos únicos nas tabelas
             atributte = getattr(_table, field.name, None)
             if atributte and not atributte.unique:
@@ -356,6 +355,12 @@ class DatabaseManager:
         if or_404:
             return user.first_or_404("Usuário não encontrado")
         return user.first()
+
+    def add_user(self, **kwargs) -> User:
+        new_user = User(**kwargs)
+        self.__db.session.add(new_user)
+        self.__db.session.commit()
+        return new_user
 
     def add_analysis(self, **kwargs) -> Analysis:
         """

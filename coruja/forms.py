@@ -10,6 +10,7 @@ from wtforms import (
 from wtforms.validators import (
     DataRequired,
     Email,
+    Length,
     Optional,
     Regexp,
     ValidationError,
@@ -256,3 +257,73 @@ class VulnerabilitySubcategoryForm(FlaskForm):
     analysis_vulnerability_id = HiddenField(validators=[Optional()])
     is_template = HiddenField(validators=[Optional()])
     submit = SubmitField("Criar Subcategoria de Vulnerabilidade")
+
+
+class UserForm(FlaskForm):
+    csrf_token = HiddenField()
+    name = StringField(
+        "Nome", validators=[DataRequired("Este campo é obrigatório")]
+    )
+    title = StringField("Título")
+    cpf = StringField(
+        "CPF",
+        validators=[
+            DataRequired("Este campo é obrigatório"),
+            Regexp(
+                r"^\d{3}.\d{3}.\d{3}-\d{2}$",
+                message="Insira um CPF válido",
+            ),
+            UniqueData(
+                message="Este CPF já está associado a outro usuário",
+            ),
+        ],
+    )
+    email_personal = EmailField(
+        "E-mail pessoal",
+        validators=[
+            Email("Digite um endereço de e-mail válido"),
+            UniqueData(
+                message="Este e-mail já está associado a outro usuário",
+            ),
+        ],
+    )
+    email_personal = EmailField(
+        "E-mail profissional",
+        validators=[
+            DataRequired("Este campo é obrigatório"),
+            Email("Digite um endereço de e-mail válido"),
+            UniqueData(
+                message="Este e-mail já está associado a outro usuário"
+            ),
+        ],
+    )
+    password = PasswordField(
+        "Senha",
+        validators=[
+            DataRequired("Este campo é obrigatório"),
+            Length(
+                min=8, message="A senha precisa ter no mínimo 8 caracteres"
+            ),
+        ],
+    )
+    _telephones = FieldList(
+        StringField(
+            "Telefones",
+            validators=[
+                Regexp(
+                    r"^(\(\d{2,3}\) \d{4,5}-\d{4}|\d{10,11})$",
+                    message="Formato de telefone inválido",
+                ),
+                UniqueData(
+                    message="Este telefone já está associado a outro usuário, orgão ou instituição",
+                ),
+            ],
+        )
+    )
+    address = StringField("Endereço")
+    submit = SubmitField("Criar usuário")
+
+    def __init__(self, *args, **kwargs):
+        self.is_edit = kwargs.pop("is_edit", False)
+        self.obj = kwargs.get("obj", None)
+        super().__init__(*args, **kwargs)
