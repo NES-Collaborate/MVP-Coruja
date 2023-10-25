@@ -7,10 +7,13 @@ from wtforms import (
     StringField,
     SubmitField,
 )
-from wtforms.validators import DataRequired, Email, Optional, Regexp, ValidationError
-
-from coruja.models.institution import Institution
-from coruja.models.organs import Organ
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Optional,
+    Regexp,
+    ValidationError,
+)
 
 from .utils import UniqueData
 

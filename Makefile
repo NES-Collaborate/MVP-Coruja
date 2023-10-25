@@ -4,6 +4,8 @@ colab:
 	@pip install -r requirements.txt
 	@pip install -r requirements_dev.txt
 	@pip install -r requirements_test.txt
+clear:
+	@rm -rf access.txt flask_session/ instance/ migrations/
 init:
 	@python -m flask db init
 	@python -m flask db migrate
