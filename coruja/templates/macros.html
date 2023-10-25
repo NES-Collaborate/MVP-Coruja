@@ -1,134 +1,170 @@
 <!-- Macros para formularios -->
 
-{% macro render_form(form, current_user, isEdit, formId = 'form') %}
-    <form method="POST" autocomplete="off" id="{{ formId }}">
-        {{ form.hidden_tag() }}
+{% macro render_form(form, current_user, isEdit, formId = 'form', hasAdminList = True) %}
+<form method="POST" autocomplete="off" id="{{ formId }}">
+    {{ form.hidden_tag() }}
 
-        {% for field in form if field.type not in ['HiddenField', 'SubmitField', 'FieldList'] and field.name != 'csrf_token' %}
-            <div class="form-floating mb-3">
-                {{ field(class = "form-control border-0 shadow-sm", placeholder="{{field.label}}")}}
+    {% for field in form if field.type not in ['HiddenField', 'SubmitField', 'FieldList'] and field.name != 'csrf_token'
+    %}
+    <div class="form-floating mb-3">
+        {{ field(class = "form-control border-0 shadow-sm", placeholder="{{field.label}}")}}
 
-                <label for="floatingName">
-                    {{field.label}} 
+        <label for="floatingName">
+            {{field.label}}
 
-                    {% if is_field_required(field) %} 
-                    <span class="text-danger">
-                        * (Obrigatório)
-                    </span>
-                    {% endif %}
-                </label>
+            {% if is_field_required(field) %}
+            <span class="text-danger">
+                * (Obrigatório)
+            </span>
+            {% endif %}
+        </label>
 
-                {% for error in field.errors %}
-                    <span class="text-danger mt-1" style="font-size:smaller">
-                        {{ error }}
-                    </span>
-                {% endfor %}
-            </div>
+        {% for error in field.errors %}
+        <span class="text-danger mt-1" style="font-size:smaller">
+            {{ error }}
+        </span>
         {% endfor %}
+    </div>
+    {% endfor %}
 
-        <div class="mt-5 position-relative">
-            <label for="admin_autocomplete" class="form-label">
-                <i class="bi bi-person-gear me-2"></i>
-                Administradores
-            </label>
+    {% if hasAdminList %}
+    <div class="mt-5 position-relative">
+        <label for="admin_autocomplete" class="form-label">
+            <i class="bi bi-person-gear me-2"></i>
+            Administradores
+        </label>
 
-            <div class="input-group mb-3">
-                <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
-                <input
-                    id="admin_autocomplete"
-                    class="form-control border-0 p-2 shadow-lg" type="text"
-                    placeholder="Buscar administradores"
-                >
-            </div>
-            <div id="result-container" class="position-absolute w-100 bg-light rounded-bottom"></div>
+        <div class="input-group mb-3">
+            <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
+            <input id="admin_autocomplete" class="form-control border-0 p-2 shadow-lg" type="text"
+                placeholder="Buscar administradores">
         </div>
+        <div id="result-container" class="position-absolute w-100 bg-light rounded-bottom"></div>
+    </div>
 
-        <ul id="selected_admins" class="list-group mt-2">
-            <li
-                class="list-group-item d-flex justify-content-between align-items-center my-2 border-0 shadow-sm p-3"
-                data-id="{{ current_user.id }}"
-            >
-                {{ current_user.name }} [{{ current_user.cpf_censored }}] (você mesmo)
+    <ul id="selected_admins" class="list-group mt-2">
+        <li class="list-group-item d-flex justify-content-between align-items-center my-2 border-0 shadow-sm p-3"
+            data-id="{{ current_user.id }}">
+            {{ current_user.name }} [{{ current_user.cpf_censored }}] (você mesmo)
 
-                <span class="badge bg-info">Administrador</span>
-            </li>
-        </ul>
+            <span class="badge bg-info">Administrador</span>
+        </li>
+    </ul>
 
-        <input
-            type="hidden"
-            name="admin_ids-{{ current_user.id }}"
-            value="{{ current_user.id }}"
-            id="admin_ids-{{ current_user.id }}"
-        />
+    <input type="hidden" name="admin_ids-{{ current_user.id }}" value="{{ current_user.id }}"
+        id="admin_ids-{{ current_user.id }}" />
+    {% endif %}
 
-        {% if not isEdit %}
-            <div class="text-center mt-3">
-                {{ form.submit(class = "btn btn-outline-primary w-100") }}
-            </div>
-        {% else %}
-            <button type="submit" class="btn btn-outline-success mt-4">
-                <i class="bi bi-save me-2"></i> 
-                Salvar
-            </button>
-        {% endif %}
-    </form>
+    {% if not isEdit %}
+    <div class="text-center mt-3">
+        {{ form.submit(class = "btn btn-outline-primary w-100") }}
+    </div>
+    {% else %}
+    <button type="submit" class="btn btn-outline-success mt-4">
+        <i class="bi bi-save me-2"></i>
+        Salvar
+    </button>
+    {% endif %}
+</form>
 {% endmacro %}
 
-{% macro render_table(object, route, is_analysis) %}
-    {% if object %}
-        <table class="table table-borderless table-sm table-auto text-start">
-            <tr>
-                {% if not is_analysis %}
-                    <th class="col-md-7 m-2">Nome</th>
-                    <th class="col-lg-8">Endereço</th>
-                {% else %}
-                    <th scope="col">Data</th>
-                    <th scope="col">Descrição</th>
-                {% endif %}
-            </tr>
+{% macro render_table(object, route, is_analysis, tableId = 'table', searchInputId = 'searchInput') %}
+{% if object %}
+<table class="table table-borderless table-sm table-auto text-start" id="{{ tableId }}">
+    <thead>
+        <tr>
+            {% if not is_analysis %}
+            <th class="col-md-7 m-2">Nome</th>
+            <th class="col-lg-8">Endereço</th>
+            {% else %}
+            <th scope="col">Data</th>
+            <th scope="col">Descrição</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        <p id="textWithoutResults" class="text-muted d-none">Nenhum resultado encontrado</p>
+        {% for obj in object %}
+        <tr>
+            {% if not is_analysis %}
+            <td>{{ obj.name }}</td>
+            <td>{{ obj.address }}</td>
+            {% else %}
+            <td>{{ obj.created_at.strftime('%d/%m/%Y') }}</td>
+            <td>{{ obj.description }}</td>
+            {% endif %}
 
-            {% for obj in object %}
-                <tr>
-                    {% if not is_analysis %}
-                        <td>{{ obj.name }}</td>
-                        <td>{{ obj.address }}</td>
-                    {% else %}
-                        <td>{{ obj.created_at }}</td>
-                        <td>{{ obj.description }}</td>
-                    {% endif %}
+            <td class="text-center">
+                <div class="dropdown">
+                    <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots"></i>
+                    </span>
 
-                    <td class="text-center">
-                        <div class="dropdown">
-                            <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-three-dots"></i>
-                            </span>
+                    {% set params = {"{}_id".format(route) : obj.id} %}
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('{}.get_{}'.format(route, route), **params) }}">
+                                <i class="bi bi-arrow-right-square me-2"></i>
+                                Acessar
+                            </a>
+                        </li>
 
-                            {% set params = {"{}_id".format(route) : obj.id} %}
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a
-                                        class="dropdown-item"
-                                        href="{{ url_for('{}.get_{}'.format(route, route), **params) }}"
-                                    >
-                                        Acessar
-                                    </a>
-                                </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('{}.edit_{}'.format(route, route), **params) }}">
+                                <i class="bi bi-pencil-square me-2"></i>
+                                Editar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
 
-                                <li>
-                                    <a 
-                                        class="dropdown-item" 
-                                        href="{{ url_for('{}.edit_{}'.format(route, route), **params) }}"
-                                    >
-                                        Editar
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>Nada por aqui no momento</p>
-    {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Nada por aqui no momento</p>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.querySelector('#{{ searchInputId }}');
+        const textWithoutResults = document.querySelector('#textWithoutResults');
+        const searchResults = document.querySelector('#{{ tableId }}');
+
+        if (!searchResults) {
+            if (searchInput) {
+                searchInput.parentNode.classList.add("d-none");
+            }
+            return;
+        }
+
+        const tbody = searchResults.querySelector('tbody');
+
+        searchInput.addEventListener('keyup', ({ key }) => {
+            if (key === 'Enter') {
+                searchResults.scrollIntoView();
+                return;
+            }
+
+            const query = searchInput.value.toLowerCase();
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            const matchingRows = rows.filter(row => {
+                const [nameCell, addressCell] = Array.from(row.querySelectorAll('td'));
+                const name = nameCell.textContent.toLowerCase();
+                const address = addressCell.textContent.toLowerCase();
+                return name.includes(query) || address.includes(query);
+            });
+
+            rows.forEach(row => row.classList.add('d-none'));
+            matchingRows.forEach(row => row.classList.remove('d-none'));
+
+            const hasResults = matchingRows.length > 0;
+            textWithoutResults.classList.toggle('d-none', hasResults);
+            searchResults.classList.toggle('d-none', !hasResults);
+        });
+    });
+</script>
 {% endmacro %}

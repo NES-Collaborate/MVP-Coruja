@@ -28,7 +28,7 @@ def unauthorized_handler():
     """Trata o caso de usuário não estar logado (não autorizado)"""
     flash("Faça login antes de acessar a página", "danger")
 
-    return redirect(url_for("auth.login"))
+    return redirect(url_for("auth.login", next=request.path))
 
 
 def _before_request():

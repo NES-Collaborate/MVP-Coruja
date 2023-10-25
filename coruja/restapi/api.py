@@ -6,7 +6,7 @@ from sqlalchemy import or_
 
 from coruja.decorators.proxy import can_access_analysis_risk
 
-from ..models import User
+from ..models import ActiveScore, User
 from ..utils import database_manager
 
 bp = Blueprint("api", __name__, url_prefix="/api/v1")
@@ -62,6 +62,10 @@ def get_actives():
         ...            "id": int,
         ...            "title": str,
         ...            "description": str
+        ...            "substitutability": float,
+        ...            "replacement_cost": float,
+        ...            "essentiality": float,
+        ...            "score": float
         ...        },
         ...        ...
         ...    ]
@@ -84,7 +88,44 @@ def get_actives():
 
     _actives = analysis_risk.associated_actives  # type: ignore [analysis_risk isn't None]
 
-    return jsonify({"actives": [active.as_dict() for active in _actives]})  # type: ignore
+    result = {"actives": []}
+    for _active in _actives:  # type: ignore
+        _active = _active.as_dict()
+        _active = {
+            key: value
+            for key, value in _active.items()
+            if key in ["id", "title", "description"]
+        }
+
+        _scores = ActiveScore.query.filter_by(active_id=_active["id"]).all()
+        total = len(_scores)
+
+        def get_media(key):
+            return (
+                sum([score[key] for score in _scores]) / total
+                if total > 0
+                else 0
+            )
+
+        _active["substitutability"] = get_media("substitutability")
+        _active["replacement_cost"] = get_media("replacement_cost")
+        _active["essentiality"] = get_media("essentiality")
+
+        # CÁLCULO SCORE DO ATIVO
+        _active["score"] = (
+            sum(
+                [
+                    _active["substitutability"],
+                    _active["replacement_cost"],
+                    _active["essentiality"],
+                ]
+            )
+            / 3
+        )
+
+        result["actives"].append(_active)
+
+    return jsonify(result)  # type: ignore
 
 
 @bp.route("/get-threats", methods=["POST"])

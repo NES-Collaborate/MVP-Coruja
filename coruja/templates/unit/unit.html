@@ -48,10 +48,10 @@
                     <form class="d-flex mb-4 w-50 m-auto" role="search">
                         <div class="input-group shadow-lg">
                             <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
-                            <input class="form-control border-0 py-2" type="text" placeholder="Buscar pelo nome do órgão">
+                            <input class="form-control border-0 py-2" type="text" placeholder="Buscar pelo nome do órgão" id="searchInput">
                         </div>
                     </form>
-                    {{ render_table(analyses, "analysis", True) }}
+                    {{ render_table(analyses, "analysis", True, searchInputId = "searchInput") }}
                 </div>
         </div>
 

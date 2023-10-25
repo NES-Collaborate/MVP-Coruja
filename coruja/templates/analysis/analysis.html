@@ -1,168 +1,185 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row d-flex align-items-center justify-content-center">
-    <div class="col-sm-8 col-md-12 col-lg-8">
-        <h2 class="mb-4"><i class="bi bi-file-earmark-text"></i> Detalhes da Análise</h2>
+<div class="container mt-5">
+  <div class="text-center mb-5">
+    <h3>
+      <i class="bi bi-file-earmark-text"></i>
+      Detalhes da Análise
+    </h3>
+  </div>
 
-        <!-- Informações Gerais da Análise -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="bi bi-info-circle"></i> Informações Gerais
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Descrição:</strong> {{ analysis.description or 'Sem descrição' }}</p>
-                    </div>
-                </div>
-            </div>
+  <div class="row mb-5">
+    <div class="col-12">
+      <ul class="nav nav-tabs" id="infoTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <a class="nav-link active" id="general-info-tab" data-bs-toggle="tab" href="#generalInfo"
+            role="tab">
+            <i class="bi bi-info-circle"></i>
+            Informações Gerais
+          </a>
+        </li>
 
-            <div class="col-md-3">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="bi bi-shield"></i> Análise de Risco
-                    </div>
-                    <div class="card-body">
-                        <a href="{{ url_for('analysis_risk.get_analysis_risk', analysis_risk_id=analysis.id)}}" class="btn btn-primary" role="button">
-                            <i class="bi bi-arrow-right-circle"></i> Ir para Análise de Risco
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="risk-tab" data-bs-toggle="tab" href="#risk" role="tab">
+            <i class="bi bi-arrow-right-circle"></i>
+            Análise de Risco
+          </a>
+        </li>
 
-            <div class="col-md-3">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="bi bi-shield-lock"></i> Análise de Vulnerabilidade
-                    </div>
-                    <div class="card-body">
-                        <a href="" class="btn btn-primary" role="button">
-                            <i class="bi bi-arrow-right-circle"></i> Ir para Análise de Vulnerabilidade
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="vulnerability-tab" data-bs-toggle="tab" href="#vulnerability" role="tab">
+            <i class="bi bi-arrow-right-circle"></i>
+            Análise de Vulnerabilidade
+          </a>
+        </li>
+      </ul>
+
+      <div class="tab-content mt-3">
+        <!-- Informações Gerais -->
+        <div class="tab-pane fade show active" id="generalInfo" role="tabpanel">
+          <p><strong>Criado Em:</strong> {{ analysis.created_at.strftime("%d/%m/%Y") }}</p>
+          <p><strong>Descrição:</strong> {{ analysis.description or 'Sem descrição' }}</p>
         </div>
-
-        <!-- Administradores e Especialistas -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <i class="bi bi-person-check"></i> Administradores e Especialistas
-            </div>
-            <div class="card-body">
-                <h5>Administradores:</h5>
-                <div class="accordion" id="administratorsAccordion">
-                    {% if analysis.administrators %}
-                    {% for admin in analysis.administrators %}
-                    <div class="card">
-                        <div class="card-header" id="admin{{ admin.id }}Header">
-                            <button class="btn btn-link" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#admin{{ admin.id }}" aria-expanded="true"
-                                aria-controls="admin{{ admin.id }}">
-                                <i class="bi bi-person"></i> {{ admin.name }} ({{ admin.cpf_censored }})
-                            </button>
-                        </div>
-                        <div id="admin{{ admin.id }}" class="collapse" aria-labelledby="admin{{ admin.id }}Header"
-                            data-parent="#administratorsAccordion">
-                            <div class="card-body">
-                                <!-- Conteúdo detalhado do administrador aqui -->
-                                <p><strong>Nome:</strong> {{ admin.name }}</p>
-                                <p><strong>CPF:</strong> {{ admin.cpf_censored }}</p>
-                                <p><strong>Email Pessoal:</strong> {{ admin.email_personal or 'N/A' }}</p>
-                                <p><strong>Email Profissional:</strong> {{ admin.email_professional }}</p>
-                                <p><strong>Endereço:</strong> {{ admin.address or 'N/A' }}</p>
-                                <p><strong>Telefones:</strong> {{ admin.telephones|join(', ') or 'N/A' }}</p>
-                                <p><strong>Cargo:</strong> {{ admin.title or 'N/A' }}</p>
-                                <p><strong>Visto pela Última Vez:</strong> {{ admin.last_seen.strftime('%d/%m/%Y %H:%M:%S')
-                                    if admin.last_seen else 'N/A' }}</p>
-                                <p><strong>Função:</strong> {{ admin.role.name }}</p>
-
-                                <!-- Adicione um botão para editar -->
-                                <a href="" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Editar Administrador">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <p>Sem administradores</p>
-                    {% endif %}
+        
+        <!-- Análise de Risco -->
+        <div class="tab-pane fade" id="risk" role="tabpanel">
+          <a href="{{ url_for('analysis_risk.get_analysis_risk', analysis_risk_id=analysis.id) }}"
+            class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Ver Análise de Risco</a>
+          <div class="row mt-5">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <i class="bi bi-box"></i> Ativos
                 </div>
-
-                <h5>Especialistas:</h5>
-                <div class="accordion" id="expertsAccordion">
-                    {% if experts %}
-                    {% for expert in experts %}
-                    <div class="card">
-                        <div class="card-header" id="expert{{ expert.id }}Header">
-                            <button class="btn btn-link" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#expert{{ expert.id }}" aria-expanded="true"
-                                aria-controls="expert{{ expert.id }}">
-                                <i class="bi bi-person-check"></i> {{ expert.name }} ({{ expert.cpf_censored }}) -
-                                Progresso: {{ expert.progress }}
-                            </button>
-                        </div>
-                        <div id="expert{{ expert.id }}" class="collapse" aria-labelledby="expert{{ expert.id }}Header"
-                            data-parent="#expertsAccordion">
-                            <div class="card-body">
-                                <p><strong>Nome:</strong> {{ expert.name }}</p>
-                                <p><strong>CPF:</strong> {{ expert.cpf_censored }}</p>
-                                <p><strong>Email Pessoal:</strong> {{ expert.email_personal or 'N/A' }}</p>
-                                <p><strong>Email Profissional:</strong> {{ expert.email_professional }}</p>
-                                <p><strong>Endereço:</strong> {{ expert.address or 'N/A' }}</p>
-                                <p><strong>Telefones:</strong> {{ expert.telephones|join(', ') or 'N/A' }}</p>
-                                <p><strong>Cargo:</strong> {{ expert.title or 'N/A' }}</p>
-                                <p><strong>Visto pela Última Vez:</strong> {{ expert.last_seen.strftime('%d/%m/%Y %H:%M:%S')
-                                    if expert.last_seen else 'N/A' }}</p>
-                                <p><strong>Função:</strong> {{ expert.role.name }}</p>
-                                <a href="" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="Editar Especialista">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <p>Sem especialistas</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Ativos e seus Scores -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <i class="bi bi-box"></i> Ativos
-            </div>
-            <div class="card-body">
-                <table class="table">
+                <div class="card-body">
+                  <table class="table table-striped">
                     <thead>
-                        <tr>
-                            <th scope="col">Título</th>
-                            <th scope="col">Descrição</th>
-                            <th scope="col">Substituibilidade</th>
-                            <th scope="col">Custo de Substituição</th>
-                            <th scope="col">Essencialidade</th>
-                        </tr>
+                      <tr>
+                        <th scope="col">Título</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">Substituibilidade</th>
+                        <th scope="col">Resposição</th>
+                        <th scope="col">Essencialidade</th>
+                        <th scope="col">Score</th>
+                      </tr>
                     </thead>
                     <tbody>
-                        {% for active in actives %}
-                        <tr>
-                            <td>{{ active.title }}</td>
-                            <td>{{ active.description or 'Sem descrição' }}</td>
-                            <td>{{ active.average_substitutability }}</td>
-                            <td>{{ active.average_replacement_cost }}</td>
-                            <td>{{ active.average_essentiality }}</td>
-                        </tr>
-                        {% endfor %}
+                      <!-- Valores serão renderizados aqui via JS -->
                     </tbody>
-                </table>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+
+        <!-- Análise de Vulnerabilidade -->
+        <div class="tab-pane fade" id="vulnerability" role="tabpanel">
+          <a href="#" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Ir para Análise de
+            Vulnerabilidade</a>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+  const doc = document, 
+    qs = (sel) => doc.querySelector(sel), 
+    listen = (el, ev, fn) => el.addEventListener(ev, fn),
+    qsAll = (sel) => doc.querySelectorAll(sel)
+  
+  const csrfToken = "{{ csrf_token() }}"
+  const analysisId = parseInt("{{ analysis.id }}")
+  const analysisRiskId = parseInt("{{ analysis.analysis_risk.id }}")
+  const analysisVulnerabilityId = parseInt("{{ analysis.analysis_vulnerability.id }}")
+
+
+  const switchActiveTab = (paneId) => {
+    const panes = qsAll(".tab-pane")
+    for (let pane of panes) {
+      pane.classList.remove("active")
+    }
+    qs(`#${paneId}`).classList.add("active")
+  }
+
+
+  const addLoading = (father) => {
+    if (!qs("#loadingIcon")) return;
+    const loading = `
+      <div class="d-flex justify-content-center align-items-center" id="loadingIcon">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    `
+    father.insertAdjacentHTML("afterbegin", loading)
+  }
+
+  const delLoading = () => {
+    const loadingIcon = qs("#loadingIcon")
+    if (!loadingIcon) return
+    loadingIcon.remove()
+  }
+
+  const fetchData = (url, data, method = 'POST') => {
+    return fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      body: JSON.stringify(data)
+    })
+      .then(res => res.json())
+      .then(data => {
+        return data
+      })
+  }
+
+  listen(doc, "DOMContentLoaded", () => {
+    const tabs = {
+      generalInfo: qs("#general-info-tab"),
+      risk: qs("#risk-tab"),
+      vulnerability: qs("#vulnerability-tab"),
+    }
+
+    listen(tabs.generalInfo, "click", () => {
+      switchActiveTab("generalInfo")
+    })
+
+    var data = undefined;
+    listen(tabs.risk, "click", async () => {
+      switchActiveTab("risk")
+      const activesApi = "{{ url_for('api.get_actives')}}"
+      const tbody = qs("#risk tbody")
+
+      if (!data) {
+        addLoading(tbody)
+        data = await fetchData(activesApi, {
+          ar_id: analysisRiskId,
+        })
+
+        delLoading()
+        for (let active of data.actives) {
+          let activeHTML = `<tr>
+                <td>${active.title}</td>
+                <td>${active.description}</td>
+                <td>${active.substitutability}</td>
+                <td>${active.replacement_cost}</td>
+                <td>${active.essentiality}</td>
+                <td>${active.score}</td>
+              </tr>`
+          tbody.insertAdjacentHTML("beforeend", activeHTML)
+        }
+      }
+    })
+  })
+
+</script>
+
 {% endblock %}

@@ -179,3 +179,22 @@ class AnalysisForm(FlaskForm):
     admin_ids = FieldList(HiddenField(), min_entries=1)
     expert_ids = FieldList(HiddenField())
     submit = SubmitField("Submeter")
+
+
+class VulnerabilityCategoryForm(FlaskForm):
+    """
+    Formulário para criar uma categoria de vulnerabilidade.
+
+    Fields:
+        - name (str): O campo para inserir o nome da categoria.
+        - analysis_vulnerability_id (HiddenField): O campo para selecionar o ID de análise de vulnerabilidade.
+        - is_template (HiddenField): O campo para indicar se a categoria é um template.
+        - submit (SubmitField): O botão de envio do formulário.
+    """
+
+    name = StringField(
+        "Nome", validators=[DataRequired("Este campo é obrigatório")]
+    )
+    analysis_vulnerability_id = HiddenField(validators=[Optional()])
+    is_template = HiddenField(validators=[Optional()])
+    submit = SubmitField("Criar Categoria de Vulnerabilidade")

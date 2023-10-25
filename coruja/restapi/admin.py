@@ -1,10 +1,22 @@
 import csv
 from io import StringIO
 
-from flask import Blueprint, Flask, abort, make_response, render_template, request
+from flask import(
+    Blueprint, 
+    Flask, 
+    abort, 
+    flash,
+    make_response, 
+    render_template, 
+    redirect, 
+    url_for ,
+    request
+)
 from flask_login import current_user, login_required
 
-from ..models import AccessLog, Change, VulnerabilityCategory
+from ..forms import VulnerabilityCategoryForm
+from ..models import AccessLog, Change, VulnerabilityCategory, VulnerabilitySubCategory
+from ..utils import database_manager
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -19,12 +31,18 @@ def index():
         abort(403)
 
 
-@bp.route("/logs-acesso", methods=["GET"])
+@bp.route("/logs-acesso", methods=["GET", "POST"])
 @login_required
 def get_logs():
     """Rota que renderiza os logs de acesso paginados"""
+    query = AccessLog.query
+
+    user_id = request.args.get("user_id", "")
+    if user_id:
+        query = query.filter_by(user_id=user_id)
+
     page = request.args.get("page", 1, type=int)
-    pagination = AccessLog.query.paginate(page=page, per_page=10)
+    pagination = query.paginate(page=page, per_page=10)
     all_access_logs = pagination.items
 
     return render_template(
@@ -103,10 +121,34 @@ def view_categories():
     )
 
 
-@bp2.route("/category_form", methods=["GET"])
+@bp2.route("/category_form", methods=["GET", "POST"])
 @login_required
 def category_form():
-    return render_template("admin/category_form.html")
+    form = VulnerabilityCategoryForm()
+    if form.validate_on_submit():
+        name = form.name.data  # Usando form.name.data em vez de request.form.get("name")
+        database_manager.add_vulnerability_category(name)
+        flash(f"Categoria {name} criado com sucesso", "success")
+        return redirect(url_for("admin_configurations.view_categories"))
+    return render_template("admin/category_form.html", form=form)
+
+@bp2.route("/subcategorias", methods=["GET"])
+@login_required
+def view_subcategories():
+    page = request.args.get("page", 1, type=int)
+    pagination = VulnerabilitySubCategory.query.paginate(
+        page=page, per_page=10
+    )
+    subcategories = pagination.items
+    has_prev_page = pagination.has_prev
+    has_next_page = pagination.has_next
+    return render_template(
+        "admin/subcategories.html",
+        subcategories=subcategories,
+        pagination=pagination,
+        has_prev_page=has_prev_page,
+        has_next_page=has_next_page,
+    )
 
 
 def init_api(app: Flask):

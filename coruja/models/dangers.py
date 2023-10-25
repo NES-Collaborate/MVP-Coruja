@@ -95,16 +95,19 @@ class AdverseActionScore(BaseTable):
 class VulnerabilityCategory(BaseTable):
     name = db.Column(db.String(255), nullable=False)
     analysis_vulnerability_id = db.Column(
-        db.Integer, db.ForeignKey("analysis_vulnerability.id"), nullable=False
+        db.Integer, db.ForeignKey("analysis_vulnerability.id")
     )
 
     analysis_vulnerability = db.relationship(
         "AnalysisVulnerability", back_populates="vulnerability_categories"
     )
 
-    def __init__(self, *, name: str):
-        self.name = name
+    is_template = db.Column(db.Boolean, default=False)
 
+
+    def __init__(self, *, name: str, is_template: bool = False):
+        self.name = name
+        self.is_template = is_template
 
 class VulnerabilitySubCategory(BaseTable):
     name = db.Column(db.String(255), nullable=False)
