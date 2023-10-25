@@ -35,22 +35,21 @@ def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
     return _new_form
 
 
-class ValidationTable:
+class UniqueTable:
     def __init__(self, table: "db.Model", message: str):  # type: ignore
         self.table = table
         self.message = message
 
     def __call__(self, form, field):
-        ipdb.set_trace()
+        # Validação para campos únicos nas tabelas
+        if not getattr(self.table, field.name).unique:
+            return
 
-        if form.is_edit:
-            ...
-        else:
-            if not self.table.query.filter_by(
-                **{field.name: field.data}
-            ).first():
-                raise ValidationError(self.message)
+        # Se o campo do formulário não foi alterado na tabela
+        if form.is_edit and getattr(form.obj, field.name) == field.data:
+            return
 
+        # Se o campo do formulário já está cadastrado nesta tabela
         if self.table.query.filter_by(**{field.name: field.data}).first():
             raise ValidationError(self.message)
 
