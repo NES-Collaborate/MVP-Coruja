@@ -1,6 +1,5 @@
 from typing import Any, Dict, List, Optional, overload
 
-import ipdb
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
@@ -342,27 +341,21 @@ class DatabaseManager:
         )
         return unit
 
-    def get_user(self, user_id: int, or_404: bool = True) -> User:
-        """Obtém um usuário com base em seu ID
+    def get_user(self, user_id: int, or_404: bool = True) -> User | None:
+        """Obtém um usuário com base em seu ID.
 
         Args:
-            user_id (int): O ID do usuário
+            user_id (int): O ID do usuário.
             or_404 (bool, optional): Se True, caso não exista um usuário com
                 o ID especificado, `abort(404)`. Defaults to True.
 
         Returns:
-            User: O usuário com o ID especificado
+            User: O usuário com o ID especificado.
         """
-        user = (
-            User.query.filter_by(id=user_id).first_or_404(
-                "Usuário com o ID especificado ({}) não foi encontrado".format(
-                    user_id
-                )
-            )
-            if or_404
-            else User.query.filter_by(id=user_id).first()
-        )
-        return user  # type: ignore
+        user = User.query.filter_by(id=user_id)
+        if or_404:
+            return user.first_or_404("Usuário não encontrado")
+        return user.first()
 
     def add_analysis(self, **kwargs) -> Analysis:
         """
