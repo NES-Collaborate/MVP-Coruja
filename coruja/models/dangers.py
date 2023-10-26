@@ -142,17 +142,18 @@ class Vulnerability(BaseTable):
         backref="vulnerabilities",
         lazy=True,
     )
+    is_template = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
         *,
         name: str,
         description: Optional[str] = None,
-        sub_category_id: Optional[int] = None,
+        is_template: bool = False
     ):
         self.name = name
         self.description = description
-        self.sub_category_id = sub_category_id
+        self.is_template = is_template
 
 
 class VulnerabilityScore(BaseTable):

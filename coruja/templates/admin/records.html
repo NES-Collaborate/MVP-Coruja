@@ -58,31 +58,13 @@
         </ul>
     </nav>
     <!-- Botão para baixar logs -->
-    <button id="download-logs" class="btn btn-primary rounded-circle download-button"
-        title="Clique para baixar os logs">
-        <a href="{{url_for('admin.logs.download_logs')}}"><i class="bi bi-download thick-icon"></i></a>
-    </button>
-
+    <div class="position-fixed bottom-0 end-0 m-3">
+        <a href="{{ url_for('admin.logs.download_logs') }}" class="btn btn-primary btn-lg"
+            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Baixar Logs">
+            <i class="bi bi-download"></i>
+        </a>
+    </div>
 </div>
-{% endblock %}
-
-
-{% block css %}
-<style>
-    .download-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-    }
-
-    .thick-icon {
-        font-weight: bold;
-        font-size: 24px;
-    }
-</style>
 {% endblock %}
 
 
@@ -106,7 +88,6 @@
                 return false;
             }
         }).data("ui-autocomplete")._renderItem = (ul, item) => {
-            // put hello world in ul
             const listItem = $("<li>").appendTo(ul);
             const div = $("<div>").addClass("d-flex justify-content-between align-items-center bg-info").appendTo(listItem);
             div.html(`${item.name} <span class="badge bg-secondary">${item.title || "Sem Título"}</span>`);
