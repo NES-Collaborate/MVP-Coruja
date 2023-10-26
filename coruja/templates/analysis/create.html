@@ -34,6 +34,7 @@
             focus: function (event, ui) {
                 return false;
             },
+
             select: function (event, ui) {
                 if (selectedAdmins.includes(ui.item.id)) return false;
                 selectedAdmins.push(ui.item.id);

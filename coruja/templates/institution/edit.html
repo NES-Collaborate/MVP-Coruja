@@ -10,11 +10,12 @@
 
     <div class="card shadow mb-3 border-0">
         <div class="card-body">
-            {{ render_form(form, current_user, True) }}
+            {{ render_form(form, current_user, True, adminList = institution.administrators, formId = 'analysis-form') }}
         </div>
     </div>
 </div>
 {% endblock %}
+
 
 {% block scripts %}
 <script>

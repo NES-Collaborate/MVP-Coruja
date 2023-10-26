@@ -149,7 +149,7 @@ class Vulnerability(BaseTable):
         *,
         name: str,
         description: Optional[str] = None,
-        is_template: bool = False
+        is_template: bool = False,
     ):
         self.name = name
         self.description = description

@@ -10,7 +10,7 @@
 
     <div class="card shadow mb-3 border-0">
         <div class="card-body">
-            {{ render_form(form, current_user, True, formId = 'edit-organ') }}
+            {{ render_form(form, current_user, True, formId = 'edit-organ', adminList = organ.administrators) }}
         </div>
     </div>
 </div>

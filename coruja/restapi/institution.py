@@ -92,7 +92,7 @@ def edit_institution(institution_id: int):
     """
 
     institution = database_manager.get_institution(institution_id)
-    form = InstitutionForm(obj=institution)
+    form = InstitutionForm(obj=institution, is_edit=True)
 
     if form.validate_on_submit() and institution:
         form = form_to_dict(form)["data"]

@@ -1,21 +1,8 @@
-from typing import Dict
-
-from flask import (
-    Blueprint,
-    Flask,
-    abort,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from coruja.decorators.proxy import can_access_analysis
-from coruja.extensions import database
 from coruja.forms import UnitForm
-from coruja.models import analysis, institution
 
 from ..decorators import proxy_access
 from ..utils import database_manager, form_to_dict

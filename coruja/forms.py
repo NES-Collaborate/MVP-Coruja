@@ -336,6 +336,8 @@ class UserForm(FlaskForm):
         self.is_edit = kwargs.pop("is_edit", False)
         self.obj = kwargs.get("obj", None)
         super().__init__(*args, **kwargs)
+
+
 class VulnerabilityForm(FlaskForm):
     """
     Formulário para criar uma vulnerabilidade.

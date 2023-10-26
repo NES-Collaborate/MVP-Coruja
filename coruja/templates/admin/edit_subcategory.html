@@ -5,12 +5,12 @@
 <div class="container mt-4 px-3 mx-auto w-50">
     <h3 class="h3 fw-normal mb-3">
         <i class="bi bi-pencil-square"></i>
-        Editar Subategoria: {{ subcategory.name }}
+        Editar SubCategoria: {{ subcategory.name }}
     </h3>
 
     <div class="card shadow mb-3 border-0">
         <div class="card-body">
-            {{ render_form(form, current_user, True,hasAdminList = False) }}
+            {{ render_form(form, current_user, True) }}
         </div>
     </div>
 </div>

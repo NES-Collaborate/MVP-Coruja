@@ -13,7 +13,6 @@ bp = Blueprint("subcategory", __name__, url_prefix="/subcategoria")
 def view_subcategories():
     """Visualização das categorias de vulnerabilidades"""
     category_id = request.args.get("category_id", None)
-    print(category_id)
     page = request.args.get("page", 1, type=int)
     pagination = VulnerabilitySubCategory.query.paginate(
         page=page, per_page=10
@@ -33,12 +32,9 @@ def view_subcategories():
 @login_required
 def create_subcategory():
     category_id = request.args.get("category_id", None)
-    print(category_id)
     form = VulnerabilitySubcategoryForm()
     if form.validate_on_submit():
-        name = (
-            form.name.data
-        ) 
+        name = form.name.data
         database_manager.add_vulnerability_subcategory(name, category_id)  # type: ignore
         flash(f"Subcategoria {name} criado com sucesso", "success")
         return redirect(url_for("admin.subcategory.view_subcategories"))

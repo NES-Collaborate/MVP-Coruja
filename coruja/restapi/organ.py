@@ -30,9 +30,9 @@ def get_organ(organ_id: int):
     """
     organ = database_manager.get_organ(organ_id)
 
-    _access = lambda institution: can_access_institution(
-        institution.id, current_user
-    )
+    def _access(institution):
+        return can_access_institution(institution.id, current_user)
+
     institutions = list(filter(_access, organ.institutions))  # type: ignore
 
     return render_template(
