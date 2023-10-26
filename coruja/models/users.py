@@ -63,7 +63,7 @@ class User(BaseTable, UserMixin):
     name = db.Column(db.String(255), nullable=False)
     cpf = db.Column(db.String(11), nullable=False, unique=True)
     password = db.Column(db.String(180), nullable=False)
-    email_personal = db.Column(db.String(255), nullable=True, unique=True)
+    email_personal = db.Column(db.String(255))  # , nullable=True, unique=True
     email_professional = db.Column(db.String(255), nullable=False, unique=True)
     address = db.Column(db.String(255))
     _telephones = db.Column(db.String)
@@ -72,6 +72,11 @@ class User(BaseTable, UserMixin):
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
 
     role = db.relationship("Role", backref="users", lazy=True)
+
+    # Permitir várias linhas com valor nulo
+    __table_args__ = (
+        db.UniqueConstraint("email_personal", name="uq_email_personal"),
+    )
 
     def __init__(
         self,
