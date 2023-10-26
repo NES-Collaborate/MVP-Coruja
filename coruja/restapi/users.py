@@ -28,7 +28,7 @@ bp = Blueprint("user", __name__, url_prefix="/user")
 @bp.route("/<int:user_id>")
 @login_required
 # @proxy_access(kind_object="user", kind_access="read")
-def get_organ(user_id: int):
+def get_user(user_id: int):
     """Rota para retornar a página de detalhes de um usuário.
 
     Args:
@@ -51,7 +51,6 @@ def create_user():
         abort(403)
 
     form = UserForm()
-    user_role = get_name_role(get_role_lower_hierarchy(current_user.role))  # type: ignore
 
     if request.method == "POST" and form.validate_on_submit():
         user: Dict[str, str | Any] = form_to_dict(form)["data"]
@@ -65,6 +64,7 @@ def create_user():
         flash(f"Usuário {user.get('name')} criado", "success")
         return redirect(url_for("application.home"))
 
+    user_role = get_name_role(get_role_lower_hierarchy(current_user.role))  # type: ignore
     return render_template("users/create.html", form=form, role=user_role)
 
 
