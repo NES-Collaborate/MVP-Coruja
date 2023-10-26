@@ -118,6 +118,7 @@ def capture_and_compare_changes(session, flush_context):
             )
         ):
             continue
+        object_type = obj.__class__.__name__
         if original_state != current_state:
             obj.updated_at = datetime.now()
             current_state["updated_at"] = obj.updated_at
@@ -125,7 +126,7 @@ def capture_and_compare_changes(session, flush_context):
                 object_old=original_state,
                 object_new=current_state,
                 user_id=current_user.id,  # type: ignore
-                object_type=obj.__class__.__name__,
+                object_type=object_type,
             )
             session.add(change)
 

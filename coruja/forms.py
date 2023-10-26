@@ -7,13 +7,7 @@ from wtforms import (
     StringField,
     SubmitField,
 )
-from wtforms.validators import (
-    DataRequired,
-    Email,
-    Optional,
-    Regexp,
-    ValidationError,
-)
+from wtforms.validators import DataRequired, Email, Optional, Regexp, ValidationError
 
 from .utils import UniqueData
 

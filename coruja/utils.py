@@ -18,7 +18,6 @@ from .models import (
     Organ,
     Unit,
     User,
-    Vulnerability,
     VulnerabilityCategory,
     VulnerabilitySubCategory,
     institution_administrators,
@@ -341,21 +340,27 @@ class DatabaseManager:
         )
         return unit
 
-    def get_user(self, user_id: int, or_404: bool = True) -> User | None:
-        """Obtém um usuário com base em seu ID.
+    def get_user(self, user_id: int, or_404: bool = True) -> User:
+        """Obtém um usuário com base em seu ID
 
         Args:
-            user_id (int): O ID do usuário.
+            user_id (int): O ID do usuário
             or_404 (bool, optional): Se True, caso não exista um usuário com
                 o ID especificado, `abort(404)`. Defaults to True.
 
         Returns:
-            User: O usuário com o ID especificado.
+            User: O usuário com o ID especificado
         """
-        user = User.query.filter_by(id=user_id)
-        if or_404:
-            return user.first_or_404("Usuário não encontrado")
-        return user.first()
+        user = (
+            User.query.filter_by(id=user_id).first_or_404(
+                "Usuário com o ID especificado ({}) não foi encontrado".format(
+                    user_id
+                )
+            )
+            if or_404
+            else User.query.filter_by(id=user_id).first()
+        )
+        return user  # type: ignore
 
     def add_analysis(self, **kwargs) -> Analysis:
         """
@@ -681,6 +686,40 @@ class DatabaseManager:
 
         self.__db.session.add(vulnerability_category)
         self.__db.session.commit()
+
+    def get_category(
+        self,
+        category_id: int,
+        or_404: bool = True,
+    ) -> Organ | None:
+        if or_404:
+            message = "Categoria não encontrado"
+            return VulnerabilityCategory.query.filter_by(
+                id=category_id
+            ).first_or_404(message)
+
+        return VulnerabilityCategory.query.filter_by(id=category_id).first()
+
+    def update_vulnerability_category(
+        self,
+        vulnerability_category: VulnerabilityCategory,
+        form: Dict[str, Any],
+    ) -> VulnerabilityCategory:
+        """
+        Atualiza uma categoria de vulnerabilidade com base nos dados fornecidos.
+
+        Args:
+            vulnerability_category (VulnerabilityCategory): A categoria de vulnerabilidade a ser atualizada.
+            form (Dict[str, Any]): O dicionário contendo os campos a serem atualizados.
+
+        Returns:
+            VulnerabilityCategory: A categoria de vulnerabilidade atualizada.
+        """
+        for key, value in form.items():
+            setattr(vulnerability_category, key, value)
+        self.__db.session.commit()
+
+        return vulnerability_category
 
     def add_vulnerability_subcategory(self, name: str) -> None:
         """Adiciona uma nova categoria de vulnerabilidade

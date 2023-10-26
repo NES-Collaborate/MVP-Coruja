@@ -5,14 +5,15 @@
 
 <div class="container my-4">
     <h2 class="h2 fw-normal mb-4">
-        <i class="bi bi-clock-fill"></i> 
+        <i class="bi bi-clock-fill"></i>
         Logs de Acesso
     </h2>
-    
+
     <form class="d-flex mb-4 w-50 m-auto" role="search" id="search-form">
         <div class="input-group">
             <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
-            <input class="form-control border-0 p-2 shadow-lg" id="search-input" type="text" placeholder="Buscar pelo ID do usuario">
+            <input class="form-control border-0 p-2 shadow-lg" id="search-input" type="text"
+                placeholder="Buscar pelo ID do usuario">
             <div id="result-container"></div>
         </div>
         <input type="hidden" name="user_id" id="user-id">
@@ -30,33 +31,36 @@
         </thead>
         <tbody id="log-table-body">
             {% for log in logs %}
-                <tr>
-                    <td>{{ log.user.name }} ({{ log.user.cpf_censored }})</td>
-                    <td>{{ log.ip }}</td>
-                    <td>{{ log.user_agent }}</td>
-                    <td>{{ log.access_at.strftime("%d/%m/%Y %H:%M:%S") }}</td>
-                    <td>{{ log.endpoint }}</td>
-                </tr>
+            <tr>
+                <td>{{ log.user.name }} ({{ log.user.cpf_censored }})</td>
+                <td>{{ log.ip }}</td>
+                <td>{{ log.user_agent }}</td>
+                <td>{{ log.access_at.strftime("%d/%m/%Y %H:%M:%S") }}</td>
+                <td>{{ log.endpoint }}</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
-    
+
     <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination">
             {% set params = request.args.copy() %}
             {% set _ = params.pop('page', None) %}
             {% set _ = params.pop('per_page', None) %}
             <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page-1, **params) }}">Anterior</a>
+                <a class="page-link"
+                    href="{{ url_for('admin.logs.get_logs', page=pagination.page-1, **params) }}">Anterior</a>
             </li>
             <li class="page-item {% if not has_next_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin.get_logs', page=pagination.page+1, **params) }}">Próximo</a>
+                <a class="page-link"
+                    href="{{ url_for('admin.logs.get_logs', page=pagination.page+1, **params) }}">Próximo</a>
             </li>
         </ul>
     </nav>
     <!-- Botão para baixar logs -->
-    <button id="download-logs" class="btn btn-primary rounded-circle download-button" title="Clique para baixar os logs">
-        <a href="{{url_for('admin.download_logs')}}"><i class="bi bi-download thick-icon"></i></a>
+    <button id="download-logs" class="btn btn-primary rounded-circle download-button"
+        title="Clique para baixar os logs">
+        <a href="{{url_for('admin.logs.download_logs')}}"><i class="bi bi-download thick-icon"></i></a>
     </button>
 
 </div>
@@ -73,6 +77,7 @@
         height: 60px;
         border-radius: 50%;
     }
+
     .thick-icon {
         font-weight: bold;
         font-size: 24px;
@@ -83,31 +88,31 @@
 
 {% block scripts %}
 <script>
-$(document).ready(() => {
-    $("#search-input").autocomplete({
-        appendTo: "#result-container",
-        source: (request, response) => {
-            $.getJSON("{{ url_for('api.get_users') }}", { query: request.term }, (data) => {
-                response(data.users);
-            })
-        },
-        focus: (event, ui) => {
-            return false;
-        },
-        select: (event, ui) => {
-            $("#user-id").val(ui.item.id);
-            $("#search-input").val(ui.item.name);
-            $("#search-form").submit();
-            return false;
+    $(document).ready(() => {
+        $("#search-input").autocomplete({
+            appendTo: "#result-container",
+            source: (request, response) => {
+                $.getJSON("{{ url_for('api.get_users') }}", { query: request.term }, (data) => {
+                    response(data.users);
+                })
+            },
+            focus: (event, ui) => {
+                return false;
+            },
+            select: (event, ui) => {
+                $("#user-id").val(ui.item.id);
+                $("#search-input").val(ui.item.name);
+                $("#search-form").submit();
+                return false;
+            }
+        }).data("ui-autocomplete")._renderItem = (ul, item) => {
+            // put hello world in ul
+            const listItem = $("<li>").appendTo(ul);
+            const div = $("<div>").addClass("d-flex justify-content-between align-items-center bg-info").appendTo(listItem);
+            div.html(`${item.name} <span class="badge bg-secondary">${item.title || "Sem Título"}</span>`);
+            return listItem;
         }
-    }).data("ui-autocomplete")._renderItem = (ul, item) => {
-        // put hello world in ul
-        const listItem = $("<li>").appendTo(ul);
-        const div = $("<div>").addClass("d-flex justify-content-between align-items-center bg-info").appendTo(listItem);
-        div.html(`${item.name} <span class="badge bg-secondary">${item.title || "Sem Título"}</span>`);
-        return listItem;
     }
-}
-)
+    )
 </script>
 {% endblock %}

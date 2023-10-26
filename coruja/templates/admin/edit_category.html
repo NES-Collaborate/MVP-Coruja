@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_form %}
+
+{% block content %}
+<div class="container mt-4 px-3 mx-auto w-50">
+    <h3 class="h3 fw-normal mb-3">
+        <i class="bi bi-pencil-square"></i>
+        Editar Categoria: {{ category.name }}
+    </h3>
+
+    <div class="card shadow mb-3 border-0">
+        <div class="card-body">
+            {{ render_form(form, current_user, True,hasAdminList = False) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

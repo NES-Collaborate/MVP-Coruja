@@ -2,40 +2,40 @@
 {% block content %}
 
 <div class="container my-5">
-    <h1 class="mb-4 text-center display-4"><i class="bi bi-list me-3"></i>Todas Categorias</h1>
+    <h2 class="h2 fw-normal mb-4">
+        <i class="bi bi-list me-3"></i>
+        Categorias
+    </h2>
 
-    <div class="text-start mb-4" style="max-width: 70%; margin:auto;">
-        <h2 class="display-6" style="font-size: 2rem;">Categorias</h2>
-    </div>
-
-    <div class="table-responsive" style="max-width: 70%; margin:auto;">
+    <div class="table-responsive">
         <table class="table table-striped" style="font-size: 1.3rem; line-height: 2;">
             <tbody>
-                {% for categorie in categories %}
-                    <tr>
-                        <td>{{ categorie.name }}</td>
-                        <td class="text-center">
-                            <div class="dropdown">
-                                <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots"></i>
-                                </span>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="bi bi-arrow-right-square me-2"></i>
-                                            Acessar
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ url_for('admin.create_vulnerability_subcategories')}}">
-                                            <i class="bi bi-pencil-square me-2"></i>
-                                            Editar
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
+                {% for category in categories %}
+                <tr>
+                    <td>{{ category.name }}</td>
+                    <td class="text-center">
+                        <div class="dropdown">
+                            <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots"></i>
+                            </span>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="bi bi-arrow-right-square me-2"></i>
+                                        Acessar subcategorias
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                        href="{{ url_for('admin.category.edit_category', category_id=category.id) }}">
+                                        <i class="bi bi-pencil-square me-2"></i>
+                                        Editar categoria
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -43,19 +43,18 @@
     <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination justify-content-center">
             <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin_configurations.view_categories', page=pagination.page-1) }}">Anterior</a>
+                <a class="page-link"
+                    href="{{ url_for('admin.category.view_categories', page=pagination.page-1) }}">Anterior</a>
             </li>
             <li class="page-item {% if not has_next_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin_configurations.view_categories', page=pagination.page+1) }}">Próximo</a>
+                <a class="page-link"
+                    href="{{ url_for('admin.category.view_categories', page=pagination.page+1) }}">Próximo</a>
             </li>
         </ul>
     </nav>
     <div class="position-fixed bottom-0 end-0 m-3">
-        <a
-            href="{{ url_for('admin_configurations.category_form') }}"
-            class="btn btn-primary btn-lg"
-            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Categoria"
-        >
+        <a href="{{ url_for('admin.category.create_category') }}" class="btn btn-primary btn-lg"
+            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Categoria">
             <i class="bi bi-plus-lg"></i>
         </a>
     </div>
