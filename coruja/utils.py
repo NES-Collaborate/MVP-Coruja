@@ -19,6 +19,7 @@ from .models import (
     Role,
     Unit,
     User,
+    Vulnerability,
     VulnerabilityCategory,
     VulnerabilitySubCategory,
     institution_administrators,
@@ -750,7 +751,7 @@ class DatabaseManager:
         self,
         category_id: int,
         or_404: bool = True,
-    ) -> Organ | None:
+    ) -> VulnerabilityCategory | None:
         if or_404:
             message = "Categoria não encontrado"
             return VulnerabilityCategory.query.filter_by(
@@ -780,7 +781,9 @@ class DatabaseManager:
 
         return vulnerability_category
 
-    def add_vulnerability_subcategory(self, name: str) -> None:
+    def add_vulnerability_subcategory(
+        self, name: str, category_id: int
+    ) -> None:
         """Adiciona uma nova categoria de vulnerabilidade
 
         Args:
@@ -790,8 +793,98 @@ class DatabaseManager:
         vulnerability_subcategory = VulnerabilitySubCategory(
             name=name, is_template=False
         )
+        vulnerability_subcategory.category_id = category_id
         self.__db.session.add(vulnerability_subcategory)
         self.__db.session.commit()
+
+    def get_subcategory(
+        self,
+        subcategory_id: int,
+        or_404: bool = True,
+    ) -> VulnerabilitySubCategory | None:
+        if or_404:
+            message = "Subcategoria não encontrada"
+            return VulnerabilitySubCategory.query.filter_by(
+                id=subcategory_id
+            ).first_or_404(message)
+
+        return VulnerabilitySubCategory.query.filter_by(
+            id=subcategory_id
+        ).first()
+
+    def update_vulnerability_subcategory(
+        self,
+        vulnerability_subcategory: VulnerabilitySubCategory,
+        form: Dict[str, Any],
+    ) -> VulnerabilitySubCategory:
+        for key, value in form.items():
+            setattr(vulnerability_subcategory, key, value)
+        self.__db.session.commit()
+        return vulnerability_subcategory
+
+    def add_vulnerability(
+        self,
+        name: str,
+        description: str,
+        sub_category_id: int,
+        is_template: bool = False,
+    ) -> None:
+        """Adiciona uma nova vulnerabilidade
+
+        Args:
+            name (str): Nome da nova vulnerabilidade
+            description (str): Descrição da nova vulnerabilidade
+            sub_category_id (int): ID da subcategoria à qual a vulnerabilidade pertence
+            is_template (bool): Indica se a vulnerabilidade é um template
+        """
+
+        vulnerability = Vulnerability(
+            name=name,
+            description=description,
+            is_template=is_template,
+        )
+        vulnerability.sub_category_id = sub_category_id
+        self.__db.session.add(vulnerability)
+        self.__db.session.commit()
+
+    def get_vulnerability(
+        self,
+        vulnerability_id: int,
+        or_404: bool = True,
+    ) -> Vulnerability | None:
+        """Obtém uma vulnerabilidade pelo seu ID
+
+        Args:
+            vulnerability_id (int): ID da vulnerabilidade
+            or_404 (bool): Se True, lança um erro 404 se a vulnerabilidade não for encontrada
+        """
+
+        if or_404:
+            message = "Vulnerabilidade não encontrada"
+            return Vulnerability.query.filter_by(
+                id=vulnerability_id
+            ).first_or_404(message)
+
+        return Vulnerability.query.filter_by(id=vulnerability_id).first()
+
+    def update_vulnerability(
+        self,
+        vulnerability: Vulnerability,
+        form: Dict[str, Any],
+    ) -> Vulnerability:
+        """Atualiza uma vulnerabilidade existente
+
+        Args:
+            vulnerability (Vulnerability): O objeto Vulnerability que será atualizado
+            form (Dict[str, Any]): Dicionário contendo os novos valores para atualizar o objeto
+        """
+
+        for key, value in form.items():
+            setattr(vulnerability, key, value)
+
+        self.__db.session.commit()
+
+        return vulnerability
 
 
 database_manager = DatabaseManager()

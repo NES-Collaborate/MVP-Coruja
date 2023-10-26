@@ -336,3 +336,22 @@ class UserForm(FlaskForm):
         self.is_edit = kwargs.pop("is_edit", False)
         self.obj = kwargs.get("obj", None)
         super().__init__(*args, **kwargs)
+class VulnerabilityForm(FlaskForm):
+    """
+    Formulário para criar uma vulnerabilidade.
+
+    Fields:
+        - name (str): O campo para inserir o nome da vulnerabilidade.
+        - description (TextAreaField): O campo para inserir a descrição da vulnerabilidade.
+        - sub_category_id (HiddenField): O campo para selecionar o ID da subcategoria.
+        - is_template (HiddenField): O campo para indicar se a vulnerabilidade é um template.
+        - submit (SubmitField): O botão de envio do formulário.
+    """
+
+    name = StringField(
+        "Nome", validators=[DataRequired("Este campo é obrigatório")]
+    )
+    description = StringField("Descrição")
+    sub_category_id = HiddenField(validators=[Optional()])
+    is_template = HiddenField(validators=[Optional()])
+    submit = SubmitField("Criar Vulnerabilidade")
