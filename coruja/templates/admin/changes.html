@@ -5,69 +5,87 @@
     <div class="col-sm-8 col-md-12 col-lg-8">
     
         <h2 class="h2 fw-normal my-4">
-        <i class="bi bi-journal-text"></i>
-        Logs de Mudanças
-    </h2>
+            <i class="bi bi-journal-text"></i>
+            Registros de Alterações
+        </h2>
 
-    <table class="table table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>User</th>
-                <th>Objeto</th>
-                <th>Mudanças</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for change in logs %}
-            <tr>
-                <td>{{ change.user.name }} <br> ({{ change.user.cpf_censored }})</td>
-                <td>{{ change.object_type }}</td>
-                <td>
-                    <table class="table table-bordered">
-                        <thead class="tablet">
-                            <tr>
-                                <th>ATTR</th>
-                                <th>OLD</th>
-                                <th>NEW</th>
-                            </tr>
-                        </thead>
-                        <tbody class="centered">
-                            {% set changes = {} %}
-                            {% for key, value_old in change.object_old.items() %}
-                            {% set value_new = change.object_new[key] %}
-                            {% if value_old != value_new %}
-                            {% set _dummy = changes.update({key: {"value_old": value_old, "value_new": value_new}}) %}
-                            {% endif %}
-                            {% endfor %}
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Usuário</th>
+                    <th>Objeto</th>
+                    <th>Alterações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for change in logs %}
+                <tr>
+                    <td>{{ change.user.name }} <br> ({{ change.user.cpf_censored }})</td>
+                    <td>{{ change.object_type }}</td>
+                    <td>
+                        <table class="table table-bordered">
+                            <thead class="tablet">
+                                <tr>
+                                    <th>Atributo</th>
+                                    <th>Antigo</th>
+                                    <th>Novo</th>
+                                </tr>
+                            </thead>
+                            <tbody class="centered">
+                                {% set changes = {} %}
+                                {% for key, value_old in change.object_old.items() %}
+                                {% set value_new = change.object_new[key] %}
+                                {% if value_old != value_new %}
+                                {% set _dummy = changes.update({key: {"value_old": value_old, "value_new": value_new}}) %}
+                                {% endif %}
+                                {% endfor %}
 
-                            {% for key, value in changes.items() %}
-                            <tr>
-                                <td>{{ key }}</td>
-                                <td>{{ value.value_old }}</td>
-                                <td>{{ value.value_new }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <nav aria-label="Page navigation">
-        <ul class="pagination">
-            <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin.logs.get_changes', page=pagination.page-1) }}">
-                    <i class="bi bi-arrow-left"></i> Anterior
-                </a>
-            </li>
-            <li class="page-item {% if not has_next_page %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('admin.logs.get_changes', page=pagination.page+1) }}">
-                    Próximo <i class="bi bi-arrow-right"></i>
-                </a>
-            </li>
-        </ul>
-    </nav>
+                                {% for key, value in changes.items() %}
+                                <tr>
+                                    <td>{{ key }}</td>
+                                    <td>
+                                        {% if key == "updated_at" %}
+                                            {{ value.value_old.split('T')[0] }} {{ value.value_old.split('T')[1].split('.')[0] }}
+                                        {% else %}
+                                            {{ value.value_old }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if key == "updated_at" %}
+                                            {{ value.value_new.split('T')[0] }} {{ value.value_new.split('T')[1].split('.')[0] }}
+                                        {% else %}
+                                            {{ value.value_new }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <nav aria-label="Navegação de página">
+            <ul class="pagination">
+                <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.logs.get_changes', page=pagination.page-1) }}">
+                        <i class="bi bi-arrow-left"></i> Anterior
+                    </a>
+                </li>
+                <li class="page-item {% if not has_next_page %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.logs.get_changes', page=pagination.page+1) }}">
+                        Próximo <i class="bi bi-arrow-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="position-fixed bottom-0 start-0 m-3">
+            <a href="{{ url_for('admin.index') }}" class="btn btn-secondary btn-lg"
+                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Voltar">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+        </div>
     </div>
 </div>
 

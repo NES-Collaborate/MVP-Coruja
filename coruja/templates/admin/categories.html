@@ -1,15 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="row d-flex align-items-center justify-content-center">
-    <div class="col-sm-8 col-md-12 col-lg-8">
+<div class="container my-5">
     
     <h2 class="h2 fw-normal my-4">
         <i class="bi bi-list me-3"></i>
         Categorias
     </h2>
 
-        <table class="table table-striped" style="font-size: 1.3rem; line-height: 2;">
+        <table class="table table-striped " style="font-size: 1.3rem; line-height: 2;">
             <tbody>
                 {% for category in categories %}
                 <tr>
