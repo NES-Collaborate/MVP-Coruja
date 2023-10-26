@@ -1,13 +1,17 @@
 <!-- Macros para formularios -->
 
-{% macro render_form(form, current_user, isEdit, formId = 'form', hasAdminList = True) %}
+{% macro render_form(form, current_user, isEdit, formId = 'form', hasAdminList = True, role = None) %}
 <form method="POST" autocomplete="off" id="{{ formId }}">
     {{ form.hidden_tag() }}
 
     {% for field in form if field.type not in ['HiddenField', 'SubmitField', 'FieldList'] and field.name != 'csrf_token'
     %}
     <div class="form-floating mb-3">
+        {% if field.name != 'role' %}
         {{ field(class = "form-control border-0 shadow-sm", placeholder="{{field.label}}")}}
+        {% else %}
+        {{ field(class = "form-control border-0 shadow-sm", placeholder="{{field.label}}", value=role, disabled=True)}}
+        {% endif %}
 
         <label for="floatingName">
             {{field.label}}
@@ -57,6 +61,10 @@
 
     <input type="hidden" name="admin_ids-{{ current_user.id }}" value="{{ current_user.id }}"
         id="admin_ids-{{ current_user.id }}" />
+    {% endif %}
+
+    {% if role %}
+    <input type="hidden" name="role" value="{{ role }}" />
     {% endif %}
 
     {% if not isEdit %}

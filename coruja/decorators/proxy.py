@@ -124,11 +124,27 @@ def can_access_analysis_vulnerability(
     return can_access or can_access_analysis(analysis_vulnerability.analysis_id, user)  # type: ignore [analysis_vulnerability isn't None]
 
 
+def can_access_user(user_id: int, user: User) -> bool:
+    """Verifica se o usuário tem permissão para acessar o usuário
+
+    Args:
+        user_id (int): ID do usuário
+        user (User): Usuário a ser verificado
+
+    Returns:
+        bool: Se o usuário tem permissão para acessar o usuário
+    """
+    _user = database_manager.get_user(user_id)
+    can_access = is_object_administrator(_user, user)
+    return can_access
+
+
 object_map: Mapping[str, Callable] = {
-    "organ": can_access_organ,
-    "institution": can_access_institution,
     "unit": can_access_unit,
+    "user": can_access_user,
+    "organ": can_access_organ,
     "analysis": can_access_analysis,
+    "institution": can_access_institution,
     "analysis_risk": can_access_analysis_risk,
     "analysis_vulnerability": can_access_analysis_vulnerability,
     # TODO: Adicionar mais objetos

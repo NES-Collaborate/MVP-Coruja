@@ -16,6 +16,7 @@ from .models import (
     AnalysisVulnerability,
     Institution,
     Organ,
+    Role,
     Unit,
     User,
     VulnerabilityCategory,
@@ -36,17 +37,69 @@ def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
     return _new_form
 
 
+def create_and_commit_role(name: str, permissions: List) -> None:
+    role = Role(name=name, permissions=permissions)
+    db.session.add(role)
+    db.session.commit()
+
+
+def get_role_lower_hierarchy(role: Role) -> str:
+    hierarchy = {
+        "admin": "organ_admin",
+        "organ_admin": "institution_admin",
+        "institution_admin": "unit_admin",
+        "unit_admin": "analysis_admin",
+        "analysis_admin": "user",
+    }
+    return hierarchy[role.name]
+
+
+def get_name_role(role: str, reversed: Optional[bool] = None) -> str:
+    """Retorna o nome do cargo
+
+    Args:
+        role (str): Cargo
+
+    Returns:
+        str: Nome do cargo
+    """
+    role_names = {
+        "admin": "Administrador",
+        "organ_admin": "Gestor de Órgão",
+        "institution_admin": "Gestor de Instituição",
+        "unit_admin": "Gestor de Unidade",
+        "analysis_admin": "Gestor de Análise",
+        "user": "Vizualizador/Usuário",
+    }
+
+    if reversed:
+        reversed_roles = {role2: role1 for role1, role2 in role_names.items()}
+        return reversed_roles[role]
+
+    return role_names[role]
+
+
+def get_role(role_name: str) -> Role | None:
+    return Role.query.filter_by(name=role_name).first()
+
+
+def contains_permission(role: Role, permission: str, kind: str) -> bool:
+    return any(
+        (_permission.label, kind) == (_permission.label, _permission.type)
+        for _permission in role.permissions  # type: ignore
+    )
+
+
 class UniqueData:
-    def __init__(self, message: str):  # type: ignore
+    def __init__(self, message: str):
         self.message = message
 
     def __call__(self, form, field):
-        for _table in Organ, Institution:
-            ...
+        for _table in [Organ, Institution, User]:
             # Validação para campos únicos nas tabelas
             atributte = getattr(_table, field.name, None)
-            if atributte and not atributte.unique:
-                return
+            if not atributte or not atributte.unique:
+                continue
 
             # Se o campo do formulário não foi alterado na tabela
             if form.is_edit and getattr(form.obj, field.name) == field.data:
@@ -361,6 +414,12 @@ class DatabaseManager:
             else User.query.filter_by(id=user_id).first()
         )
         return user  # type: ignore
+
+    def add_user(self, **kwargs) -> User:
+        new_user = User(**kwargs)
+        self.__db.session.add(new_user)
+        self.__db.session.commit()
+        return new_user
 
     def add_analysis(self, **kwargs) -> Analysis:
         """

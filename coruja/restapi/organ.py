@@ -58,19 +58,18 @@ def create_organ():
 
     form = OrganForm()
 
-    if request.method == "POST":
-        if form.validate_on_submit():
-            organ: Dict[str, str | bool] = form_to_dict(form)["data"]
-            organ_administrators = organ.pop("admin_ids", [])
-            organ.pop("csrf_token", None)
-            organ.pop("submit", None)
+    if request.method == "POST" and form.validate_on_submit():
+        organ: Dict[str, str | bool] = form_to_dict(form)["data"]
+        organ_administrators = organ.pop("admin_ids", [])
+        organ.pop("csrf_token", None)
+        organ.pop("submit", None)
 
-            database_manager.add_organ(
-                **organ,
-                administrators=organ_administrators,
-            )
-            flash(f"Orgão {organ.get('name')} criado", "success")
-            return redirect(url_for("application.home"))
+        database_manager.add_organ(
+            **organ,
+            administrators=organ_administrators,
+        )
+        flash(f"Orgão {organ.get('name')} criado", "success")
+        return redirect(url_for("application.home"))
 
     return render_template("organ/create.html", form=form)
 
