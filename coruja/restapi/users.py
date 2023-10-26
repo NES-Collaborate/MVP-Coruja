@@ -1,6 +1,5 @@
-from typing import Dict
+from typing import Any, Dict
 
-import ipdb
 from flask import (
     Blueprint,
     Flask,
@@ -14,7 +13,14 @@ from flask import (
 from flask_login import current_user, login_required
 
 from ..forms import UserForm
-from ..utils import database_manager, form_to_dict
+from ..utils import (
+    contains_permission,
+    database_manager,
+    form_to_dict,
+    get_name_role,
+    get_role,
+    get_role_lower_hierarchy,
+)
 
 bp = Blueprint("user", __name__, url_prefix="/user")
 
@@ -39,25 +45,27 @@ def create_user():
     Rota para criar um novo usuário.
 
     Esta rota é acessível através dos métodos GET e POST. Se o usuário
-    atual não for um administrador de órgãos, será retornado um erro 403.
+    atual não tiver permissão de criar usuários, será retornado um erro 403.
     """
-    if not database_manager.is_organ_administrator(current_user):
+    if not contains_permission(current_user.role, "user", "create"):  # type: ignore
         abort(403)
 
     form = UserForm()
+    user_role = get_name_role(get_role_lower_hierarchy(current_user.role))  # type: ignore
 
-    if request.method == "POST":
-        ipdb.set_trace()
-        if form.validate_on_submit():
-            user: Dict[str, str | bool] = form_to_dict(form)["data"]
-            user.pop("csrf_token", None)
-            user.pop("submit", None)
+    if request.method == "POST" and form.validate_on_submit():
+        user: Dict[str, str | Any] = form_to_dict(form)["data"]
+        user.pop("csrf_token", None)
+        user.pop("submit", None)
 
-            database_manager.add_user(**user)
-            flash(f"Usuário {user.get('name')} criado", "success")
-            return redirect(url_for("application.home"))
+        role_name = get_name_role(user["role"], reversed=True)
+        user["role"] = get_role(role_name)
 
-    return render_template("users/create.html", form=form)
+        database_manager.add_user(**user)
+        flash(f"Usuário {user.get('name')} criado", "success")
+        return redirect(url_for("application.home"))
+
+    return render_template("users/create.html", form=form, role=user_role)
 
 
 def init_api(app: Flask) -> None:
