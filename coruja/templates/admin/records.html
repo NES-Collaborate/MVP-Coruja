@@ -3,8 +3,9 @@
 
 {% block content %}
 
-<div class="container my-4">
-    <h2 class="h2 fw-normal mb-4">
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-sm-8 col-md-12 col-lg-8">
+    <h2 class="h2 fw-normal my-4">
         <i class="bi bi-clock-fill"></i>
         Logs de Acesso
     </h2>
@@ -62,7 +63,7 @@
         title="Clique para baixar os logs">
         <a href="{{url_for('admin.logs.download_logs')}}"><i class="bi bi-download thick-icon"></i></a>
     </button>
-
+    </div>
 </div>
 {% endblock %}
 
