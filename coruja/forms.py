@@ -182,6 +182,11 @@ class InstitutionForm(FlaskForm):
     admin_ids = FieldList(HiddenField(), min_entries=1)
     submit = SubmitField("Criar instituição")
 
+    def __init__(self, *args, **kwargs):
+        self.is_edit = kwargs.pop("is_edit", False)
+        self.obj = kwargs.get("obj", None)
+        super().__init__(*args, **kwargs)
+
 
 class UnitForm(FlaskForm):
     """
