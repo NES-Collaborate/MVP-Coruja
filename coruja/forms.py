@@ -265,6 +265,9 @@ class UserForm(FlaskForm):
         "Nome", validators=[DataRequired("Este campo é obrigatório")]
     )
     title = StringField("Título")
+    role = StringField(
+        "Cargo", validators=[DataRequired("Este campo é obrigatório")]
+    )
     cpf = StringField(
         "CPF",
         validators=[
@@ -281,13 +284,14 @@ class UserForm(FlaskForm):
     email_personal = EmailField(
         "E-mail pessoal",
         validators=[
+            Optional(),
             Email("Digite um endereço de e-mail válido"),
             UniqueData(
                 message="Este e-mail já está associado a outro usuário",
             ),
         ],
     )
-    email_personal = EmailField(
+    email_professional = EmailField(
         "E-mail profissional",
         validators=[
             DataRequired("Este campo é obrigatório"),
