@@ -23,7 +23,7 @@
         const selectedAdmins = [parseInt(current_id)];
 
         $('#admin_autocomplete').autocomplete({
-            appendTo: "#result-container",
+            appendTo: "#result-container-admin",
             source: (request, response) => {
                 $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
                     response(data.users);

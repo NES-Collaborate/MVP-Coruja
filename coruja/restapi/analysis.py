@@ -18,8 +18,6 @@ def get_analysis(analysis_id: int):
         analysis_id (int): ID da Análise
     """
     analysis = database_manager.get_analysis(analysis_id)
-    # TODO: Criar métodos para retornar uma lista de experts com seus respectivos
-    # "progressos" dentro de uma determinada análise (notasDadas/notasPossíveis)
     experts = analysis.experts  # type: ignore [analysis isn't None]
     actives = database_manager.get_actives_by_analysis(analysis)  # type: ignore [analysis isn't None]
     context = {"analysis": analysis, "experts": experts, "actives": actives}
@@ -83,9 +81,10 @@ def create_analysis():
     if form.validate_on_submit():
         description = form.description.data
         admin_ids = form.admin_ids.data
+        expert_ids = form.expert_ids.data
 
         analysis = database_manager.add_analysis(
-            description=description, administrators=admin_ids
+            description=description, administrators=admin_ids, experts=expert_ids
         )
 
         if analysis:

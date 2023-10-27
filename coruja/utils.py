@@ -443,11 +443,16 @@ class DatabaseManager:
             Analysis: O objeto de análise recém-criado.
         """
         administrators = kwargs.pop("administrators", [])
+        experts = kwargs.pop("experts", [])
         new_analysis = Analysis(description=kwargs.pop("description", None))
 
         for admin_id in administrators:
             admin = self.get_user(admin_id)
             new_analysis.add_administrator(admin, commit_changes=False)
+        
+        for expert_id in experts:
+            expert = self.get_user(expert_id)
+            new_analysis.add_expert(expert, commit_changes=False)
 
         self.__db.session.add(new_analysis)
         self.__db.session.commit()

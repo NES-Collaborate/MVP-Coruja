@@ -23,7 +23,7 @@
         const selectedAdmins = [parseInt(current_id)];
 
         $('#admin_autocomplete').autocomplete({
-            appendTo: "#result-container",
+            appendTo: "#result-container-admin",
             source: (request, response) => {
                 $("#loading").removeClass("d-none");
 

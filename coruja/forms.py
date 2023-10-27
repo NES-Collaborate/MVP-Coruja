@@ -222,7 +222,7 @@ class AnalysisForm(FlaskForm):
     csrf_token = HiddenField()
     description = StringField("Descrição")
     admin_ids = FieldList(HiddenField(), min_entries=1)
-    expert_ids = FieldList(HiddenField())
+    expert_ids = FieldList(HiddenField(), min_entries=1)
     submit = SubmitField("Submeter")
 
 

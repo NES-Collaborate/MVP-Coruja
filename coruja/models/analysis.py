@@ -74,10 +74,13 @@ class Analysis(BaseTable):
             commit_changes (bool, optional): Se True, salva as alterações no banco.
                 Defaults to True.
         """
+        permissions = self.create_permissions()
         if not self.experts:
             self.experts = []
 
         self.experts.append(user)
+        for permission in permissions:
+            user.add_permission(permission)
         if commit_changes:
             db.session.commit()
 

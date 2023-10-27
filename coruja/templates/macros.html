@@ -1,6 +1,6 @@
 <!-- Macros para formularios -->
 
-{% macro render_form(form, current_user, isEdit, formId = 'form', adminList = False) %}
+{% macro render_form(form, current_user, isEdit, formId = 'form', adminList = False, expertList = False) %}
 <form method="POST" autocomplete="off" id="{{ formId }}">
     {{ form.hidden_tag() }}
 
@@ -31,56 +31,109 @@
     </div>
     {% endfor %}
 
-    {% if adminList %} 
-        <div class="mt-5 position-relative">
-            <label for="admin_autocomplete" class="form-label">
-                <i class="bi bi-person-gear me-2"></i>
-                Administradores
-            </label>
+    {% if adminList %}
+    <div class="mt-5 position-relative">
+        <label for="admin_autocomplete" class="form-label">
+            <i class="bi bi-person-gear me-2"></i>
+            Administradores
+        </label>
 
-            <div class="input-group mb-3">
-                <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
-                <input id="admin_autocomplete" class="form-control border-0 p-2 shadow-lg" type="text"
-                    placeholder="Buscar administradores">
-                {% if proxy_access(kind_object="user", kind_access="create") %}
-                <a class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Criar Usuário" href="{{url_for('user.create_user')}}">
-                    <i class="bi bi-plus-lg"></i>
-                </a>
-                {% endif %}
-            </div>
-            <div id="result-container" class="position-absolute w-100 bg-light rounded-bottom"></div>
+        <div class="input-group mb-3">
+            <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
+            <input id="admin_autocomplete" class="form-control border-0 p-2 shadow-lg" type="text"
+                placeholder="Buscar administradores">
+            {% if proxy_access(kind_object="user", kind_access="create") %}
+            <a class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" data-bs-placement="top"
+                data-bs-title="Criar Usuário" href="{{url_for('user.create_user')}}">
+                <i class="bi bi-plus-lg"></i>
+            </a>
+            {% endif %}
         </div>
+        <div id="result-container-admin" class="position-absolute w-100 bg-light rounded-bottom"></div>
+    </div>
 
-        <ul id="selected_admins" class="list-group mt-2">
-            <li class="list-group-item d-flex justify-content-between align-items-center my-2 border-0 shadow-sm p-3"
-                data-id="{{ current_user.id }}">
-                {{ current_user.name }} [{{ current_user.cpf_censored }}] (você mesmo)
+    <ul id="selected_admins" class="list-group mt-2">
+        <li class="list-group-item d-flex justify-content-between align-items-center my-2 border-0 shadow-sm p-3"
+            data-id="{{ current_user.id }}">
+            {{ current_user.name }} [{{ current_user.cpf_censored }}] (você mesmo)
 
-                <span class="badge bg-info">Administrador</span>
-            </li>
-            {% for admin in (adminList if adminList != True else []) %}
-                {% if admin.id != current_user.id %}
-                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ admin.id }}">
-                    {{ admin.name }} [{{ admin.cpf_censored }}] <span class="badge bg-secondary">{{ admin.title or 'Sem Título' }}</span>
-                    <button class="remove-admin btn btn-outline-danger btn-sm">
-                        <i class="bi bi-x-circle-fill"></i>
-                    </button>
-                </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-
-        <input type="hidden" name="admin_ids-{{ current_user.id }}" value="{{ current_user.id }}"
-            id="admin_ids-{{ current_user.id }}" />
-        
+            <span class="badge bg-info">Administrador</span>
+        </li>
         {% for admin in (adminList if adminList != True else []) %}
             {% if admin.id != current_user.id %}
-            <input type="hidden" name="admin_ids-{{ admin.id }}" value="{{ admin.id }}" id="admin_ids-{{ admin.id }}" />
+            <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ admin.id }}">
+                {{ admin.name }} [{{ admin.cpf_censored }}] <span class="badge bg-secondary">{{ admin.title or 'Sem Título'
+                    }}</span>
+                <button class="remove-admin btn btn-outline-danger btn-sm">
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+            </li>
             {% endif %}
         {% endfor %}
+    </ul>
+
+    <input type="hidden" name="admin_ids-{{ current_user.id }}" value="{{ current_user.id }}"
+        id="admin_ids-{{ current_user.id }}" />
+
+    {% for admin in (adminList if adminList != True else []) %}
+        {% if admin.id != current_user.id %}
+        <input type="hidden" name="admin_ids-{{ admin.id }}" value="{{ admin.id }}" id="admin_ids-{{ admin.id }}" />
+        {% endif %}
+    {% endfor %}
     {% endif %}
-    
+
+    {% if expertList %}
+    <div class="mt-5 position-relative">
+        <label for="expert_autocomplete" class="form-label">
+            <i class="bi bi-person-gear me-2"></i>
+            Especialistas
+        </label>
+
+        <div class="input-group mb-3">
+            <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
+            <input id="expert_autocomplete" class="form-control border-0 p-2 shadow-lg" type="text"
+                placeholder="Buscar especialistas">
+            {% if proxy_access(kind_object="user", kind_access="create") %}
+            <a class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" data-bs-placement="top"
+                data-bs-title="Criar Usuário" href="{{url_for('user.create_user')}}">
+                <i class="bi bi-plus-lg"></i>
+            </a>
+            {% endif %}
+        </div>
+        <div id="result-container-expert" class="position-absolute w-100 bg-light rounded-bottom"></div>
+    </div>
+
+    <ul id="selected_experts" class="list-group mt-2">
+        <li class="list-group-item d-flex justify-content-between align-items-center my-2 border-0 shadow-sm p-3"
+            data-id="{{ current_user.id }}">
+            {{ current_user.name }} [{{ current_user.cpf_censored }}] (você mesmo)
+
+            <span class="badge bg-info">Especialista</span>
+        </li>
+        {% for expert in (expertList if expertList != True else []) %}
+        {% if expert.id != current_user.id %}
+        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ expert.id }}">
+            {{ expert.name }} [{{ expert.cpf_censored }}] <span class="badge bg-secondary">{{ expert.title or 'Sem
+                Título' }}</span>
+            <button class="remove-expert btn btn-outline-danger btn-sm">
+                <i class="bi bi-x-circle-fill"></i>
+            </button>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+
+    <input type="hidden" name="expert_ids-{{ current_user.id }}" value="{{ current_user.id }}"
+        id="expert_ids-{{ current_user.id }}" />
+
+    {% for expert in (expertList if expertList != True else []) %}
+        {% if expert.id != current_user.id %}
+        <input type="hidden" name="expert_ids-{{ expert.id }}" value="{{ expert.id }}" id="expert_ids-{{ expert.id }}" />
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+
+
 
     {% if not isEdit %}
     <div class="text-center mt-3">

@@ -5,12 +5,12 @@
 <div class="container my-4 px-3 mx-auto w-50">
     <h3 class="h3 fw-normal mb-3">
         <i class="bi bi-pencil-square"></i> 
-        Editar {{analysis.name}}
+        Editar {{ analysis.name }}
     </h3>
 
     <div class="card shadow mb-3 border-0">
         <div class="card-body">
-            {{ render_form(form, current_user, True, adminList = analysis.administrators) }}
+            {{ render_form(form, current_user, True, adminList = analysis.administrators, expertList = analysis.experts) }}
         </div>
     </div>
 </div>
@@ -23,7 +23,7 @@
         const selectedAdmins = [parseInt(current_id)];
 
         $('#admin_autocomplete').autocomplete({
-            appendTo: "#result-container",
+            appendTo: "#result-container-admin",
             source: (request, response) => {
                 $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
                     response(data.users);
