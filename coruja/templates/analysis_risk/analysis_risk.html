@@ -93,7 +93,7 @@
                     let scoreInputs = scoreContainer.find("#score-inputs");
                     
                   
-                    let action_scores = (JSON.stringify(action.scores) == '{}') ? {"motivation": 0, "capacity": 0, "accessibility":0} : action.scores;
+                    let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
 
                     let traduction = {"motivation": "motivação",
                      "capacity": "capacidade",
@@ -124,7 +124,7 @@
                         updateButton.empty();
                         updateButton.append(`<div class="spinner-border spinner-border-sm" role="status"></div>`);
                         let scores = {}
-                        let action_scores = (JSON.stringify(action.scores) == '{}') ? {"motivation": 0, "capacity": 0, "accessibility":0} : action.scores;
+                        let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
                         for (let score in action_scores)
                         {
                             let input = scoreContainer.find(`#${score}`);
