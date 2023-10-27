@@ -354,3 +354,19 @@ class VulnerabilityForm(FlaskForm):
     sub_category_id = HiddenField(validators=[Optional()])
     is_template = HiddenField(validators=[Optional()])
     submit = SubmitField("Criar Vulnerabilidade")
+
+
+class DefaultForm(FlaskForm):
+    """
+    Formulário padrão para Ativos, Ameaças e Ações Adversas
+
+    Fiels:
+        - title (str): O campo para inserir o titulo.
+        - description (str): O campo para inserir a descrição.
+        - is_template (HiddenField): O campo para indicar se é um template.
+    """
+
+    title = StringField("Título", validators=[DataRequired()])
+    description = StringField("Descrição", validators=[Optional()])
+    # is_template = HiddenField(validators=[Optional()])
+    submit = SubmitField("Criar")
