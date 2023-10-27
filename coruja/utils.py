@@ -582,7 +582,7 @@ class DatabaseManager:
                 scored += 1
 
             # Obtém scores de ações adversas
-            threats = getattr(analisys_risk, "associated_threats")
+            threats = getattr(active, "associated_threats")
             for threat in threats:
                 adverse_actions = AdverseAction.query.filter_by(
                     threat_id=threat.id
