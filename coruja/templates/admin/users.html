@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>
+        <i class="bi bi-person-circle"></i> Todos os Usuários
+    </h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>E-mail Pessoal</th>
+                <th>E-mail Profissional</th>
+                <th>Título</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in users %}
+                <tr>
+                    <td>{{ usuario.name }}</td>
+                    <td>{{ usuario.cpf }}</td>
+                    <td>{{ usuario.email_personal }}</td>
+                    <td>{{ usuario.email_profissional }}</td>
+                    <td>{{ usuario.title }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Controles de Paginação -->
+    <nav aria-label="Navegação de página">
+        <ul class="pagination justify-content-center">
+            {% if pagination.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('show_users', page=pagination.prev_num) }}">Anterior</a></li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+            {% endif %}
+
+            {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num != pagination.page %}
+                        <li class="page-item"><a class="page-link" href="{{ url_for('show_users', page=page_num) }}">{{ page_num }}</a></li>
+                    {% else %}
+                        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('show_users', page=pagination.next_num) }}">Próximo</a></li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Próximo</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    <div class="position-fixed bottom-0 end-0 m-3">
+        <a href="{{ url_for('admin.category.create_category') }}" class="btn btn-primary btn-lg"
+            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Usuario">
+            <i class="bi bi-plus-lg"></i>
+        </a>
+    </div>
+</div>
+
+{% endblock %}
