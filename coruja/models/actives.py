@@ -68,3 +68,10 @@ class ActiveScore(BaseTable):
         self.essentiality = essentiality
         self.user_id = user_id
         self.active_id = active_id
+
+    def as_dict(self):
+        return {
+            "substitutability": self.substitutability,
+            "replacement_cost": self.replacement_cost,
+            "essentiality": self.essentiality,
+        }

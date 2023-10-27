@@ -660,6 +660,23 @@ class DatabaseManager:
 
         self.__db.session.commit()
 
+    def update_active_score(
+        self, active_id: int, scores: Dict[str, Any], user_id: int
+    ) -> None:
+        """
+        Atualiza a pontuação de um ativo.
+        """
+
+        active_score = ActiveScore.query.filter_by(
+            active_id=active_id,
+            user_id=user_id,
+        ).first()
+
+        for score, value in scores.items():
+            setattr(active_score, score, value)
+
+        self.__db.session.commit()
+
     def get_experts_by_analysis(
         self,
         analysis: Analysis,
@@ -751,6 +768,15 @@ class DatabaseManager:
         self.__db.session.commit()
 
         return active
+
+    def add_active_score(self, **kwargs) -> ActiveScore:
+        """Adiciona uma pontuação de um ativo ao banco de dados"""
+        active_score = ActiveScore(**kwargs)
+
+        self.__db.session.add(active_score)
+        self.__db.session.commit()
+
+        return active_score
 
     def add_threat(self, **kwargs) -> Threat:
         """Adiciona uma ameaça ao banco de dados"""

@@ -48,94 +48,204 @@
         </div>`
     }
 
-    function renderThreats(activeId) {
-        $('#threats').empty();
+    function renderThreats(active) {
+
+        // Recebe o ativo atualizado
         $.ajax({
-        url: '{{ url_for("api.get_threats") }}',
-        type: 'POST',
-        headers: {
+            url: '{{ url_for("api.get_user_actives") }}',
+            type: 'POST',
+            headers: {
             'X-CSRFToken': csrf_token
-        },
-        contentType: 'application/json',
-        dataType: 'json',
-        data: JSON.stringify({
-            'ar_id': '{{ analysis_risk.id }}',
-            'ac_id': activeId,
-        }),
-        success: (data, textStatus, jqXHR) => {
+            },
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify({
+            'ar_id': '{{ analysis_risk.id }}'
+            }),
+            success: (data, textStatus, jqXHR) => {
+                active = data.actives[active.id]
 
-            let accordion = $('<div class="accordion" id="accordionCool">');
-            let counter = 0;
+                $('#threats').empty();
+                $.ajax({
+                url: '{{ url_for("api.get_threats") }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': csrf_token
+                },
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify({
+                    'ar_id': '{{ analysis_risk.id }}',
+                    'ac_id': active.id,
+                }),
+                success: (data, textStatus, jqXHR) => {
 
-            for (let threatId in data) {
+                    let accordion = $('<div class="accordion" id="accordionCool">');
+                    let counter = 0;
 
-                counter++;
-                let threat = data[threatId];
-                let accordionItem = $(_accordionItem(counter, threat.title, threat.description));
-                let ul = accordionItem.find(".ul");
+                    for (let threatId in data) {
 
-                for (let action of threat.adverses_actions) {
+                        counter++;
+                        let threat = data[threatId];
+                        let accordionItem = $(_accordionItem(counter, threat.title, threat.description));
+                        let ul = accordionItem.find(".ul");
 
-                    let scoreContainer = $(
-                    `<div class="d-flex justify-content-between align-items-center mb-2" data-id="${action.id}">
-                        <span>${action.title} - ${action.description || 'Sem descrição'}</span>
-                        <div class="d-flex justify-content-between" id="score-inputs">
-                        </div>
-                    </div>`
-                    );
+                        for (let action of threat.adverses_actions) {
 
-                    let updateButton = $(
-                        `<button type="button" class="btn btn-success
-                         m-1" disabled><i class="bi bi-check-lg"></i></button>`
+                            let scoreContainer = $(
+                            `<div class="d-flex justify-content-between align-items-center mb-2" data-id="${action.id}">
+                                <span>${action.title} - ${action.description || 'Sem descrição'}</span>
+                                <div class="d-flex justify-content-between" id="score-inputs">
+                                </div>
+                            </div>`
+                            );
+
+                            let updateButton = $(
+                                `<button type="button" class="btn btn-success
+                                m-1" disabled><i class="bi bi-check-lg"></i></button>`
+                            )
+
+                            let isFetching = false;
+                            let scoreInputs = scoreContainer.find("#score-inputs");
+                            
+                        
+                            let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
+
+                            let traduction = {"motivation": "motivação",
+                            "capacity": "capacidade",
+                            "accessibility": "acessibilidade"};
+                            
+                            for (let score in action_scores){
+                                
+                                let input = $(
+                                    `<input class="form-control text-center m-1" style="width: 50px;"
+                                    title="${traduction[score]}" data-bs-toggle="tooltip" data-bs-placement="top" id="${score}"
+                                    data-score-type=${score} value = "${action_scores[score]}" >`
+                                );
+
+                                input.change(function(){
+                                    if(!isFetching) updateButton.prop("disabled", false)
+                                })
+                                scoreInputs.append(input);
+                            }
+
+                            scoreInputs.append(updateButton);
+                            
+                            ul.append(scoreContainer);
+                            let ad_id = scoreContainer.data("id");
+
+                            scoreContainer.find("button").click(function () {
+                                isFetching = true
+                                updateButton.prop("disabled", true);
+                                updateButton.empty();
+                                updateButton.append(`<div class="spinner-border spinner-border-sm" role="status"></div>`);
+                                let scores = {}
+                                let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
+                                for (let score in action_scores)
+                                {
+                                    let input = scoreContainer.find(`#${score}`);
+                                    scores[score] = input.val();
+                                }   
+                                
+                                $.ajax({
+                                url: '{{ url_for("api.update_adverse_action_score") }}',
+                                type: 'POST',
+                                data: JSON.stringify({
+                                    ad_id: ad_id, scores: scores
+                                }),
+                                contentType: 'application/json',
+                                dataType: 'json',
+                                headers: {
+                                    'X-CSRFToken': csrf_token
+                                },
+                                success: (data, textStatus, jqXHR) => {
+                                    isFetching = false;
+                                    updateButton.empty();
+                                    updateButton.append(`<i class="bi bi-check-lg"></i>`);
+
+                                },
+                                error: (error) => {
+                                    console.log(error);
+                                }
+                                });
+                            });
+                        }
+                        let addAction = $(
+                            `<a class="btn btn-outline-success btn my-3" href="{{url_for("analysis_risk.create_adverse_action")}}?parent_id=${threatId}">
+                            <i class="bi bi-plus-lg"></i> Adicionar Ação Adversa
+                            </a>`
+                        )
+                        accordionItem.find(".accordion-body").append(addAction);
+                        accordion.append(accordionItem);
+                    }
+                    let addThreat = $(
+                        `<a class="btn btn-outline-primary btn my-3" href="{{url_for("analysis_risk.create_threat")}}?parent_id=${active.id}">
+                        <i class="bi bi-plus-lg"></i> Adicionar Ameaça
+                        </a>`
+                    )
+                    let activeScore = $(
+                        `<div class="card mb-3">
+                            <div class="card-header">
+                                <strong>${active.title}</strong>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class = "d-flex justify-content-between align-items-center mt-2"
+                                >
+                                    <spam>${active.description || "sem descrição" }</spam>
+                                    <div class="d-flex justify-content-between" id="score-inputs"></div>
+                                </div>
+                            </div>
+                        </div>`
                     )
 
-                    let isFetching = false;
-                    let scoreInputs = scoreContainer.find("#score-inputs");
-                    
-                  
-                    let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
+                    let traduction = {"essentiality" : "Essencialidade",
+                    "replacement_cost": "Custo de reposição",
+                    "substitutability": "Substitibilidade",
+                    }
 
-                    let traduction = {"motivation": "motivação",
-                     "capacity": "capacidade",
-                      "accessibility": "acessibilidade"};
+
+                    let isFetching = false
+                    let updateButton = $(
+                            `<button type="button" class="btn btn-success
+                            m-1" disabled><i class="bi bi-check-lg"></i></button>`
+                        )
                     
-                    for (let score in action_scores){
-                        
+                    for(let score in active.scores){
                         let input = $(
-                            `<input class="form-control text-center m-1" style="width: 50px;"
-                            title="${traduction[score]}" data-bs-toggle="tooltip" data-bs-placement="top" id="${score}"
-                            data-score-type=${score} value = "${action_scores[score]}" >`
+                            `
+                                <input class="form-control text-center m-1" style="width: 50px;"
+                                title="${traduction[score]}" data-bs-toggle="tooltip" data-bs-placement="top"
+                                id="${score}" data-score-type=${score} value = "${active.scores[score]}" >
+                            `
                         );
 
                         input.change(function(){
                             if(!isFetching) updateButton.prop("disabled", false)
                         })
-                        scoreInputs.append(input);
+
+                        activeScore.find("#score-inputs").append(input);
                     }
-
-                    scoreInputs.append(updateButton);
                     
-                    ul.append(scoreContainer);
-                    let ad_id = scoreContainer.data("id");
+                    activeScore.find("#score-inputs").append(updateButton);
 
-                    scoreContainer.find("button").click(function () {
+                    updateButton.click(function(){
                         isFetching = true
                         updateButton.prop("disabled", true);
                         updateButton.empty();
                         updateButton.append(`<div class="spinner-border spinner-border-sm" role="status"></div>`);
                         let scores = {}
-                        let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
-                        for (let score in action_scores)
+
+                        for(let score in active.scores)
                         {
-                            let input = scoreContainer.find(`#${score}`);
+                            let input = activeScore.find(`#${score}`);
                             scores[score] = input.val();
-                        }   
-                        
+                        }
+
                         $.ajax({
-                        url: '{{ url_for("api.update_adverse_action_score") }}',
+                        url: '{{ url_for("api.update_active_score") }}',
                         type: 'POST',
                         data: JSON.stringify({
-                            ad_id: ad_id, scores: scores
+                            ac_id: active.id, scores: scores
                         }),
                         contentType: 'application/json',
                         dataType: 'json',
@@ -152,30 +262,20 @@
                             console.log(error);
                         }
                         });
-                    });
+                    })
+                    
+                    $('#threats').append(activeScore);
+                    $('#threats').append(accordion);
+                    $('#threats').append(addThreat);
+                    $('[data-bs-toggle="tooltip"]').tooltip();
                 }
-                let addAction = $(
-                    `<a class="btn btn-outline-success btn my-3" href="{{url_for("analysis_risk.create_adverse_action")}}?parent_id=${threatId}">
-                    <i class="bi bi-plus-lg"></i> Adicionar Ação Adversa
-                    </a>`
-                )
-                accordionItem.find(".accordion-body").append(addAction);
-                accordion.append(accordionItem);
-            }
-            let addThreat = $(
-                `<a class="btn btn-outline-primary btn my-3" href="{{url_for("analysis_risk.create_threat")}}?parent_id=${activeId}">
-                <i class="bi bi-plus-lg"></i> Adicionar Ameaça
-                </a>`
-            )
-            $('#threats').append(accordion);
-            $('#threats').append(addThreat);
-            $('[data-bs-toggle="tooltip"]').tooltip();
-        }
-        });
+                });
+                    }
+            });
     }
 
     $.ajax({
-        url: '{{ url_for("api.get_actives") }}',
+        url: '{{ url_for("api.get_user_actives") }}',
         type: 'POST',
         headers: {
         'X-CSRFToken': csrf_token
@@ -188,14 +288,16 @@
         success: (data, textStatus, jqXHR) => {
         $('#actives').empty();
         let listGroup = $('<div class="list-group">');
-        data.actives.forEach((active, index) => {
+        
+        for (let key in data.actives) {
+            let active = data.actives[key];
             let listItem = $(`<button class="list-group-item list-group-item-action py-2" data-id="${active.id}">
             ${active.title}</button>`);
             listItem.click(() => {
-            renderThreats(active.id);
+            renderThreats(active);
             });
             listGroup.append(listItem);
-        });
+        };
         let addActive = $(`<a class="btn btn-outline-primary list-group-item py-2" href="{{url_for("analysis_risk.create_active", parent_id=analysis_risk.id)}}"
         data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Ativo">
         <i class="bi bi-plus-lg"></i>

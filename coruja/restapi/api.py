@@ -95,6 +95,8 @@ def get_actives():
         _scores = ActiveScore.query.filter_by(active_id=_active["id"]).all()
         total = len(_scores)
 
+        _scores = [score.as_dict() for score in _scores]
+
         def get_media(key):
             return (
                 sum([score[key] for score in _scores]) / total
@@ -121,6 +123,75 @@ def get_actives():
         result["actives"].append(_active)
 
     return jsonify(result)  # type: ignore
+
+
+@bp.route("/get-user-actives", methods=["POST"])
+@login_required
+def get_user_actives():
+    """Obtém uma lista de ativos com base ID de Análise de Risco (`ar_id`) e de Usuário (`user_id`).
+
+    Returns:
+        Uma resposta JSON contendo uma lista de ativos que correspondem aos
+        criterras de busca. A resposta tem a seguinte estrutura:
+        >>> {
+        ...    "actives": [
+        ...        {
+        ...            "id": int,
+        ...            "title": str,
+        ...            "description": str
+        ...            "score":
+        ...            {
+        ...                 "substitutability": float,
+        ...                 "replacement_cost": float,
+        ...                 "essentiality": float,
+        ...            }
+        ...        },
+        ...        ...
+        ...    ]
+        ... }
+    """
+    data = request.get_json()
+
+    if "ar_id" not in data:
+        return jsonify({"error": "Missing analysis_risk_id"}), 400
+
+    analysis_risk = None
+    if analysis_risk_access(data["ar_id"], current_user, "read"):  # type: ignore [current_user isn't None]
+        analysis_risk = database_manager.get_analysis_risk(
+            data["ar_id"], or_404=False
+        )
+    else:
+        return (
+            jsonify({"error": "You don't have access to this analysis_risk"}),
+            403,
+        )
+
+    _actives = analysis_risk.associated_actives  # type: ignore [analysis_risk isn't None]
+
+    result = {"actives": {}}
+    for _active in _actives:  # type: ignore
+        _active = _active.as_dict()
+        _active = {
+            key: value
+            for key, value in _active.items()
+            if key in ["id", "title", "description"]
+        }
+
+        _scores = ActiveScore.query.filter_by(
+            active_id=_active["id"], user_id=current_user.id  # type: ignore
+        ).first()
+
+        if _scores:
+            _active["scores"] = _scores.as_dict()  # type: ignore
+        else:
+            _scores = database_manager.add_active_score(
+                active_id=_active["id"], user_id=current_user.id  # type: ignore
+            )
+            _active["scores"] = _scores.as_dict()
+
+        result["actives"][_active["id"]] = _active
+
+    return jsonify(result)
 
 
 @bp.route("/get-threats", methods=["POST"])
@@ -192,14 +263,33 @@ def update_adverse_action_score():
     Args:
       - user_id (int): O ID do usuário para quem a pontuação da ação adversa será atualizada.
       - scores (dict): Um objeto JSON contendo os dados da pontuação da ação adversa.
-
-    Returns:
-        dict: Um objeto JSON que contém a pontuação atualizada da ação adversa.
     """
     data = request.get_json()
 
     database_manager.update_adverse_actions_score(
         adverse_action_id=data["ad_id"],
+        scores=data["scores"],
+        user_id=current_user.id,  # type: ignore
+    )
+
+    return jsonify({})
+
+
+@bp.route("/update-active-score", methods=["POST"])
+@login_required
+def update_active_score():
+    """Atualiza o score de um ativo.
+    esta função recebe uma carga JSON contendo os dados necessários para atualizar o score do ativo.
+
+    Args:
+      - ac_id (int): O ID do ativo para quem o score será atualizado.
+      - scores (dict): Um objeto JSON contendo os dados do score do ativo.
+
+    """
+    data = request.get_json()
+
+    database_manager.update_active_score(
+        active_id=data["ac_id"],
         scores=data["scores"],
         user_id=current_user.id,  # type: ignore
     )
