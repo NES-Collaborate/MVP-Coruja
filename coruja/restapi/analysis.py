@@ -18,7 +18,7 @@ def get_analysis(analysis_id: int):
         analysis_id (int): ID da Análise
     """
     analysis = database_manager.get_analysis(analysis_id)
-    experts = analysis.experts  # type: ignore [analysis isn't None]
+    experts = database_manager.get_experts_by_analysis(analysis)  # type: ignore [analysis isn't None]
     actives = database_manager.get_actives_by_analysis(analysis)  # type: ignore [analysis isn't None]
     context = {"analysis": analysis, "experts": experts, "actives": actives}
     return render_template("analysis/analysis.html", **context)
