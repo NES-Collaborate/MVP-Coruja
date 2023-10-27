@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List, Optional, overload
+from typing import Any, Dict, List, Optional, Tuple, overload
 
 from flask_login import current_user
 from flask_wtf import FlaskForm
@@ -21,6 +21,7 @@ from .models import (
     User,
     Vulnerability,
     VulnerabilityCategory,
+    VulnerabilityScore,
     VulnerabilitySubCategory,
     institution_administrators,
     institution_units,
@@ -549,6 +550,91 @@ class DatabaseManager:
                     score.essentiality for score in active_scores
                 ) / (denominator)
         return actives
+
+    def get_expert_stats(
+        self, expert_id: int, analysis: Analysis
+    ) -> Tuple[int, int]:
+        expert = [e for e in getattr(analysis, "experts") if e.id == expert_id]
+        if not expert:
+            raise KeyError("Especialista não encontrado")
+
+        expert = expert[0]
+        scored = 0
+        total = 0
+        analisys_risk = AnalysisRisk.query.filter_by(
+            analysis_id=analysis.id
+        ).first()
+        if not analisys_risk:
+            raise KeyError("Analise de risco não encontrada")
+
+        # Obtém scores de ativos
+        actives = getattr(analisys_risk, "associated_actives")
+        total += len(actives)
+
+        for active in actives:
+            active_score = ActiveScore.query.filter_by(
+                active_id=active.id,
+                user_id=expert.id,
+            ).first()
+
+            if active_score:
+                scored += 1
+
+            # Obtém scores de ações adversas
+            threats = getattr(analisys_risk, "associated_threats")
+            for threat in threats:
+                adverse_actions = AdverseAction.query.filter_by(
+                    threat_id=threat.id
+                ).all()
+                total += len(adverse_actions)
+                for adverse_action in adverse_actions:
+                    adverse_action_score = AdverseActionScore.query.filter_by(
+                        adverse_action_id=adverse_action.id, user_id=expert.id
+                    ).first()
+                    if adverse_action_score:
+                        scored += 1
+
+        # Obtém scores de Vulnerabilidades
+        analysis_vulnerability = getattr(analysis, "analysis_vulnerability")
+        if not analysis_vulnerability:
+            raise KeyError("Analise de Vulnerabilidade não encontrada")
+
+        vulnerability_categories = getattr(
+            analysis_vulnerability, "vulnerability_categories"
+        )
+        for vuln_category in vulnerability_categories:
+            vuln_subcategories = VulnerabilitySubCategory.query.filter_by(
+                category_id=vuln_category.id
+            ).all()
+            for vuln_subcategory in vuln_subcategories:
+                vulns = Vulnerability.query.filter_by(
+                    sub_category_id=vuln_subcategory.id,
+                ).all()
+                total += len(vulns)
+                for vuln in vulns:
+                    vuln_score = VulnerabilityScore.query.filter_by(
+                        vulnerability_id=vuln.id, user_id=expert.id
+                    ).first()
+                    if vuln_score:
+                        scored += 1
+
+        return scored, total
+
+    def get_experts_by_analysis(
+        self,
+        analysis: Analysis,
+    ):
+        experts = getattr(analysis, "experts", [])
+        for expert in experts:
+            scored, total = database_manager.get_expert_stats(
+                expert.id, analysis
+            )
+            expert.scored = scored
+            expert.not_scored = total - scored
+            expert.total = total
+            expert.average_score = scored / total if total > 0 else 0
+
+        return experts
 
     def add_organ(self, **kwargs) -> None:
         """Adiciona um órgão ao banco de dados e atribui administradores
