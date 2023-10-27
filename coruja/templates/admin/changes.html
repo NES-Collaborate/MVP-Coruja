@@ -80,6 +80,12 @@
                 </li>
             </ul>
         </nav>
+        <div class="position-fixed bottom-0 end-0 m-3">
+            <a href="{{ url_for('admin.logs.download_changes') }}" class="btn btn-primary btn-lg"
+                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Baixar Logs">
+                <i class="bi bi-download"></i>
+            </a>
+        </div>
     </div>
 </div>
 
