@@ -111,9 +111,9 @@
                         
                             let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
 
-                            let traduction = {"motivation": "motivação",
-                            "capacity": "capacidade",
-                            "accessibility": "acessibilidade"};
+                            let traduction = {"motivation": "Motivação",
+                            "capacity": "Capacidade",
+                            "accessibility": "Acessibilidade"};
                             
                             for (let score in action_scores){
                                 
@@ -299,11 +299,12 @@
             listGroup.append(listItem);
         };
         let addActive = $(`<a class="btn btn-outline-primary list-group-item py-2" href="{{url_for("analysis_risk.create_active", parent_id=analysis_risk.id)}}"
-        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Ativo">
+        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Criar Ativo">
         <i class="bi bi-plus-lg"></i>
         </a>`);
         listGroup.append(addActive);
         $('#actives').append(listGroup);
+        $('[data-bs-toggle="tooltip"]').tooltip();
         },
         error: (error) => {
         console.log(error);
