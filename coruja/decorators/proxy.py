@@ -71,6 +71,33 @@ def analysis_risk_access(
     return analysis_access(analysis_id, user, kind_access)
 
 
+def active_access(
+    active_id: int, user: User | LocalProxy, kind_access: str
+) -> bool:
+    active = database_manager.get_active(active_id)
+    analysis_risk_id = getattr(active, "analysis_risk_id")
+
+    return analysis_risk_access(analysis_risk_id, user, kind_access)
+
+
+def threat_acess(
+    threat_id: int, user: User | LocalProxy, kind_access: str
+) -> bool:
+    threat = database_manager.get_threat(threat_id)
+    active_id = getattr(threat, "active_id")
+
+    return active_access(active_id, user, kind_access)
+
+
+def adverse_action_access(
+    adverse_action_id: int, user: User | LocalProxy, kind_access: str
+) -> bool:
+    adverse_action = database_manager.get_adverse_action(adverse_action_id)
+    threat_id = getattr(adverse_action, "threat_id")
+
+    return threat_acess(threat_id, user, kind_access)
+
+
 def user_access(
     user_id: int | None, user: User | LocalProxy, kind_access: str
 ) -> bool:
@@ -105,6 +132,9 @@ object_map: Mapping[str, Callable] = {
     "unit": unit_access,
     "analysis": analysis_access,
     "analysis_risk": analysis_risk_access,
+    "active": active_access,
+    "threat": threat_acess,
+    "adverse_action": adverse_action_access,
     "user": user_access,
     "admin": admin_access,
 }
@@ -115,6 +145,9 @@ translate_kind = {
     "unit": "unidade",
     "analysis": "análise",
     "analysis_risk": "análise de risco",
+    "active": "ativo",
+    "threat": "ameaça",
+    "adverse_action": "ação adversa",
     "user": "usuário",
     "read": "acessar",
     "write": "escrita",
