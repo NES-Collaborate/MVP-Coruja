@@ -109,6 +109,20 @@ object_map: Mapping[str, Callable] = {
     "admin": admin_access,
 }
 
+translate_kind = {
+    "organ": "órgão",
+    "institution": "instituição",
+    "unit": "unidade",
+    "analysis": "análise",
+    "analysis_risk": "análise de risco",
+    "user": "usuário",
+    "read": "acessar",
+    "write": "escrita",
+    "create": "criação",
+    "update": "atualização",
+    "delete": "exclusão",
+}
+
 
 def proxy_access(
     *,
@@ -146,10 +160,11 @@ def proxy_access(
     Raises:
         KeyError: Caso o ID do objeto não seja encontrado entre as `kwargs`
     """
-    message = (
-        f"Você não possui permissão {kind_access!r} para o objeto {kind_object!r}"
-        or message
-    )
+    if not message:
+        message = (
+            f"Você não possui permissão para {translate_kind[kind_access]}"
+            f" este/esta {translate_kind[kind_object]} no momento"
+        )
 
     user = user or current_user  # type: ignore
 
