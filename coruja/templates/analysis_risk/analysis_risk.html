@@ -92,18 +92,19 @@
                     let isFetching = false;
                     let scoreInputs = scoreContainer.find("#score-inputs");
                     
-                    let action_score = action.score || {"motivation": 0, "capacity": 0, "accessibility":0};
+                  
+                    let action_scores = (JSON.stringify(action.scores) == '{}') ? {"motivation": 0, "capacity": 0, "accessibility":0} : action.scores;
 
                     let traduction = {"motivation": "motivação",
                      "capacity": "capacidade",
                       "accessibility": "acessibilidade"};
                     
-                    for (let score in action_score){
+                    for (let score in action_scores){
                         
                         let input = $(
                             `<input class="form-control text-center m-1" style="width: 50px;"
                             title="${traduction[score]}" data-bs-toggle="tooltip" data-bs-placement="top" id="${score}"
-                            data-score-type=${score} value = "${action_score[score]}" >`
+                            data-score-type=${score} value = "${action_scores[score]}" >`
                         );
 
                         input.change(function(){
@@ -123,8 +124,8 @@
                         updateButton.empty();
                         updateButton.append(`<div class="spinner-border spinner-border-sm" role="status"></div>`);
                         let scores = {}
-                        let action_score = action.score || {"motivation": 0, "capacity": 0, "accessibility":0};
-                        for (let score in action_score)
+                        let action_scores = (JSON.stringify(action.scores) == '{}') ? {"motivation": 0, "capacity": 0, "accessibility":0} : action.scores;
+                        for (let score in action_scores)
                         {
                             let input = scoreContainer.find(`#${score}`);
                             scores[score] = input.val();
