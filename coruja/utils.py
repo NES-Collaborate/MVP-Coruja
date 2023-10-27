@@ -621,6 +621,45 @@ class DatabaseManager:
 
         return scored, total
 
+    def update_adverse_actions_score(
+        self,
+        adverse_action_id: int,
+        scores: Dict[str, Any],
+        user_id: int,
+    ) -> None:
+        """
+        Atualiza a pontuação de uma ação adversa.
+
+        Args:
+            adverse_action_id (int): O ID da ação adversa.
+            scores (Dict[str, Any]): Um dicionário contendo as
+                pontuações a serem atualizadas para a ação adversa.
+            user_id (User | Any): O ID do usuário cuja pontuação
+                está sendo atualizada.
+
+        Returns:
+            AdverseActionScore | None: O objeto AdverseActionScore
+                atualizado se a atualização for bem-sucedida, None
+                caso contrário.
+        """
+        adverse_action_score = AdverseActionScore.query.filter_by(
+            adverse_action_id=adverse_action_id,
+            user_id=user_id,
+        ).first()
+
+        if adverse_action_score:
+            for score, value in scores.items():
+                setattr(adverse_action_score, score, value)
+        else:
+            adverse_action_score = AdverseActionScore(
+                **scores,
+                adverse_action_id=adverse_action_id,
+                user_id=user_id,
+            )
+            self.__db.session.add(adverse_action_score)
+
+        self.__db.session.commit()
+
     def get_experts_by_analysis(
         self,
         analysis: Analysis,

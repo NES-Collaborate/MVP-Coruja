@@ -165,7 +165,14 @@ def get_threats():
     if not _active:
         return jsonify({"error": "Active not found"}), 404
 
-    _result = {threat.id: {"title": threat.title, "description": threat.description, "adverses_actions": []} for threat in _active.associated_threats}  # type: ignore
+    _result = {
+        threat.id: {
+            "title": threat.title,
+            "description": threat.description,
+            "adverses_actions": [],
+        }
+        for threat in _active.associated_threats  # type: ignore
+    }
 
     for _id in _result:
         _result[_id][
@@ -178,10 +185,26 @@ def get_threats():
 @bp.route("/update-adveser-action-score", methods=["POST"])
 @login_required
 def update_adverse_action_score():
+    """Atualiza o score de uma ação adversa.
+    Esta função recebe uma carga JSON contendo os dados necessários para atualizar a pontuação
+    da ação adversa.
+
+    Args:
+      - user_id (int): O ID do usuário para quem a pontuação da ação adversa será atualizada.
+      - scores (dict): Um objeto JSON contendo os dados da pontuação da ação adversa.
+
+    Returns:
+        dict: Um objeto JSON que contém a pontuação atualizada da ação adversa.
+    """
     data = request.get_json()
 
-    print(data)
-    return jsonify({"oi": "tchau"})
+    database_manager.update_adverse_actions_score(
+        adverse_action_id=data["ad_id"],
+        scores=data["scores"],
+        user_id=current_user.id,  # type: ignore
+    )
+
+    return jsonify({})
 
 
 def init_api(app: Flask) -> None:
