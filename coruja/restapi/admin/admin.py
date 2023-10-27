@@ -9,3 +9,4 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 def index():
     """Rota principal de admin"""
     return render_template("admin/index.html")
+
