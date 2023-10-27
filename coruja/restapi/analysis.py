@@ -84,7 +84,9 @@ def create_analysis():
         expert_ids = form.expert_ids.data
 
         analysis = database_manager.add_analysis(
-            description=description, administrators=admin_ids, experts=expert_ids
+            description=description,
+            administrators=admin_ids,
+            experts=expert_ids,
         )
 
         if analysis:

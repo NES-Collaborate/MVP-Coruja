@@ -449,7 +449,7 @@ class DatabaseManager:
         for admin_id in administrators:
             admin = self.get_user(admin_id)
             new_analysis.add_administrator(admin, commit_changes=False)
-        
+
         for expert_id in experts:
             expert = self.get_user(expert_id)
             new_analysis.add_expert(expert, commit_changes=False)
