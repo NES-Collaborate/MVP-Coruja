@@ -1,3 +1,4 @@
+import re
 from typing import Any, Dict, List, Optional, overload
 
 from flask_login import current_user
@@ -16,14 +17,17 @@ from .models import (
     AnalysisVulnerability,
     Institution,
     Organ,
-    Role,
     Unit,
     User,
     Vulnerability,
     VulnerabilityCategory,
     VulnerabilitySubCategory,
     institution_administrators,
+    institution_units,
     organ_administrators,
+    organ_institutions,
+    unit_analysis,
+    units_administrators,
 )
 
 
@@ -36,59 +40,6 @@ def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
         _new_form[atributte] = getattr(form, atributte)
 
     return _new_form
-
-
-def create_and_commit_role(name: str, permissions: List) -> None:
-    role = Role(name=name, permissions=permissions)
-    db.session.add(role)
-    db.session.commit()
-
-
-def get_role_lower_hierarchy(role: Role) -> str:
-    hierarchy = {
-        "admin": "organ_admin",
-        "organ_admin": "institution_admin",
-        "institution_admin": "unit_admin",
-        "unit_admin": "analysis_admin",
-        "analysis_admin": "user",
-    }
-    return hierarchy[role.name]
-
-
-def get_name_role(role: str, reversed: Optional[bool] = None) -> str:
-    """Retorna o nome do cargo
-
-    Args:
-        role (str): Cargo
-
-    Returns:
-        str: Nome do cargo
-    """
-    role_names = {
-        "admin": "Administrador",
-        "organ_admin": "Gestor de Órgão",
-        "institution_admin": "Gestor de Instituição",
-        "unit_admin": "Gestor de Unidade",
-        "analysis_admin": "Gestor de Análise",
-        "user": "Vizualizador/Usuário",
-    }
-
-    if reversed:
-        reversed_roles = {role2: role1 for role1, role2 in role_names.items()}
-        return reversed_roles[role]
-
-    return role_names[role]
-
-
-def get_role(role_name: str) -> Role | None:
-    return Role.query.filter_by(name=role_name).first()
-
-
-def contains_permission(role: Role, permission: str, kind: str) -> bool:
-    return any(
-        (_permission.label, kind) == (_permission.label, _permission.type)
-        for _permission in role.permissions  # type: ignore
-    )
 
 
 class UniqueData:
@@ -123,25 +74,61 @@ class DatabaseManager:
             user_id (int): O ID do usuário a ser pesquisado.
 
         Return:
-            list[Organ]: Uma lista de objetos Organ associados ao usuário
-                especificado.
+            list[Organ]: Uma lista de objetos Organ associados ao usuário especificado.
         """
         organ_admin_alias = aliased(organ_administrators)
+        institution_admin_alias = aliased(institution_administrators)
+        unit_admin_alias = aliased(units_administrators)
 
-        return (
+        # 1. Órgãos onde o user_id é um dos administradores
+        query_1 = Organ.query.join(
+            organ_admin_alias, Organ.id == organ_admin_alias.c.organ_id
+        ).filter(organ_admin_alias.c.user_id == user_id)
+
+        # 2. Órgãos relacionados às instituições onde o user_id é um dos administradores
+        query_2 = (
             Organ.query.join(
-                organ_admin_alias,
-                Organ.id == organ_admin_alias.c.organ_id,
+                organ_institutions,  # Substitua pelo nome real da sua tabela associativa
+                (organ_institutions.c.organ_id == Organ.id),
             )
-            .filter(organ_admin_alias.c.user_id == user_id)
-            .all()
+            .join(
+                institution_admin_alias,
+                institution_admin_alias.c.institution_id
+                == organ_institutions.c.institution_id,
+            )
+            .filter(institution_admin_alias.c.user_id == user_id)
         )
+
+        # 3. Órgãos relacionados às unidades onde o user_id é um dos administradores
+        query_3 = (
+            Organ.query.join(
+                organ_institutions,  # Substitua pelo nome real da sua tabela associativa
+                (organ_institutions.c.organ_id == Organ.id),
+            )
+            .join(
+                institution_units,  # Substitua pelo nome real da sua tabela associativa
+                institution_units.c.institution_id
+                == organ_institutions.c.institution_id,
+            )
+            .join(
+                unit_admin_alias,
+                unit_admin_alias.c.unit_id == institution_units.c.unit_id,
+            )
+            .filter(unit_admin_alias.c.user_id == user_id)
+        )
+
+        # Query Final:
+        final_query = query_1.union(query_2).union(query_3)
+
+        return final_query.all()
 
     def get_organ(
         self,
         organ_id: int,
         or_404: bool = True,
     ) -> Organ | None:
+        # esta é outrra alteração aleatória eeeee
+
         """Obtém um orgão com base em seu ID.
 
         Args:
@@ -417,6 +404,7 @@ class DatabaseManager:
         return user  # type: ignore
 
     def add_user(self, **kwargs) -> User:
+        kwargs["cpf"] = re.sub(r"\D", "", kwargs.get("cpf", ""))
         new_user = User(**kwargs)
         self.__db.session.add(new_user)
         self.__db.session.commit()
@@ -603,23 +591,6 @@ class DatabaseManager:
 
         self.__db.session.commit()
         return unit
-
-    def is_organ_administrator(self, user: User | Any) -> bool:
-        """Verifica se um usuário é administrador de um organ
-
-        Na Realidade, é uma verificação para permissão de criar órgãos
-
-        Args:
-            user (User | Any): Usuário
-
-        Returns:
-            bool: Se o usuário é administrador de um organ
-        """
-        # TODO: implementar verificação de permission pela role
-        role = user.role
-        if not role:
-            return False
-        return role.name == "admin"
 
     def get_analysis_risk(
         self, analysis_risk_id: int, or_404: bool = True
@@ -885,6 +856,48 @@ class DatabaseManager:
         self.__db.session.commit()
 
         return vulnerability
+
+    def get_institution_by_unit(self, unit_id: int) -> Institution | None:
+        """Obtém uma instituição por unidade
+
+        Args:
+            unit_id (int): ID da unidade
+
+        Returns:
+            Institution | None: O objeto da instituição
+        """
+        institution_units_alias = aliased(institution_units)
+        return (
+            Institution.query.join(institution_units_alias)
+            .filter(institution_units_alias.c.unit_id == unit_id)
+            .first()
+        )
+
+    def get_unit_by_analysis(self, analysis_id: int) -> Unit | None:
+        """Obtém uma unidade por análise
+
+        Args:
+            analysis_id (int): ID da análise
+
+        Returns:
+            Unit | None: O objeto da unidade ou None
+        """
+        unit_analysis_alias = aliased(unit_analysis)
+        return (
+            Unit.query.join(unit_analysis_alias).filter(
+                unit_analysis_alias.c.analysis_id == analysis_id
+            )
+        ).first()
+
+    def get_organ_by_institution(self, institution_id: int) -> Organ | None:
+        organ_institutions_alias = aliased(organ_institutions)
+        return (
+            Organ.query.join(organ_institutions_alias)
+            .filter(
+                organ_institutions_alias.c.institution_id == institution_id
+            )
+            .first()
+        )
 
 
 database_manager = DatabaseManager()

@@ -2,6 +2,8 @@ from flask import Flask
 from wtforms import Field
 from wtforms.validators import DataRequired
 
+from ..decorators import proxy_access_function
+
 
 def is_field_required(field: Field):
     """Verifica se determinada field possui validador DataRequired
@@ -16,4 +18,6 @@ def is_field_required(field: Field):
 
 
 def init_app(app: Flask):
-    app.jinja_env.globals.update(is_field_required=is_field_required)
+    app.jinja_env.globals.update(
+        is_field_required=is_field_required, proxy_access=proxy_access_function
+    )

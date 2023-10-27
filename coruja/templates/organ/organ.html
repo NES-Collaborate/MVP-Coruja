@@ -69,7 +69,7 @@
         </div>
 
         <!-- Floating Button para criar Instituição -->
-        {% if current_user.role.name == 'admin' %}
+        {% if True %}
         <div class="position-fixed bottom-0 end-0 m-5">
             <a
                 href="{{ url_for('institution.create_institution', parent_id=organ.id) }}"

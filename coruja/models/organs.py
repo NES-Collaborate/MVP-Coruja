@@ -45,8 +45,11 @@ class Organ(BaseTable):
         self.is_template = is_template
 
     def add_administrator(self, user: User):
+        permissions = self.create_permissions()
         if user not in self.administrators:  # type: ignore
             self.administrators.append(user)
+            for permission in permissions:
+                user.add_permission(permission)
             db.session.commit()
 
     def add_institution(self, institution: Institution):

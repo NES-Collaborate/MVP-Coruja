@@ -1,7 +1,7 @@
 from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from coruja.decorators.proxy import can_access_analysis
+from coruja.decorators.proxy import analysis_access
 from coruja.forms import UnitForm
 
 from ..decorators import proxy_access
@@ -16,7 +16,7 @@ bp = Blueprint("unit", __name__, url_prefix="/unidade")
 def get_unit(unit_id: int):
     unit = database_manager.get_unit(unit_id)
 
-    analyses = [analysis for analysis in unit.analyses if can_access_analysis(analysis.id, current_user)]  # type: ignore
+    analyses = [analysis for analysis in unit.analyses if analysis_access(analysis.id, current_user, "read")]  # type: ignore
 
     return render_template("unit/unit.html", unit=unit, analyses=analyses)
 

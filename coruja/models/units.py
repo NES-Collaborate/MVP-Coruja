@@ -48,10 +48,13 @@ class Unit(BaseTable):
         Args:
             user (User): Usuário a ser adicionado
         """
+        permissions = self.create_permissions()
         if not self.administrators:
             self.administrators = []
 
         self.administrators.append(user)
+        for permission in permissions:
+            user.add_permission(permission)
 
     def add_analysis(self, analysis: Analysis):
         """Adiciona uma análise a uma unidade

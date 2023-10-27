@@ -22,6 +22,49 @@ class BaseTable(db.Model):
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}  # type: ignore
 
+    def permission_exists(self, permission):
+        from .permissions import Permission
+
+        return Permission.query.filter_by(
+            type=permission.type,
+            object_type=permission.object_type,
+            object_id=permission.object_id,
+        ).first()
+
+    def add_permission(self, permission) -> None:
+        from .permissions import Permission
+
+        if not self.permission_exists(permission):
+            db.session.add(permission)
+            db.session.commit()
+        return Permission.query.filter_by(
+            type=permission.type,
+            object_type=permission.object_type,
+            object_id=permission.object_id,
+        ).first()
+
+    def create_permissions(self):
+        from .permissions import Permission
+
+        object_type = self.__class__.__name__.lower()
+        permissions = [
+            Permission(
+                type="read", object_type=object_type, object_id=self.id
+            ),
+            Permission(
+                type="update", object_type=object_type, object_id=self.id
+            ),
+            Permission(
+                type="delete", object_type=object_type, object_id=self.id
+            ),
+        ]
+
+        _permissions = []
+        for permission in permissions:
+            _permissions.append(self.add_permission(permission))
+
+        return _permissions
+
 
 class Change(BaseTable):
     object_old = db.Column(db.JSON)

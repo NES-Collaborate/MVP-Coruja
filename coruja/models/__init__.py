@@ -23,19 +23,18 @@ from .relationships import (
     analytics_experts,
     organ_administrators,
     organ_institutions,
-    permissions_roles,
     unit_analysis,
     units_administrators,
     units_staff,
+    user_permissions,
     vulnerability_categories,
 )
 from .units import Unit
-from .users import Permission, Role, User
+from .users import Permission, User
 
 __all__ = [
     "User",
     "Unit",
-    "Role",
     "Organ",
     "Active",
     "Threat",
@@ -50,9 +49,9 @@ __all__ = [
     "Vulnerability",
     "unit_analysis",
     "AdverseAction",
+    "user_permissions",
     "analytics_experts",
     "institution_units",
-    "permissions_roles",
     "organ_institutions",
     "AdverseActionScore",
     "VulnerabilityScore",

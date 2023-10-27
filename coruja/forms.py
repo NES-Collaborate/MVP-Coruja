@@ -270,9 +270,6 @@ class UserForm(FlaskForm):
         "Nome", validators=[DataRequired("Este campo é obrigatório")]
     )
     title = StringField("Título")
-    role = StringField(
-        "Cargo", validators=[DataRequired("Este campo é obrigatório")]
-    )
     cpf = StringField(
         "CPF",
         validators=[

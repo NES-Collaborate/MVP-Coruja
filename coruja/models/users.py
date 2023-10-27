@@ -1,62 +1,14 @@
 import json
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from bcrypt import checkpw, gensalt, hashpw
 from flask_login import UserMixin
 
 from ..extensions.database import db
 from .configurations import BaseTable
-from .relationships import permissions_roles
-
-
-class Permission(BaseTable):
-    label = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
-
-    def __init__(self, *, label: str, type: str, description: str):
-        """Permissão de acesso à funcionalidades gerais da aplicação
-
-        Args:
-            label (str): Nome da permissão
-            type (str): Tipo de permissão (`create`, `read`, `update`, `delete`)
-            description (str): Breve descrição sobre a permissão
-        """
-        self.label = label
-        self.type = type
-        self.description = description
-
-
-class Role(BaseTable):
-    name = db.Column(db.String(255), nullable=False)
-    permissions = db.relationship(
-        "Permission",
-        secondary=permissions_roles,
-        backref=db.backref("roles", lazy=True),
-    )
-
-    def __init__(self, *, name: str, permissions: list = []):
-        self.name = name
-
-        for permission in permissions:
-            self.add_permission(permission)
-
-    def add_permission(
-        self, permission: Permission, commit_changes: bool = False
-    ) -> None:
-        """Adiciona uma permissão a uma role
-
-        Args:
-            permission (Permission): Permissão a ser adicionada
-            commit_changes (bool, optional): Se True, salva as alterações no banco. Defaults to False.
-        """
-        if not self.permissions:
-            self.permissions = []
-
-        self.permissions.append(permission)
-        if commit_changes:
-            db.session.commit()
+from .permissions import Permission
+from .relationships import user_permissions
 
 
 class User(BaseTable, UserMixin):
@@ -69,9 +21,11 @@ class User(BaseTable, UserMixin):
     _telephones = db.Column(db.String)
     title = db.Column(db.String(255))
     last_seen = db.Column(db.DateTime)
-    role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
-
-    role = db.relationship("Role", backref="users", lazy=True)
+    permissions: db.Mapped[List[Permission]] = db.relationship(  # type: ignore
+        "Permission",
+        secondary=user_permissions,
+        backref=db.backref("users", lazy=True),
+    )
 
     # Permitir várias linhas com valor nulo
     __table_args__ = (
@@ -89,7 +43,6 @@ class User(BaseTable, UserMixin):
         address: Optional[str] = None,
         title: Optional[str] = None,
         last_seen: Optional[datetime] = None,
-        role: Optional[Role] = None,
     ):
         _password = hashpw(password.encode("utf-8"), gensalt())
         self.password = _password.decode("utf-8")
@@ -101,7 +54,6 @@ class User(BaseTable, UserMixin):
         self.address = address
         self.title = title
         self.last_seen = last_seen
-        self.role = role or Role.query.filter_by(name="user").first()
 
     @property
     def telephones(self):
@@ -171,3 +123,14 @@ class User(BaseTable, UserMixin):
             str: O CPF censurado.
         """
         return f"{cpf[:3]}.***.**{cpf[-3]}-{cpf[-2:]}"
+
+    def add_permission(
+        self, permission: Permission, commit_changes: bool = True
+    ) -> None:
+        if not self.permissions:
+            self.permissions = []
+
+        self.permissions.append(permission)
+
+        if commit_changes:
+            db.session.commit()

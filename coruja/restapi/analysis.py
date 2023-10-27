@@ -65,7 +65,6 @@ def edit_analysis(analysis_id: int):
 
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
-# @proxy_access(kind_object="analysis", kind_access="create")
 def create_analysis():
     """Renderiza a pagina de criação de uma nova Análise"""
     form = AnalysisForm()

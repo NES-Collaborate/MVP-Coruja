@@ -1,11 +1,8 @@
-from time import sleep
-
 from flask import Blueprint, Flask, jsonify, request
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-from coruja.decorators.proxy import can_access_analysis_risk
-
+from ..decorators import analysis_risk_access
 from ..models import ActiveScore, User
 from ..utils import database_manager
 
@@ -74,7 +71,7 @@ def get_actives():
         return jsonify({"error": "Missing analysis_risk_id"}), 400
 
     analysis_risk = None
-    if can_access_analysis_risk(data["ar_id"], current_user):  # type: ignore [current_user isn't None]
+    if analysis_risk_access(data["ar_id"], current_user, "read"):  # type: ignore [current_user isn't None]
         analysis_risk = database_manager.get_analysis_risk(
             data["ar_id"], or_404=False
         )
@@ -158,7 +155,7 @@ def get_threats():
     if "ac_id" not in data or "ar_id" not in data:
         return jsonify({"error": "Missing active_id or analysis_risk_id"}), 400
 
-    if not can_access_analysis_risk(data["ar_id"], current_user):  # type: ignore [current_user isn't None]
+    if not analysis_risk_access(data["ar_id"], current_user, "read"):  # type: ignore [current_user isn't None]
         return (
             jsonify({"error": "You don't have access to this analysis_risk"}),
             403,
@@ -182,8 +179,6 @@ def get_threats():
 @login_required
 def update_adverse_action_score():
     data = request.get_json()
-
-    sleep(2)
 
     print(data)
     return jsonify({"oi": "tchau"})

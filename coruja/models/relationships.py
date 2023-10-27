@@ -1,9 +1,9 @@
 from ..extensions.database import db
 
 # Relacionamento de Permissões
-permissions_roles = db.Table(
-    "permissions_roles",
-    db.Column("role_id", db.String, db.ForeignKey("role.id")),
+user_permissions = db.Table(
+    "user_permissions",
+    db.Column("user_id", db.String, db.ForeignKey("user.id")),
     db.Column("permission_id", db.String, db.ForeignKey("permission.id")),
 )
 

@@ -1,19 +1,19 @@
-from .proxy import (
-    can_access_analysis,
-    can_access_analysis_risk,
-    can_access_analysis_vulnerability,
-    can_access_institution,
-    can_access_organ,
-    can_access_unit,
+from .proxy import (  # analysis_vulnerability_access,
+    analysis_access,
+    analysis_risk_access,
+    institution_access,
+    organ_access,
     proxy_access,
+    proxy_access_function,
+    unit_access,
 )
 
 __all__ = [
     "proxy_access",
-    "can_access_institution",
-    "can_access_analysis",
-    "can_access_analysis_risk",
-    "can_access_analysis_vulnerability",
-    "can_access_organ",
-    "can_access_unit",
+    "unit_access",
+    "organ_access",
+    "institution_access",
+    "analysis_access",
+    "analysis_risk_access",
+    "proxy_access_function",
 ]

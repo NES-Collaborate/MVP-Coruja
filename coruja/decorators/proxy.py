@@ -1,153 +1,112 @@
 from functools import wraps
-from typing import Any, Callable, Mapping, Optional
+from typing import Callable, Mapping, Optional
 
 from flask import abort
-from flask_login import current_user
+from flask_login import AnonymousUserMixin, current_user
 from werkzeug.local import LocalProxy
 
 from ..models import User
 from ..utils import database_manager
 
 
-def is_object_administrator(obj: object, user: User | LocalProxy) -> bool:
-    """Verifica se o usuário é um administrador do objeto
-
-    Args:
-        obj (object): O objeto (deve ter atributo `administrators` como `List[User]`)
-        user (User): Usuário a ser verificado
-
-    Returns:
-        bool: Se o usuário é um administrador do objeto
-    """
-    return any(user.id == admin.id for admin in obj.administrators)  # type: ignore
-
-
-def can_access_organ(organ_id: int, user: User) -> bool:
-    """Verifica se o usuário tem permissão para acessar o órgão
-
-    Args:
-        organ_id (int): ID do órgão
-        user (User): Usuário a ser verificado
-
-    Returns:
-        bool: Se o usuário tem permissão para acessar o órgão
-
-    Raises:
-        NotFoundError: Se o órgão não foi encontrado
-    """
-    organ = database_manager.get_organ(organ_id)
-    if organ is None:
-        abort(404, message="Órgão não encontrado")
-    can_access = database_manager.is_organ_administrator(user)
-    return can_access or is_object_administrator(organ, user)
-
-
-def can_access_institution(
-    institution_id: int, user: User | LocalProxy
+def organ_access(
+    organ_id: int, user: User | LocalProxy, kind_access: str
 ) -> bool:
-    """Verifica se o usuário tem permissão para acessar a instituição
+    user_permissions = getattr(user, "permissions")
 
-    Args:
-        institution_id (int): ID da instituição
-        user (User): Usuário a ser verificado
-
-    Returns:
-        bool: Se o usuário tem permissão para acessar a instituição
-    """
-    institution = database_manager.get_institution(institution_id)
-    can_access = is_object_administrator(institution, user)
-    return can_access or can_access_organ(institution.organ_id, user)  # type: ignore [institution isn't None]
-
-
-def can_access_unit(unit_id: int, user: User) -> bool:
-    """Verifica se o usuário tem permissão para acessar a unidade
-
-    Args:
-        unit_id (int): ID da unidade
-        user (User): Usuário a ser verificado
-
-    Returns:
-        bool: Se o usuário tem permissão para acessar a unidade
-    """
-    unit = database_manager.get_unit(unit_id)
-    can_access = is_object_administrator(unit, user)
-    return can_access or can_access_institution(unit.institution_id, user)  # type: ignore [unit isn't None]
-
-
-def can_access_analysis(analysis_id: int, user: User) -> bool:
-    """Verifica se o usuário tem permissão para acessar a analise
-
-    Args:
-        analysis_id (int): ID da analise
-        user (User): Usuário a ser verificado
-
-    Returns:
-        bool: Se o usuário tem permissão para acessar a analise
-    """
-
-    analysis = database_manager.get_analysis(analysis_id)
-    can_access = is_object_administrator(analysis, user)
-    return can_access or can_access_unit(analysis.unit_id, user)  # type: ignore [analysis isn't None]
-
-
-def can_access_analysis_risk(analysis_risk_id: int, user: User) -> bool:
-    """Verifica se usuário especificado tem permissão para acessar a analise
-
-    Args:
-        analysis_risk_id (int): ID da analise
-        user (User): Usuário a ser verificado
-
-    Returns:
-        bool: Se usuário especificado tem permissão para acessar a analise
-    """
-    analysis_risk = database_manager.get_analysis(analysis_risk_id)
-    can_access = is_object_administrator(analysis_risk, user)
-    return can_access or can_access_analysis(analysis_risk.analysis_id, user)  # type: ignore [analysis_risk isn't None]
-
-
-def can_access_analysis_vulnerability(
-    analysis_vulnerability_id: int, user: User
-) -> bool:
-    """Verifica se o usuário tem permissão para acessar a vulnerabilidade
-
-    Args:
-        analysis_vulnerability_id (int): ID da vulnerabilidade
-        user (User): Usuário a ser verificado
-
-    Returns:
-        bool: Se o usuário tem permissão para acessar a vulnerabilidade
-    """
-    analysis_vulnerability = database_manager.get_analysis_vulnerability(
-        analysis_vulnerability_id
+    return any(
+        permission.type == kind_access
+        and permission.object_id == organ_id
+        and permission.object_type == "organ"
+        for permission in user_permissions
     )
-    can_access = is_object_administrator(analysis_vulnerability, user)
-    return can_access or can_access_analysis(analysis_vulnerability.analysis_id, user)  # type: ignore [analysis_vulnerability isn't None]
 
 
-def can_access_user(user_id: int, user: User) -> bool:
-    """Verifica se o usuário tem permissão para acessar o usuário
+def institution_access(
+    institution_id: int, user: User | LocalProxy, kind_access: str
+) -> bool:
+    user_permissions = getattr(user, "permissions")
+    organ = database_manager.get_organ_by_institution(institution_id)
+    return any(
+        permission.type == kind_access
+        and permission.object_id == institution_id
+        and permission.object_type == "instituition"
+        for permission in user_permissions
+    ) or organ_access(getattr(organ, "id"), user, kind_access)
 
-    Args:
-        user_id (int): ID do usuário
-        user (User): Usuário a ser verificado
 
-    Returns:
-        bool: Se o usuário tem permissão para acessar o usuário
-    """
-    _user = database_manager.get_user(user_id)
-    can_access = is_object_administrator(_user, user)
-    return can_access
+def unit_access(
+    unit_id: int, user: User | LocalProxy, kind_access: str
+) -> bool:
+    user_permissions = getattr(user, "permissions")
+    institution = database_manager.get_institution_by_unit(unit_id)
+    return any(
+        permission.type == kind_access
+        and permission.object_id == unit_id
+        and permission.object_type == "unit"
+        for permission in user_permissions
+    ) or institution_access(getattr(institution, "id"), user, kind_access)
+
+
+def analysis_access(
+    analysis_id: int, user: User | LocalProxy, kind_access: str
+) -> bool:
+    user_permissions = getattr(user, "permissions")
+    unit = database_manager.get_unit_by_analysis(analysis_id)
+
+    return any(
+        permission.type == kind_access
+        and permission.object_id == analysis_id
+        and permission.object_type == "analysis"
+        for permission in user_permissions
+    ) or unit_access(getattr(unit, "id"), user, kind_access)
+
+
+def analysis_risk_access(
+    analysis_risk_id: int, user: User | LocalProxy, kind_access: str
+) -> bool:
+    analysis_risk = database_manager.get_analysis_risk(analysis_risk_id)
+    analysis_id = getattr(analysis_risk, "analysis_id")
+
+    return analysis_access(analysis_id, user, kind_access)
+
+
+def user_access(
+    user_id: int | None, user: User | LocalProxy, kind_access: str
+) -> bool:
+    user_permissions = getattr(user, "permissions")
+    user_id = None  # esta linha está aqui por causa de um bug
+    return any(
+        permission.type == kind_access
+        and permission.object_id == user_id
+        and permission.object_type == "user"
+        for permission in user_permissions
+    )
+
+
+def admin_access(
+    object_id: None, user: User | LocalProxy, kind_access: str
+) -> bool:
+    if isinstance(user, AnonymousUserMixin):
+        return False
+    user_permissions = getattr(user, "permissions")
+    object_id = None
+    return any(
+        permission.type == kind_access
+        and permission.object_id == object_id
+        and permission.object_type == "admin"
+        for permission in user_permissions
+    )
 
 
 object_map: Mapping[str, Callable] = {
-    "unit": can_access_unit,
-    "user": can_access_user,
-    "organ": can_access_organ,
-    "analysis": can_access_analysis,
-    "institution": can_access_institution,
-    "analysis_risk": can_access_analysis_risk,
-    "analysis_vulnerability": can_access_analysis_vulnerability,
-    # TODO: Adicionar mais objetos
+    "organ": organ_access,
+    "institution": institution_access,
+    "unit": unit_access,
+    "analysis": analysis_access,
+    "analysis_risk": analysis_risk_access,
+    "user": user_access,
+    "admin": admin_access,
 }
 
 
@@ -187,7 +146,6 @@ def proxy_access(
     Raises:
         KeyError: Caso o ID do objeto não seja encontrado entre as `kwargs`
     """
-    # TODO: implementar os diferentes tipos de access
     message = (
         f"Você não possui permissão {kind_access!r} para o objeto {kind_object!r}"
         or message
@@ -203,10 +161,10 @@ def proxy_access(
                 abort(403, message)
 
             ids = [kwargs[_id] for _id in kwargs if _id.endswith("_id")]
-            if not ids:
+            if not ids and kind_access != "create":
                 raise KeyError("ID do objeto não encontrado")
-            obj_id = ids[0]
-            can_access = obj_class(obj_id, user)  # type: ignore
+            obj_id = ids[0] if ids else None
+            can_access = obj_class(obj_id, user, kind_access)  # type: ignore
             if can_access:
                 return function(*args, **kwargs)
             else:
@@ -215,3 +173,15 @@ def proxy_access(
         return wrapper
 
     return decorator
+
+
+def proxy_access_function(
+    kind_object: str,
+    kind_access: str,
+    user: Optional[User] = None,
+    object_id: Optional[int] = None,
+):
+    user = user or current_user  # type: ignore
+
+    func = object_map.get(kind_object, lambda x, y, z: False)
+    return func(object_id, user, kind_access)  # type: ignore

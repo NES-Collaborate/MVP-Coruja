@@ -1,7 +1,7 @@
 from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from coruja.decorators.proxy import can_access_unit
+from coruja.decorators.proxy import unit_access
 
 from ..decorators import proxy_access
 from ..forms import InstitutionForm
@@ -74,7 +74,7 @@ def get_institution(institution_id: int):
 
     institution = database_manager.get_institution(institution_id)
     # units = database_manager.get_units(current_user.id)
-    units = [unit for unit in institution.units if can_access_unit(unit.id, current_user)]  # type: ignore
+    units = [unit for unit in institution.units if unit_access(unit.id, current_user, "read")]  # type: ignore
 
     return render_template(
         "institution/institution.html", institution=institution, units=units

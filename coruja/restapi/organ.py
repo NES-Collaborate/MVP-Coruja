@@ -1,18 +1,9 @@
 from typing import Dict
 
-from flask import (
-    Blueprint,
-    Flask,
-    abort,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from ..decorators import can_access_institution, proxy_access
+from ..decorators import institution_access, proxy_access
 from ..forms import OrganForm
 from ..utils import database_manager, form_to_dict
 
@@ -31,7 +22,7 @@ def get_organ(organ_id: int):
     organ = database_manager.get_organ(organ_id)
 
     def _access(institution):
-        return can_access_institution(institution.id, current_user)
+        return institution_access(institution.id, current_user, "read")
 
     institutions = list(filter(_access, organ.institutions))  # type: ignore
 
@@ -44,8 +35,7 @@ def get_organ(organ_id: int):
 
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
-# @proxy_access(kind_object="organ", kind_access="create")
-# TODO: ainda não foi implementado uma verificação via permissions da role
+@proxy_access(kind_object="organ", kind_access="create")
 def create_organ():
     """
     Rota para criar um novo órgão.
@@ -53,9 +43,6 @@ def create_organ():
     Esta rota é acessível através dos métodos GET e POST. Se o usuário
     atual não for um administrador de órgãos, será retornado um erro 403.
     """
-    if not database_manager.is_organ_administrator(current_user):
-        abort(403)
-
     form = OrganForm()
 
     if request.method == "POST" and form.validate_on_submit():

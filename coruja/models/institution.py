@@ -51,10 +51,13 @@ class Institution(BaseTable):
             user (User): Usuário a ser adicionado
             commit_changes (bool, optional): Se True, salva as alterações no banco.
         """
+        permissions = self.create_permissions()
         if not self.administrators:
             self.administrators = []
 
         self.administrators.append(user)
+        for permission in permissions:
+            user.add_permission(permission)
 
         if commit_changes:
             db.session.commit()
