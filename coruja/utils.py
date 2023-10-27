@@ -403,6 +403,26 @@ class DatabaseManager:
         )
         return user  # type: ignore
 
+    def update_user(
+        self,
+        user: User,
+        form: Dict[str, Any],
+    ) -> User:
+        """Atualiza um usuário com base em seus dados.
+
+        Args:
+            user (User): O usuário a ser atualizado.
+            form (Dict[str, Any]): Os dados a serem atualizados.
+
+        Returns:
+            User: O usuário atualizado.
+        """
+        for key, value in form.items():
+            setattr(user, key, value)
+
+        db.session.commit()
+        return user
+
     def add_user(self, **kwargs) -> User:
         kwargs["cpf"] = re.sub(r"\D", "", kwargs.get("cpf", ""))
         new_user = User(**kwargs)
