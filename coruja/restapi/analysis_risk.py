@@ -1,14 +1,6 @@
 from asyncio import log
 
-from flask import (
-    Blueprint,
-    Flask,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from ..decorators import proxy_access

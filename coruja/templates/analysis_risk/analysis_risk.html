@@ -67,8 +67,6 @@
             let accordion = $('<div class="accordion" id="accordionCool">');
             let counter = 0;
 
-            console.log(data)
-
             for (let threatId in data) {
 
                 counter++;
@@ -76,15 +74,11 @@
                 let accordionItem = $(_accordionItem(counter, threat.title, threat.description));
                 let ul = accordionItem.find(".ul");
 
-                console.log(threat)
-
-                for (let actionId in threat.adverses_actions) {
-
-                    let action = threat.adverses_actions[actionId];
+                for (let action of threat.adverses_actions) {
 
                     let scoreContainer = $(
-                    `<div class="d-flex justify-content-between align-items-center mb-2 data-id="${actionId}"">
-                        <span>${action.title} - ${action.description}</span>
+                    `<div class="d-flex justify-content-between align-items-center mb-2" data-id="${action.id}">
+                        <span>${action.title} - ${action.description || 'Sem descrição'}</span>
                         <div class="d-flex justify-content-between" id="score-inputs">
                         </div>
                     </div>`
@@ -121,8 +115,7 @@
                     scoreInputs.append(updateButton);
                     
                     ul.append(scoreContainer);
-                    console.log(ul)
-                    let id = scoreContainer.data("id");
+                    let ad_id = scoreContainer.data("id");
 
                     scoreContainer.find("button").click(function () {
                         isFetching = true
@@ -131,7 +124,7 @@
                         updateButton.append(`<div class="spinner-border spinner-border-sm" role="status"></div>`);
                         let scores = {}
                         let action_score = action.score || {"motivation": 0, "capacity": 0, "accessibility":0};
-                        for(let score in action_score)
+                        for (let score in action_score)
                         {
                             let input = scoreContainer.find(`#${score}`);
                             scores[score] = input.val();
@@ -141,7 +134,7 @@
                         url: '{{ url_for("api.update_adverse_action_score") }}',
                         type: 'POST',
                         data: JSON.stringify({
-                            ad_id: id, scores: scores
+                            ad_id: ad_id, scores: scores
                         }),
                         contentType: 'application/json',
                         dataType: 'json',
@@ -152,7 +145,6 @@
                             isFetching = false;
                             updateButton.empty();
                             updateButton.append(`<i class="bi bi-check-lg"></i>`);
-                            console.log(data)
 
                         },
                         error: (error) => {
@@ -167,7 +159,6 @@
                     </a>`
                 )
                 accordionItem.find(".accordion-body").append(addAction);
-                //console.log(accordionItem);
                 accordion.append(accordionItem);
             }
             let addThreat = $(
