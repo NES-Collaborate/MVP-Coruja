@@ -35,6 +35,12 @@ class Active(BaseTable):
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}  # type: ignore
 
+    def add_threat(self, threat: Threat):
+        if not self.associated_threats:
+            self.associated_threats = []
+        self.associated_threats.append(threat)
+        db.session.commit()
+
 
 class ActiveScore(BaseTable):
     substitutability = db.Column(db.Integer, nullable=False, default=0)

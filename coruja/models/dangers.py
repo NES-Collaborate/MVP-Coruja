@@ -4,6 +4,35 @@ from ..extensions.database import db
 from .configurations import BaseTable
 
 
+class AdverseAction(BaseTable):
+    title = db.Column(db.String(255))
+    description = db.Column(db.String)
+    threat_id = db.Column(db.Integer, db.ForeignKey("threat.id"))
+    threat = db.relationship("Threat", backref="adverse_actions", lazy=True)
+    is_template = db.Column(db.Boolean, default=False)
+
+    def __init__(
+        self,
+        *,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        threat_id: Optional[int] = None,
+        is_template: Optional[bool] = False,
+    ):
+        self.title = title
+        self.description = description
+        self.threat_id = threat_id
+        self.is_template = is_template
+
+    def as_dict(self):
+        """Retorna campos principais da tabela como dicionário"""
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+        }
+
+
 class Threat(BaseTable):
     title = db.Column(db.String(255))
     description = db.Column(db.String)
@@ -24,26 +53,11 @@ class Threat(BaseTable):
         self.active_id = active_id
         self.is_template = is_template
 
-
-class AdverseAction(BaseTable):
-    title = db.Column(db.String(255))
-    description = db.Column(db.String)
-    threat_id = db.Column(db.Integer, db.ForeignKey("threat.id"))
-    threat = db.relationship("Threat", backref="adverse_actions", lazy=True)
-    is_template = db.Column(db.Boolean, default=False)
-
-    def __init__(
-        self,
-        *,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        threat_id: Optional[int] = None,
-        is_template: Optional[bool] = False,
-    ):
-        self.title = title
-        self.description = description
-        self.threat_id = threat_id
-        self.is_template = is_template
+    def add_adverse_action(self, adverse_action: AdverseAction):
+        if not self.adverse_actions:
+            self.adverse_actions = []
+        self.adverse_actions.append(adverse_action)
+        db.session.commit()
 
 
 class AdverseActionScore(BaseTable):

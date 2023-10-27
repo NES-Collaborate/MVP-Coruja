@@ -107,6 +107,17 @@ class AnalysisRisk(BaseTable):
         self.analysis_id = analysis_id
         self.is_template = is_template
 
+    def add_active(self, active: Active, commit_changes: bool = True):
+        """Adiciona um ativo para a analise"""
+
+        if not self.associated_actives:
+            self.associated_actives = []
+
+        self.associated_actives.append(active)
+
+        if commit_changes:
+            db.session.commit()
+
 
 class AnalysisVulnerability(BaseTable):
     analysis_id = db.Column(db.Integer, db.ForeignKey("analysis.id"))

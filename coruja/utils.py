@@ -17,6 +17,7 @@ from .models import (
     AnalysisVulnerability,
     Institution,
     Organ,
+    Threat,
     Unit,
     User,
     Vulnerability,
@@ -617,6 +618,34 @@ class DatabaseManager:
         self.__db.session.commit()
         return unit
 
+    def add_active(self, **kwargs) -> Active:
+        """Adiciona um ativo ao banco de dados"""
+        active = Active(**kwargs)
+
+        self.__db.session.add(active)
+        self.__db.session.commit()
+
+        return active
+
+    def add_threat(self, **kwargs) -> Threat:
+        """Adiciona uma ameaça ao banco de dados"""
+        threat = Threat(**kwargs)
+
+        self.__db.session.add(threat)
+        self.__db.session.commit()
+
+        return threat
+
+    def add_adverse_action(self, **kwargs) -> AdverseAction:
+        """Adiciona uma ação adversa ao banco de dados"""
+
+        adverse_action = AdverseAction(**kwargs)
+
+        self.__db.session.add(adverse_action)
+        self.__db.session.commit()
+
+        return adverse_action
+
     def get_analysis_risk(
         self, analysis_risk_id: int, or_404: bool = True
     ) -> AnalysisRisk | None:
@@ -643,6 +672,34 @@ class DatabaseManager:
         )
 
         return analysis_risk
+
+    def get_threat(self, threat_id: int, or_404: bool = True) -> Threat | None:
+        """Obtém uma ameaça por ID"""
+
+        threat = (
+            Threat.query.filter_by(id=threat_id).first_or_404(
+                "Ameaça não encontrada"
+            )
+            if or_404
+            else Threat.query.filter_by(id=threat_id).first()
+        )
+
+        return threat
+
+    def get_adverse_action(
+        self, adverse_action_id: int, or_404: bool = True
+    ) -> AdverseAction | None:
+        """Obtém uma ação adversa por ID"""
+
+        adverse_action = (
+            AdverseAction.query.filter_by(id=adverse_action_id).first_or_404(
+                "Ação Adversa não encontrada"
+            )
+            if or_404
+            else AdverseAction.query.filter_by(id=adverse_action_id).first()
+        )
+
+        return adverse_action
 
     def get_analysis_vulnerability(
         self, analysis_vulnerability_id: int, or_404: bool = True
@@ -718,7 +775,7 @@ class DatabaseManager:
             adverse_action = adverse_action.as_dict()
             if with_scores:
                 adverse_action_scores = AdverseActionScore.query.filter_by(
-                    adverse_action_id=adverse_action.id, user_id=user_id
+                    adverse_action_id=adverse_action["id"], user_id=user_id
                 ).first()
                 adverse_action["scores"] = (
                     adverse_action_scores.as_dict()
