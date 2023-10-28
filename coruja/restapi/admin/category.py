@@ -31,7 +31,7 @@ def create_category():
     if form.validate_on_submit():
         name = (
             form.name.data
-        )  # Usando form.name.data em vez de request.form.get("name")
+        )
         database_manager.add_vulnerability_category(name)  # type: ignore
         flash(f"Categoria {name} criado com sucesso", "success")
         return redirect(url_for("admin.category.view_categories"))

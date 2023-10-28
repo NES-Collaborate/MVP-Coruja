@@ -14,7 +14,7 @@ def view_subcategories():
     """Visualização das categorias de vulnerabilidades"""
     category_id = request.args.get("category_id", None)
     page = request.args.get("page", 1, type=int)
-    pagination = VulnerabilitySubCategory.query.paginate(
+    pagination = VulnerabilitySubCategory.query.filter_by(category_id=category_id).paginate(
         page=page, per_page=10
     )
     all_subcategories = pagination.items
@@ -37,7 +37,7 @@ def create_subcategory():
         name = form.name.data
         database_manager.add_vulnerability_subcategory(name, category_id)  # type: ignore
         flash(f"Subcategoria {name} criado com sucesso", "success")
-        return redirect(url_for("admin.subcategory.view_subcategories"))
+        return redirect(url_for("admin.subcategory.view_subcategories", category_id=category_id))
     return render_template("admin/create_subcategory.html", form=form)
 
 

@@ -466,9 +466,25 @@ class DatabaseManager:
         new_analysis_vulnerability = AnalysisVulnerability(
             analysis_id=new_analysis.id
         )
+
         self.__db.session.add(new_analysis_vulnerability)
         self.__db.session.commit()
 
+        for vuln_category in VulnerabilityCategory.query.filter_by(is_template=True).all():
+            new_vuln_category = VulnerabilityCategory(name=vuln_category.name, is_template=False, analysis_vulnerability_id=new_analysis_vulnerability.id)
+            self.__db.session.add(new_vuln_category)
+            self.__db.session.commit()
+
+            for vuln_subcategory in VulnerabilitySubCategory.query.filter_by(category_id=vuln_category.id, is_template=True).all():
+                new_vuln_subcategory = VulnerabilitySubCategory(name=vuln_subcategory.name, category_id=new_vuln_category.id, is_template=False)
+                self.__db.session.add(new_vuln_subcategory)
+                self.__db.session.commit()
+
+                for vuln in Vulnerability.query.filter_by(sub_category_id=vuln_subcategory.id, is_template=True).all():
+                    new_vuln = Vulnerability(name=vuln.name, description=vuln.description, sub_category_id=new_vuln_subcategory.id, is_template=False)
+                    self.__db.session.add(new_vuln)
+                    self.__db.session.commit()
+        
         return new_analysis
 
     def update_analysis(
@@ -945,8 +961,8 @@ class DatabaseManager:
         """
 
         vulnerability_category = VulnerabilityCategory(
-            name=name, is_template=False
-        )  # Adicionado is_template=False
+            name=name, is_template=True
+        )
 
         self.__db.session.add(vulnerability_category)
         self.__db.session.commit()
@@ -995,7 +1011,7 @@ class DatabaseManager:
         """
 
         vulnerability_subcategory = VulnerabilitySubCategory(
-            name=name, is_template=False
+            name=name, is_template=True
         )
         vulnerability_subcategory.category_id = category_id
         self.__db.session.add(vulnerability_subcategory)
@@ -1031,7 +1047,6 @@ class DatabaseManager:
         name: str,
         description: str,
         sub_category_id: int,
-        is_template: bool = False,
     ) -> None:
         """Adiciona uma nova vulnerabilidade
 
@@ -1039,13 +1054,12 @@ class DatabaseManager:
             name (str): Nome da nova vulnerabilidade
             description (str): Descrição da nova vulnerabilidade
             sub_category_id (int): ID da subcategoria à qual a vulnerabilidade pertence
-            is_template (bool): Indica se a vulnerabilidade é um template
         """
 
         vulnerability = Vulnerability(
             name=name,
             description=description,
-            is_template=is_template,
+            is_template=True
         )
         vulnerability.sub_category_id = sub_category_id
         self.__db.session.add(vulnerability)

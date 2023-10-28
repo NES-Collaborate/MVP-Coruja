@@ -26,6 +26,12 @@
         Análise de Vulnerabilidade
       </a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" id="results-tab" data-bs-toggle="tab" href="#results" role="tab">
+        <i class="bi bi-arrow-right-circle"></i>
+        Resultados
+      </a>
+    </li>
   </ul>
 
   <div class="tab-content mt-3">
@@ -103,6 +109,11 @@
       <a href="#" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Ir para Análise de
         Vulnerabilidade</a>
     </div>
+
+    <!-- Resultados -->
+    <div class="tab-pane fade" id="results" role="tabpanel">
+      <!-- Resultados serão renderizados aqui via js -->
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -133,12 +144,12 @@
   const addLoading = (father) => {
     if (!qs("#loadingIcon")) return;
     const loading = `
-<div class="d-flex justify-content-center align-items-center" id="loadingIcon">
-<div class="spinner-border" role="status">
-<span class="visually-hidden">Loading...</span>
-</div>
-</div>
-`
+      <div class="d-flex justify-content-center align-items-center" id="loadingIcon">
+      <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+      </div>
+      </div>
+    `
     father.insertAdjacentHTML("afterbegin", loading)
   }
 
@@ -168,6 +179,7 @@
       generalInfo: qs("#general-info-tab"),
       risk: qs("#risk-tab"),
       vulnerability: qs("#vulnerability-tab"),
+      results: qs("#results-tab")
     }
 
     listen(tabs.generalInfo, "click", () => {
@@ -189,15 +201,31 @@
         delLoading()
         for (let active of data.actives) {
           let activeHTML = `<tr>
-<td>${active.title}</td>
-<td>${active.description}</td>
-<td>${active.substitutability}</td>
-<td>${active.replacement_cost}</td>
-<td>${active.essentiality}</td>
-<td>${active.score}</td>
-</tr>`
+            <td>${active.title}</td>
+            <td>${active.description}</td>
+            <td>${active.substitutability}</td>
+            <td>${active.replacement_cost}</td>
+            <td>${active.essentiality}</td>
+            <td>${active.score}</td>
+            </tr>`
           tbody.insertAdjacentHTML("beforeend", activeHTML)
         }
+      }
+    })
+    
+    var resultsData = undefined;
+    listen(tabs.results, "click", () => {
+      switchActiveTab("results")
+      const results_api = ''
+      if (!resultsData) {
+        addLoading(qs("#results"))
+        fetchData(results_api, {
+          ar_id: analysisId
+        }).then(data => {
+          resultsData = data
+        })
+        delLoading()
+
       }
     })
   })

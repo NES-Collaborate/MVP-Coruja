@@ -118,9 +118,10 @@ class VulnerabilityCategory(BaseTable):
 
     is_template = db.Column(db.Boolean, default=False)
 
-    def __init__(self, *, name: str, is_template: bool = False):
+    def __init__(self, *, name: str, is_template: bool = False, analysis_vulnerability_id: int | None = None):
         self.name = name
         self.is_template = is_template
+        self.analysis_vulnerability_id = analysis_vulnerability_id
 
 
 class VulnerabilitySubCategory(BaseTable):
@@ -138,9 +139,10 @@ class VulnerabilitySubCategory(BaseTable):
 
     is_template = db.Column(db.Boolean, default=False)
 
-    def __init__(self, *, name: str, is_template: bool = False):
+    def __init__(self, *, name: str, is_template: bool = False, category_id: int | None = None):
         self.name = name
         self.is_template = is_template
+        self.category_id = category_id
 
 
 class Vulnerability(BaseTable):
@@ -164,10 +166,12 @@ class Vulnerability(BaseTable):
         name: str,
         description: Optional[str] = None,
         is_template: bool = False,
+        sub_category_id: int | None = None,
     ):
         self.name = name
         self.description = description
         self.is_template = is_template
+        self.sub_category_id = sub_category_id
 
 
 class VulnerabilityScore(BaseTable):
