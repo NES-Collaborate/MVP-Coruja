@@ -297,5 +297,55 @@ def update_active_score():
     return jsonify({})
 
 
+@bp.route("/get-categories", methods=["POST"])
+@login_required
+def get_categories():
+    data = request.get_json()
+
+    if "av_id" not in data:
+        return jsonify({"error": "Missing analysis_vulnerability_id"}), 400
+
+    categories = (
+        database_manager.get_vulns_category_by_analysis_vulnerability_id(
+            av_id=data["av_id"],
+        )
+    )
+
+    return jsonify([c.as_dict() for c in categories])
+
+
+@bp.route("/get-subcategories")
+@login_required
+def get_subcategories():
+    data = request.get_json()
+
+    if "c_id" not in data:
+        return jsonify({"error": "Missing category_id"}), 400
+    
+    sub_categories = database_manager.get_vuln_sub_categories_by_category_id(data["c_id"])
+
+    return jsonify([c.as_dict() for c in sub_categories])
+
+
+@bp.route("/get-vulnerabilities")
+@login_required
+def get_vulnerabilities():
+    data = request.get_json()
+
+    if 'sc_id' not in data:
+        return jsonify({"error": "Missing subcategory_id"}), 400
+    
+    vulns = database_manager.get_vulnerabilities_by_subcategory_id(data['sc_id'])
+
+    result = []
+    for vuln in vulns:
+        _vuln = vuln.as_dict()
+        _vuln["score"] = database_manager.get_vuln_score_by_user(vuln.id, getattr(current_user, "id"))
+        result.append(_vuln)
+    
+    return jsonify(result)
+
+
+
 def init_api(app: Flask) -> None:
     app.register_blueprint(bp)

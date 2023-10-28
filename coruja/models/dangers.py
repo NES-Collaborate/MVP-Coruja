@@ -122,6 +122,12 @@ class VulnerabilityCategory(BaseTable):
         self.name = name
         self.is_template = is_template
         self.analysis_vulnerability_id = analysis_vulnerability_id
+    
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
 
 
 class VulnerabilitySubCategory(BaseTable):
@@ -144,6 +150,11 @@ class VulnerabilitySubCategory(BaseTable):
         self.is_template = is_template
         self.category_id = category_id
 
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
 
 class Vulnerability(BaseTable):
     name = db.Column(db.String(255), nullable=False)
@@ -172,6 +183,13 @@ class Vulnerability(BaseTable):
         self.description = description
         self.is_template = is_template
         self.sub_category_id = sub_category_id
+    
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+        }
 
 
 class VulnerabilityScore(BaseTable):

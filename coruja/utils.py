@@ -470,21 +470,40 @@ class DatabaseManager:
         self.__db.session.add(new_analysis_vulnerability)
         self.__db.session.commit()
 
-        for vuln_category in VulnerabilityCategory.query.filter_by(is_template=True).all():
-            new_vuln_category = VulnerabilityCategory(name=vuln_category.name, is_template=False, analysis_vulnerability_id=new_analysis_vulnerability.id)
+        for vuln_category in VulnerabilityCategory.query.filter_by(
+            is_template=True
+        ).all():
+            new_vuln_category = VulnerabilityCategory(
+                name=vuln_category.name,
+                is_template=False,
+                analysis_vulnerability_id=new_analysis_vulnerability.id,
+            )
             self.__db.session.add(new_vuln_category)
             self.__db.session.commit()
 
-            for vuln_subcategory in VulnerabilitySubCategory.query.filter_by(category_id=vuln_category.id, is_template=True).all():
-                new_vuln_subcategory = VulnerabilitySubCategory(name=vuln_subcategory.name, category_id=new_vuln_category.id, is_template=False)
+            for vuln_subcategory in VulnerabilitySubCategory.query.filter_by(
+                category_id=vuln_category.id, is_template=True
+            ).all():
+                new_vuln_subcategory = VulnerabilitySubCategory(
+                    name=vuln_subcategory.name,
+                    category_id=new_vuln_category.id,
+                    is_template=False,
+                )
                 self.__db.session.add(new_vuln_subcategory)
                 self.__db.session.commit()
 
-                for vuln in Vulnerability.query.filter_by(sub_category_id=vuln_subcategory.id, is_template=True).all():
-                    new_vuln = Vulnerability(name=vuln.name, description=vuln.description, sub_category_id=new_vuln_subcategory.id, is_template=False)
+                for vuln in Vulnerability.query.filter_by(
+                    sub_category_id=vuln_subcategory.id, is_template=True
+                ).all():
+                    new_vuln = Vulnerability(
+                        name=vuln.name,
+                        description=vuln.description,
+                        sub_category_id=new_vuln_subcategory.id,
+                        is_template=False,
+                    )
                     self.__db.session.add(new_vuln)
                     self.__db.session.commit()
-        
+
         return new_analysis
 
     def update_analysis(
@@ -1057,9 +1076,7 @@ class DatabaseManager:
         """
 
         vulnerability = Vulnerability(
-            name=name,
-            description=description,
-            is_template=True
+            name=name, description=description, is_template=True
         )
         vulnerability.sub_category_id = sub_category_id
         self.__db.session.add(vulnerability)
@@ -1145,6 +1162,32 @@ class DatabaseManager:
             )
             .first()
         )
+
+    def get_vulns_category_by_analysis_vulnerability_id(
+        self,
+        av_id: int,
+    ) -> List[VulnerabilityCategory]:
+        return VulnerabilityCategory.query.filter_by(
+            analysis_vulnerability_id=av_id, is_template=False
+        ).all()
+
+    def get_vuln_sub_categories_by_category_id(
+        self, category_id: int
+    ) -> List[VulnerabilitySubCategory]:
+        return VulnerabilitySubCategory.query.filter_by(
+            category_id=category_id, is_template=False
+        ).all()
+    
+    def get_vulnerabilities_by_subcategory_id(self, sc_id: int) -> List[Vulnerability]:
+        return Vulnerability.query.filter_by(
+            sub_category_id=sc_id, is_template=False
+        ).all()
+    
+    def get_vuln_score_by_user(self, vulnerability_id: int, user_id: int) -> int:
+        score = VulnerabilityScore.query.filter_by(
+            vulnerability_id=vulnerability_id, user_id=user_id
+        ).first()
+        return score.score if score else 0
 
 
 database_manager = DatabaseManager()
