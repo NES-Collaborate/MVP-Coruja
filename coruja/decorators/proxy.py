@@ -154,6 +154,7 @@ translate_kind = {
     "create": "criação",
     "update": "atualização",
     "delete": "exclusão",
+    "admin": "administração",
 }
 
 
@@ -163,6 +164,7 @@ def proxy_access(
     kind_access: str,
     message: Optional[str] = None,
     user: Optional[User] = None,
+    has_obj_id: bool = True,
 ) -> Callable:
     """Verifica se o usuário tem permissão para acessar o objeto correspondente
 
@@ -186,6 +188,7 @@ def proxy_access(
             o usuário não tenha permissão. Defaults to None (mensagem padrão).
         user (Optional[User], optional): Usuário a ser verificado. Defaults to
             None (`flask_login.current_user`).
+        has_obj_id (bool, optional): Se `True`, o ID do objeto será verificado.
 
     Returns:
         Callable: Funcionalidade modificada
@@ -209,7 +212,7 @@ def proxy_access(
                 abort(403, message)
 
             ids = [kwargs[_id] for _id in kwargs if _id.endswith("_id")]
-            if not ids and kind_access != "create":
+            if not ids and kind_access != "create" and has_obj_id:
                 raise KeyError("ID do objeto não encontrado")
             obj_id = ids[0] if ids else None
             can_access = obj_class(obj_id, user, kind_access)  # type: ignore

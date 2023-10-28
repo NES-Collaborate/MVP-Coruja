@@ -4,12 +4,13 @@ from flask_login import login_required
 from ...forms import VulnerabilityCategoryForm
 from ...models import VulnerabilityCategory
 from ...utils import database_manager
-
+from ...decorators import proxy_access
 bp = Blueprint("category", __name__, url_prefix="/categoria")
 
 
 @bp.route("/", methods=["GET"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="read", has_obj_id=False)
 def view_categories():
     """Visualização das categorias de vulnerabilidades"""
     page = request.args.get("page", 1, type=int)
@@ -26,6 +27,7 @@ def view_categories():
 
 @bp.route("/criar", methods=["GET", "POST"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="create", has_obj_id=False)
 def create_category():
     form = VulnerabilityCategoryForm()
     if form.validate_on_submit():
@@ -38,6 +40,7 @@ def create_category():
 
 @bp.route("/<int:category_id>/editar", methods=["GET", "POST"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="update", has_obj_id=False)
 def edit_category(category_id: int):
     category = database_manager.get_category(category_id)
     if not category:
