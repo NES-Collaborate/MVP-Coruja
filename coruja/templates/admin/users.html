@@ -10,19 +10,39 @@
             <tr>
                 <th>Nome</th>
                 <th>CPF</th>
-                <th>E-mail Pessoal</th>
                 <th>E-mail Profissional</th>
                 <th>Título</th>
             </tr>
         </thead>
         <tbody>
-            {% for usuario in users %}
+            {% for user in users %}
                 <tr>
-                    <td>{{ usuario.name }}</td>
-                    <td>{{ usuario.cpf }}</td>
-                    <td>{{ usuario.email_personal }}</td>
-                    <td>{{ usuario.email_profissional }}</td>
-                    <td>{{ usuario.title }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.cpf }}</td>
+                    <td>{{ user.email_profissional }}</td>
+                    <td>{{ user.title }}</td>
+                    <td class="text-center" style="width: 100px;"> <!-- Largura fixa aqui -->
+                        <div class="dropdown">
+                            <span type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots"></i>
+                            </span>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('admin.user.user_info', user_id=user.id) }}">
+                                        <i class="bi bi-arrow-right-square me-2"></i>
+                                        Acessar
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                        href="{{ url_for('user.edit_user', user_id=user.id) }}">
+                                        <i class="bi bi-pencil-square me-2"></i>
+                                        Editar 
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -55,7 +75,7 @@
         </ul>
     </nav>
     <div class="position-fixed bottom-0 end-0 m-3">
-        <a href="{{ url_for('admin.category.create_category') }}" class="btn btn-primary btn-lg"
+        <a href="{{ url_for('user.create_user') }}" class="btn btn-primary btn-lg"
             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Usuario">
             <i class="bi bi-plus-lg"></i>
         </a>
