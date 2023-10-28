@@ -314,7 +314,7 @@ def get_categories():
     return jsonify([c.as_dict() for c in categories])
 
 
-@bp.route("/get-subcategories")
+@bp.route("/get-subcategories", methods=["POST"])
 @login_required
 def get_subcategories():
     data = request.get_json()
@@ -329,7 +329,7 @@ def get_subcategories():
     return jsonify([c.as_dict() for c in sub_categories])
 
 
-@bp.route("/get-vulnerabilities")
+@bp.route("/get-vulnerabilities", methods=["POST"])
 @login_required
 def get_vulnerabilities():
     data = request.get_json()
