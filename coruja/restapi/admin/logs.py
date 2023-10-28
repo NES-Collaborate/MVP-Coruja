@@ -5,12 +5,14 @@ from flask import Blueprint, Response, render_template, request, stream_with_con
 from flask_login import login_required
 
 from ...models import AccessLog, Change
+from ...decorators import proxy_access
 
 bp = Blueprint("logs", __name__, url_prefix="/logs")
 
 
 @bp.route("/acesso", methods=["GET", "POST"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="read", has_obj_id=False)
 def get_logs():
     """Rota que renderiza os logs de acesso paginados"""
     query = AccessLog.query
@@ -33,6 +35,7 @@ def get_logs():
 
 @bp.route("/Mudanças", methods=["GET"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="read", has_obj_id=False)
 def get_changes():
     """Página que renderiza os logs de mudanças paginados"""
     page = request.args.get("page", 1, type=int)
@@ -94,6 +97,7 @@ def generate_csv_chunks_acess():
 
 @bp.route("/download_logs", methods=["POST", "GET"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="read", has_obj_id=False)
 def download_logs():
     headers = {
         "Content-Disposition": "attachment; filename=access_logs.csv",
@@ -151,6 +155,7 @@ def generate_csv_chunks():
 
 @bp.route("/download_changes", methods=["POST", "GET"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="read", has_obj_id=False)
 def download_changes():
     headers = {
         "Content-Disposition": "attachment; filename=change_logs.csv",

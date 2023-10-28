@@ -3,12 +3,13 @@ from flask_login import login_required
 
 from ...models import User
 from ...utils import database_manager
-
+from ...decorators import proxy_access
 bp = Blueprint("user", __name__, url_prefix="/user")
 
 
 @bp.route("/", methods=["GET"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="read", has_obj_id=False)
 def show_users():
     page = request.args.get("page", 1, type=int)
     users = User.query.paginate(
@@ -21,6 +22,7 @@ def show_users():
 
 @bp.route("/<int:user_id>/info", methods=["GET"])
 @login_required
+@proxy_access(kind_object="admin", kind_access="read", has_obj_id=False)
 def user_info(user_id: int):
     """Rota para exibir informações de um usuário específico pelo seu ID.
 
