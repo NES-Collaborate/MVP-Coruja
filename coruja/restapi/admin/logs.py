@@ -1,10 +1,11 @@
 import csv
 from io import StringIO
-from flask import Blueprint, make_response, render_template,Response, send_file, request, stream_with_context
+
+from flask import Blueprint, Response, render_template, request, stream_with_context
 from flask_login import login_required
-import os 
+
 from ...models import AccessLog, Change
-from tempfile import NamedTemporaryFile
+
 bp = Blueprint("logs", __name__, url_prefix="/logs")
 
 
@@ -49,7 +50,14 @@ def get_changes():
 def generate_csv_chunks_acess():
     output = StringIO()
     writer = csv.writer(output)
-    headers = ["User Name", "User CPF", "IP", "User Agent", "Access At", "Endpoint"]
+    headers = [
+        "User Name",
+        "User CPF",
+        "IP",
+        "User Agent",
+        "Access At",
+        "Endpoint",
+    ]
     writer.writerow(headers)
     yield output.getvalue()
     output.truncate(0)
@@ -59,7 +67,9 @@ def generate_csv_chunks_acess():
     per_page = 100
 
     while True:
-        all_logs = AccessLog.query.paginate(page=page, per_page=per_page, error_out=False).items  # Substitua isso com sua própria lógica de consulta
+        all_logs = AccessLog.query.paginate(
+            page=page, per_page=per_page, error_out=False
+        ).items  # Substitua isso com sua própria lógica de consulta
         if not all_logs:
             break
 
@@ -71,7 +81,9 @@ def generate_csv_chunks_acess():
             access_at = log.access_at.strftime("%d/%m/%Y %H:%M:%S")
             endpoint = log.endpoint
 
-            writer.writerow([user_name, user_cpf, ip, user_agent, access_at, endpoint])
+            writer.writerow(
+                [user_name, user_cpf, ip, user_agent, access_at, endpoint]
+            )
 
         yield output.getvalue()
         output.truncate(0)
@@ -79,17 +91,17 @@ def generate_csv_chunks_acess():
 
         page += 1
 
+
 @bp.route("/download_logs", methods=["POST", "GET"])
 @login_required
 def download_logs():
     headers = {
-        'Content-Disposition': 'attachment; filename=access_logs.csv',
-        'Content-Type': 'text/csv'
+        "Content-Disposition": "attachment; filename=access_logs.csv",
+        "Content-Type": "text/csv",
     }
 
     return Response(
-        stream_with_context(generate_csv_chunks_acess()),
-        headers=headers
+        stream_with_context(generate_csv_chunks_acess()), headers=headers
     )
 
 
@@ -106,7 +118,9 @@ def generate_csv_chunks():
     per_page = 100
 
     while True:
-        all_changes = Change.query.paginate(page=page , per_page=per_page, error_out=False).items  # Substitua isso com sua própria lógica de consulta
+        all_changes = Change.query.paginate(
+            page=page, per_page=per_page, error_out=False
+        ).items  # Substitua isso com sua própria lógica de consulta
         if not all_changes:
             break
 
@@ -121,7 +135,7 @@ def generate_csv_chunks():
             for key, value_old in object_old.items():
                 value_new = object_new.get(key, None)
                 if value_old != value_new:
-                    change_str = f'[{key}] {value_old!r} -> {value_new!r}\n'
+                    change_str = f"[{key}] {value_old!r} -> {value_new!r}\n"
                     changes.append(change_str)
 
             changes_str = "".join(changes).strip()
@@ -134,15 +148,15 @@ def generate_csv_chunks():
 
         page += 1
 
+
 @bp.route("/download_changes", methods=["POST", "GET"])
 @login_required
 def download_changes():
     headers = {
-        'Content-Disposition': 'attachment; filename=change_logs.csv',
-        'Content-Type': 'text/csv'
+        "Content-Disposition": "attachment; filename=change_logs.csv",
+        "Content-Type": "text/csv",
     }
 
     return Response(
-        stream_with_context(generate_csv_chunks()),
-        headers=headers
+        stream_with_context(generate_csv_chunks()), headers=headers
     )
