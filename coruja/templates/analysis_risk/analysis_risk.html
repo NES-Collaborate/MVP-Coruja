@@ -1,31 +1,102 @@
-    {% extends "base.html" %}
+{% extends "base.html" %}
 
-    {% block css %}
-    <style>
-    .list-group{
-    max-height: 70vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    }
-    </style>
-    {% endblock %}
+{% block css %}
+<style>
+.list-group{
+max-height: 70vh;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+</style>
+{% endblock %}
 
-    {% block content %}
-    <div class="container-fluid mt-5">
-    <div class="row d-flex align-items-center justify-content-center">
-        <div class="col-md-3 text-left">
-            <div class="d-flex flex-column">
-                <h6 class="mb-3">Ativos</h6>
-                <div id="actives"></div>
+{% block content %}
+
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+    <div class="modal-header">
+        <h1 class="modal-title fs-5" id="infoModalLabel">Notas de Ativo e Ações Adversas</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body p-4">
+        <div class="row d-flex justify-content-center mx-3">
+            <p class="text-start">
+                A <strong>Essencialidade</strong> representa o quanto determinado ativo é considerado indispensável para o
+                cumprimento das funções e missões institucionais e objetivos estratégicos. Pode ser graduada em: Baixa, Média
+                ou Alta
+            </p>
+            <p class="text-start">
+                O <strong>Custo de Reposição</strong> trata, subjetivamente, da valia do ativo e é definido de acordo
+                com os seguintes níveis: Baixo, Médio ou Alto 
+            </p>
+            <p class="text-start">
+                A <strong>Substitutibilidade</strong> refere-se à mensuração da condição de facilidade/dificuldade
+                em se substituir um determinado ativo: Fácil, Médio ou Difícil  
+            </p>
+        </div>
+        <div class="row row-cols-3 d-flex align-items-center justify-content-center">
+            {% for score in ["Accessibilitade", "Capacidade", "Motivação"] %}
+            <div class="col">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col" colspan="2"><strong>{{ score }}</strong></th>
+                        </tr>
+                        <tr>
+                            <th scope="col"><strong>Grau</strong></th>
+                            <th scope="col"><strong>Valor</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, value in table_info.items() %}
+                        {% if key == "Inexistente" and score != "Motivação" %}
+                            <!-- Sem campo -->
+                            
+                        {% else %}
+                        <tr>
+                            <td scope="col">{{key}}</td>
+                            <td scope="col">{{value}}</td>
+                        </tr>
+                        {% endif %}
+                        
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
-        <div class="col-md-9 my-auto" id="threats">
+            {% endfor %}
         </div>
     </div>
     </div>
-    {% endblock %}
+</div>
+</div>
+  
+<div class="container-fluid mt-5">
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-md-3 text-left">
+        <div class="d-flex flex-column">
+            <h6 class="mb-3">Ativos</h6>
+            <div id="actives"></div>
+        </div>
+    </div>
+    <div class="col-md-9 my-auto" id="threats">
+    </div>
+</div>
 
-    {% block scripts %}
+<!-- Botão de informação -->
+<div class="position-fixed bottom-0 end-0 m-2">
+    <button
+    class="btn m-5 btn-lg btn-circle"
+    data-bs-toggle="modal" data-bs-target="#infoModal"
+    >
+    <i class="bi bi-info-circle"></i>
+    </button>
+</div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
     <script>
     $(document).ready(function () {
     var csrf_token = '{{ csrf_token() }}';

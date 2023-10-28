@@ -1,6 +1,14 @@
 from asyncio import log
 
-from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    Flask,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import login_required
 
 from ..decorators import proxy_access
@@ -25,10 +33,20 @@ def get_analysis_risk(analysis_risk_id: int):
 
     actives = analysis_risk.associated_actives  # type: ignore [analysis_risk isn't None]
 
+    table_info = {
+        "Muito Alta": 5,
+        "Alta": 4,
+        "Média": 3,
+        "Baixa": 2,
+        "Muito baixa": 1,
+        "Inexistente": 0,
+    }
+
     return render_template(
         "analysis_risk/analysis_risk.html",
         analysis_risk=analysis_risk,  # type: ignore
         actives=actives,
+        table_info=table_info,
     )
 
 
