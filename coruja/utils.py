@@ -712,6 +712,25 @@ class DatabaseManager:
 
         self.__db.session.commit()
 
+    def update_vulnerability_score(
+        self, vuln_id: int, score: float, user_id: int
+    ) -> None:
+        """
+        Atualiza a pontuação de uma vulnerabilidade.
+        """
+        print("vuln_id", vuln_id)
+        print("user_id", user_id)
+        print("score", score)
+        vuln_score = VulnerabilityScore.query.filter_by(
+            vulnerability_id=vuln_id, user_id=user_id  # type: ignore
+        ).first()
+
+        print(vuln_score)
+
+        setattr(vuln_score, "score", score)
+
+        self.__db.session.commit()
+
     def get_experts_by_analysis(
         self,
         analysis: Analysis,
@@ -1191,7 +1210,19 @@ class DatabaseManager:
         score = VulnerabilityScore.query.filter_by(
             vulnerability_id=vulnerability_id, user_id=user_id
         ).first()
-        return score.score if score else 0
+
+        if not score:
+            score = VulnerabilityScore(
+                vulnerability_id=vulnerability_id, user_id=user_id
+            )
+            self.__db.session.add(score)
+            self.__db.session.commit()
+
+        return score.score
+
+    def delete_category(self, category_id: int) -> None:
+        VulnerabilityCategory.query.filter_by(id=category_id).delete()
+        self.__db.session.commit()
 
 
 database_manager = DatabaseManager()

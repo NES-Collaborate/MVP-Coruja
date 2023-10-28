@@ -1,8 +1,8 @@
-from flask import Blueprint, Flask, jsonify, request
+from flask import Blueprint, Flask, jsonify, redirect, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-from ..decorators import analysis_risk_access
+from ..decorators import analysis_risk_access, proxy_access
 from ..models import ActiveScore, User
 from ..utils import database_manager
 
@@ -311,10 +311,13 @@ def get_categories():
         )
     )
 
-    return jsonify([c.as_dict() for c in categories])
+    results = {"categories": {}}
+    results["categories"] = {c.id: c.as_dict() for c in categories}
+
+    return jsonify(results)
 
 
-@bp.route("/get-subcategories")
+@bp.route("/get-subcategories", methods=["POST"])
 @login_required
 def get_subcategories():
     data = request.get_json()
@@ -326,10 +329,26 @@ def get_subcategories():
         data["c_id"]
     )
 
-    return jsonify([c.as_dict() for c in sub_categories])
+    results = {"subcategories": []}
+    for sc in sub_categories:
+        vulns = database_manager.get_vulnerabilities_by_subcategory_id(sc.id)
+
+        subcategory = sc.as_dict()
+        subcategory["vulnerabilities"] = []
+
+        for vuln in vulns:
+            _vuln = vuln.as_dict()
+            _vuln["score"] = database_manager.get_vuln_score_by_user(
+                vuln.id, getattr(current_user, "id")
+            )
+            subcategory["vulnerabilities"].append(_vuln)
+
+        results["subcategories"].append(subcategory)
+
+    return jsonify(results)
 
 
-@bp.route("/get-vulnerabilities")
+@bp.route("/get-vulnerabilities", methods=["POST"])
 @login_required
 def get_vulnerabilities():
     data = request.get_json()
@@ -350,6 +369,35 @@ def get_vulnerabilities():
         result.append(_vuln)
 
     return jsonify(result)
+
+
+@bp.route("/update-vulnerability-score", methods=["POST"])
+@login_required
+def update_vulnerability_score():
+    data = request.get_json()
+
+    database_manager.update_vulnerability_score(
+        vuln_id=data["vuln_id"],
+        score=data["score"],
+        user_id=current_user.id,  # type: ignore
+    )
+
+    return jsonify({})
+
+
+@bp.route("/delete-category", methods=["POST"])
+@login_required
+def delete_category():
+    data = request.get_json()
+
+    if "c_id" not in data:
+        return jsonify({"error": "Missing category_id"}), 400
+
+    database_manager.delete_category(
+        category_id=data["c_id"],
+    )
+
+    return jsonify({})
 
 
 def init_api(app: Flask) -> None:

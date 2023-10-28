@@ -106,7 +106,7 @@
 
     <!-- Análise de Vulnerabilidade -->
     <div class="tab-pane fade" id="vulnerability" role="tabpanel">
-      <a href="#" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Ir para Análise de
+      <a href="{{ url_for('analysis_vulnerability.get_analysis_vulnerability', analysis_vulnerability_id=analysis.analysis_vulnerability.id) }}" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Ir para Análise de
         Vulnerabilidade</a>
     </div>
 
