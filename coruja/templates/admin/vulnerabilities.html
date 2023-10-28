@@ -3,7 +3,7 @@
 
 <div class="container my-5">
     <h2 class="h2 fw-normal mb-4">
-        <i class="bi bi-shield-fill-check me-3"></i> 
+        <i class="bi bi-shield-fill-check me-3"></i>
         Vulnerabilidades
     </h2>
 
@@ -20,9 +20,9 @@
                 <td>{{ vulnerability.name }}</td>
                 <td>
                     {% if vulnerability.description %}
-                        {{ vulnerability.description }}
+                    {{ vulnerability.description }}
                     {% else %}
-                        <span class="text-muted">Sem descrição</span>
+                    <span class="text-muted">Sem descrição</span>
                     {% endif %}
                 </td>
                 <td class="text-center" style="width: 100px;">
@@ -33,9 +33,9 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a class="dropdown-item"
-                                   href="{{ url_for('admin.vulnerability.edit_vulnerability', vulnerability_id=vulnerability.id) }}">
-                                   <i class="bi bi-pencil-square me-2"></i>
-                                   Editar
+                                    href="{{ url_for('admin.vulnerability.edit_vulnerability', vulnerability_id=vulnerability.id) }}">
+                                    <i class="bi bi-pencil-square me-2"></i>
+                                    Editar
                                 </a>
                             </li>
                         </ul>
@@ -50,19 +50,20 @@
         <ul class="pagination justify-content-center">
             <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
                 <a class="page-link"
-                   href="{{ url_for('admin.vulnerability.view_vulnerabilities', page=pagination.page-1) }}">Anterior</a>
+                    href="{{ url_for('admin.vulnerability.view_vulnerabilities', page=pagination.page-1) }}">Anterior</a>
             </li>
             <li class="page-item {% if not has_next_page %}disabled{% endif %}">
                 <a class="page-link"
-                   href="{{ url_for('admin.vulnerability.view_vulnerabilities', page=pagination.page+1) }}">Próximo</a>
+                    href="{{ url_for('admin.vulnerability.view_vulnerabilities', page=pagination.page+1) }}">Próximo</a>
             </li>
         </ul>
     </nav>
 
     <div class="position-fixed bottom-0 end-0 m-3">
-        <a href="{{ url_for('admin.vulnerability.create_vulnerability', subcategory_id=subcategory_id) }}" class="btn btn-primary btn-lg"
-           data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Vulnerabilidade">
-           <i class="bi bi-plus-lg"></i>
+        <a href="{{ url_for('admin.vulnerability.create_vulnerability', subcategory_id=subcategory_id) }}"
+            class="btn btn-primary btn-lg" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="Criar Vulnerabilidade">
+            <i class="bi bi-plus-lg"></i>
         </a>
     </div>
 

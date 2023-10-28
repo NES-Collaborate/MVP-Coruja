@@ -1177,13 +1177,17 @@ class DatabaseManager:
         return VulnerabilitySubCategory.query.filter_by(
             category_id=category_id, is_template=False
         ).all()
-    
-    def get_vulnerabilities_by_subcategory_id(self, sc_id: int) -> List[Vulnerability]:
+
+    def get_vulnerabilities_by_subcategory_id(
+        self, sc_id: int
+    ) -> List[Vulnerability]:
         return Vulnerability.query.filter_by(
             sub_category_id=sc_id, is_template=False
         ).all()
-    
-    def get_vuln_score_by_user(self, vulnerability_id: int, user_id: int) -> int:
+
+    def get_vuln_score_by_user(
+        self, vulnerability_id: int, user_id: int
+    ) -> int:
         score = VulnerabilityScore.query.filter_by(
             vulnerability_id=vulnerability_id, user_id=user_id
         ).first()

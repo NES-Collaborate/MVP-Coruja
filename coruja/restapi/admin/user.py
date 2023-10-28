@@ -1,7 +1,9 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from ...utils import database_manager
-from ...models import User
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
+
+from ...models import User
+from ...utils import database_manager
+
 bp = Blueprint("user", __name__, url_prefix="/user")
 
 
@@ -25,10 +27,14 @@ def user_info(user_id: int):
     Args:
         user_id (int): ID do usuário cujas informações serão exibidas.
     """
-    user = database_manager.get_user(user_id)  # Supondo que você tem uma função que pega o usuário pelo ID
-    
+    user = database_manager.get_user(
+        user_id
+    )  # Supondo que você tem uma função que pega o usuário pelo ID
+
     if not user:
         flash("Usuário não encontrado", "error")
-        return redirect(url_for("user_list"))  # Supondo que você tem uma rota para listar usuários
+        return redirect(
+            url_for("user_list")
+        )  # Supondo que você tem uma rota para listar usuários
 
     return render_template("admin/user_info.html", user=user)

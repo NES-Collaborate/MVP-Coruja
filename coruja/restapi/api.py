@@ -321,8 +321,10 @@ def get_subcategories():
 
     if "c_id" not in data:
         return jsonify({"error": "Missing category_id"}), 400
-    
-    sub_categories = database_manager.get_vuln_sub_categories_by_category_id(data["c_id"])
+
+    sub_categories = database_manager.get_vuln_sub_categories_by_category_id(
+        data["c_id"]
+    )
 
     return jsonify([c.as_dict() for c in sub_categories])
 
@@ -332,19 +334,22 @@ def get_subcategories():
 def get_vulnerabilities():
     data = request.get_json()
 
-    if 'sc_id' not in data:
+    if "sc_id" not in data:
         return jsonify({"error": "Missing subcategory_id"}), 400
-    
-    vulns = database_manager.get_vulnerabilities_by_subcategory_id(data['sc_id'])
+
+    vulns = database_manager.get_vulnerabilities_by_subcategory_id(
+        data["sc_id"]
+    )
 
     result = []
     for vuln in vulns:
         _vuln = vuln.as_dict()
-        _vuln["score"] = database_manager.get_vuln_score_by_user(vuln.id, getattr(current_user, "id"))
+        _vuln["score"] = database_manager.get_vuln_score_by_user(
+            vuln.id, getattr(current_user, "id")
+        )
         result.append(_vuln)
-    
-    return jsonify(result)
 
+    return jsonify(result)
 
 
 def init_api(app: Flask) -> None:
