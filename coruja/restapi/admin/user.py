@@ -1,9 +1,10 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
+from ...decorators import proxy_access
 from ...models import User
 from ...utils import database_manager
-from ...decorators import proxy_access
+
 bp = Blueprint("user", __name__, url_prefix="/user")
 
 

@@ -22,7 +22,7 @@ def view_subcategories():
         if not category_id:
             flash("Categoria de vulnerabilidades não encontrada", "error")
             return redirect(url_for("admin.subcategory.view_categories"))
-        
+
     page = request.args.get("page", 1, type=int)
     pagination = VulnerabilitySubCategory.query.filter_by(
         category_id=category_id

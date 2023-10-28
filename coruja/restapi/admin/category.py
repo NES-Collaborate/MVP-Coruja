@@ -1,10 +1,11 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
+from ...decorators import proxy_access
 from ...forms import VulnerabilityCategoryForm
 from ...models import VulnerabilityCategory
 from ...utils import database_manager
-from ...decorators import proxy_access
+
 bp = Blueprint("category", __name__, url_prefix="/categoria")
 
 

@@ -4,8 +4,8 @@ from io import StringIO
 from flask import Blueprint, Response, render_template, request, stream_with_context
 from flask_login import login_required
 
-from ...models import AccessLog, Change
 from ...decorators import proxy_access
+from ...models import AccessLog, Change
 
 bp = Blueprint("logs", __name__, url_prefix="/logs")
 

@@ -1,8 +1,8 @@
-from flask import Blueprint, Flask, jsonify, redirect, request, url_for
+from flask import Blueprint, Flask, jsonify, request
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-from ..decorators import analysis_risk_access, proxy_access
+from ..decorators import analysis_risk_access
 from ..models import ActiveScore, User
 from ..utils import database_manager
 
@@ -248,7 +248,9 @@ def get_threats():
     for _id in _result:
         _result[_id][
             "adverses_actions"
-        ] = database_manager.get_adverse_actions(threat_id=_id)
+        ] = database_manager.get_adverse_actions(
+            threat_id=_id, user_id=getattr(current_user, "id", None)
+        )
 
     return jsonify(_result)
 

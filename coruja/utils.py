@@ -543,6 +543,99 @@ class DatabaseManager:
         db.session.commit()
         return analysis
 
+    def get_vuln_factor(
+        self, analysis_vulnerability: AnalysisVulnerability
+    ) -> float:
+        """Retorna o fator de vulnerabilidade de uma dada analise de vulnerabilidade"""
+
+        experts = getattr(
+            self.get_analysis(analysis_vulnerability.analysis_id),
+            "experts",
+            [],
+        )
+        experts_count = len(experts)
+
+        categories = getattr(
+            analysis_vulnerability, "vulnerability_categories", []
+        )
+
+        m_categories = []  # média das categorias
+        for category in categories:
+            subcategories = VulnerabilitySubCategory.query.filter_by(
+                category_id=category.id, is_template=False
+            ).all()
+
+            m_subs = []  # média das subcategorias
+
+            for subcategory in subcategories:
+                vulnerabilities = Vulnerability.query.filter_by(
+                    sub_category_id=subcategory.id, is_template=False
+                ).all()
+
+                m_vulns = []  # médias das vulnerabilidades
+                for vuln in vulnerabilities:
+                    vuln_scores = VulnerabilityScore.query.filter_by(
+                        vulnerability_id=vuln.id
+                    ).all()
+
+                    # média da vulnerabilidade
+                    m_vuln = (
+                        sum(score.score for score in vuln_scores)
+                        / experts_count
+                        if experts_count > 0
+                        else 0
+                    )
+                    m_vulns.append(m_vuln)
+
+                # média da subcategoria
+                m_sub = sum(m_vulns) / len(m_vulns) if len(m_vulns) > 0 else 0
+                m_subs.append(m_sub)
+
+            # média da categoria
+            m_category = sum(m_subs) / len(m_subs) if len(m_subs) > 0 else 0
+            m_categories.append(m_category)
+
+        # fator de vulnerabilidade
+        return (
+            sum(m_categories) / len(m_categories)
+            if len(m_categories) > 0
+            else 0
+        )
+
+    def get_threat_score(self, threat: Threat, analysis: Analysis) -> float:
+        """Retorna o score de uma dada ameaca
+
+        Args:
+            threat (Threat): ameaca
+
+        Returns:
+            float: score
+        """
+
+        experts = getattr(analysis, "experts", [])
+        adverse_actions = AdverseAction.query.filter_by(
+            threat_id=threat.id
+        ).all()
+
+        m_adverse_actions = []
+        for adverse_action in adverse_actions:
+            scores = AdverseActionScore.query.filter_by(
+                adverse_action_id=adverse_action.id
+            ).all()
+            m_adverse_action = (
+                sum(
+                    (score.capacity + score.motivation + score.accessibility)
+                    / 3
+                    for score in scores
+                )
+                / len(scores)
+                if len(scores) > 0
+                else 0
+            )
+            m_adverse_actions.append(m_adverse_action)
+
+        return sum(m_adverse_actions) / len(experts) if len(experts) > 0 else 0
+
     def get_actives_by_analysis(
         self,
         analysis: Analysis,
@@ -564,27 +657,59 @@ class DatabaseManager:
         if not analysis_risk:
             return []
 
+        analysis_vulnerability = analysis.analysis_vulnerability
+
+        if not analysis_vulnerability:
+            return []
+
         actives = Active.query.filter_by(
             analysis_risk_id=analysis_risk.id
         ).all()
 
         if with_average_scores:
+            _actives = []
             for active in actives:
                 active_scores: List[ActiveScore] = ActiveScore.query.filter_by(
                     active_id=active.id
                 ).all()
+
                 denominator = (
                     len(active_scores) if len(active_scores) > 0 else 1
                 )
-                active.average_substitutability = sum(
+
+                _active = active.to_dict()
+                _active["average_substitutability"] = sum(
                     score.substitutability for score in active_scores
                 ) / (denominator)
-                active.average_replacement_cost = sum(
+
+                _active["average_replacement_cost"] = sum(
                     score.replacement_cost for score in active_scores
                 ) / (denominator)
-                active.average_essentiality = sum(
+
+                _active["average_essentiality"] = sum(
                     score.essentiality for score in active_scores
                 ) / (denominator)
+
+                _active["score"] = (
+                    _active["average_substitutability"]
+                    + _active["average_replacement_cost"]
+                    + _active["average_essentiality"]
+                ) / 3
+
+                _active["threats"] = []
+                for threat in active.associated_threats:
+                    threat_score = self.get_threat_score(threat, analysis)
+                    threat_adverse_actions = self.get_adverse_actions(
+                        threat_id=threat.id
+                    )
+                    threat = threat.to_dict()
+                    threat["score"] = threat_score
+                    threat["adverse_actions"] = threat_adverse_actions
+                    _active["threats"].append(threat)
+
+                _actives.append(_active)
+            actives = _actives
+
         return actives
 
     def get_expert_stats(
@@ -953,6 +1078,17 @@ class DatabaseManager:
         )
         return active
 
+    def get_experts_by_threat(self, threat_id: int) -> List[User]:
+        """Obtém os experts relacionados à uma Análise -> Análise de Risco -> Ativo -> Ameaça"""
+
+        _threat = self.get_threat(threat_id)
+        _active = self.get_active(getattr(_threat, "active_id"))
+        _analysis_risk = self.get_analysis_risk(
+            getattr(_active, "analysis_risk_id")
+        )
+        _analysis = self.get_analysis(getattr(_analysis_risk, "analysis_id"))
+        return self.get_experts_by_analysis(_analysis)  # type: ignore
+
     def get_adverse_actions(
         self,
         *,
@@ -966,7 +1102,8 @@ class DatabaseManager:
             threat_id (int): ID da Ameaça com a qual está relacionadas as ações adversas
             with_scores (bool, optional): Se True, atribui scores. Padrão é True.
             user_id (int | None, optional): ID do usuário que atribuiu notas
-                (Caso `with_scores=True`). Padrão é `flask_login.current_user`.
+                (Caso `with_scores=True`). Padrão é None.
+                Caso user_id = None, então todos os usuários serão considerados.
 
         Returns:
             List[AdverseAction]: A lista de ações adversas
@@ -980,13 +1117,47 @@ class DatabaseManager:
             adverse_action = adverse_action.as_dict()
             if with_scores:
                 adverse_action_scores = AdverseActionScore.query.filter_by(
-                    adverse_action_id=adverse_action["id"], user_id=user_id
-                ).first()
+                    adverse_action_id=adverse_action["id"]
+                )
+                if user_id:
+                    adverse_action_scores = adverse_action_scores.filter_by(
+                        user_id=user_id
+                    ).first()
+                else:
+                    experts = self.get_experts_by_threat(threat_id)
+                    experts_count = len(experts)
+
+                    adverse_action_scores = adverse_action_scores.all()
+
+                    motivation, capacity, accessibility = (0, 0, 0)
+                    for adverse_action_score in adverse_action_scores:
+                        motivation += adverse_action_score.motivation
+                        capacity += adverse_action_score.capacity
+                        accessibility += adverse_action_score.accessibility
+
+                    motivation /= experts_count if experts_count > 0 else 1
+                    capacity /= experts_count if experts_count > 0 else 1
+                    accessibility /= experts_count if experts_count > 0 else 1
+
+                    adverse_action_scores = AdverseActionScore(
+                        motivation=int(motivation),
+                        capacity=int(capacity),
+                        accessibility=int(accessibility),
+                        user_id=0,
+                        adverse_action_id=0,
+                    )
+
                 adverse_action["scores"] = (
                     adverse_action_scores.as_dict()
                     if adverse_action_scores
                     else {}
                 )
+                adverse_action["score"] = (
+                    adverse_action["scores"].get("motivation", 0)
+                    + adverse_action["scores"].get("capacity", 0)
+                    + adverse_action["scores"].get("accessibility", 0)
+                ) / 3
+
             _new_adverse_actions.append(adverse_action)
 
         return _new_adverse_actions

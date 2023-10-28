@@ -49,27 +49,35 @@
             <div class="card-body">
               <h5 class="card-title">{{ expert.name }} [{{ expert.cpf_censored }}]</h5>
               <div class="progress">
-                <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{ (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}"
-                  aria-valuemin="0" aria-valuemax="100" style="width: {{ (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}%; min-width: 5%;">
-                  <span class="sr-only">{{ (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}%</span>
+                <div class="progress-bar bg-success" role="progressbar"
+                  aria-valuenow="{{ (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}"
+                  aria-valuemin="0" aria-valuemax="100"
+                  style="width: {{ (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}%; min-width: 5%;">
+                  <span class="sr-only">{{ (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2)
+                    }}%</span>
                 </div>
-                <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="{{ 100 - (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}"
-                  aria-valuemin="0" aria-valuemax="100" style="width: {{ 100 - (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}%; min-width: 5%;">
-                  <span class="sr-only">{{ 100 - (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}%</span>
+                <div class="progress-bar bg-danger" role="progressbar"
+                  aria-valuenow="{{ 100 - (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}"
+                  aria-valuemin="0" aria-valuemax="100"
+                  style="width: {{ 100 - (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}%; min-width: 5%;">
+                  <span class="sr-only">{{ 100 - (expert.scored / expert.total * 100 if expert.total > 0 else 0) |
+                    round(2) }}%</span>
                 </div>
               </div>
               <div class="text-center mt-2">
-                <small>Respondido: {{ expert.scored }} / {{ expert.total }} ({{ (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}%)</small>
+                <small>Respondido: {{ expert.scored }} / {{ expert.total }} ({{ (expert.scored / expert.total * 100 if
+                  expert.total > 0 else 0) | round(2) }}%)</small>
               </div>
               <div class="text-center">
-                <small>Não respondido: {{ expert.not_scored }} / {{ expert.total }} ({{ 100 - (expert.scored / expert.total * 100 if expert.total > 0 else 0) | round(2) }}%)</small>
+                <small>Não respondido: {{ expert.not_scored }} / {{ expert.total }} ({{ 100 - (expert.scored /
+                  expert.total * 100 if expert.total > 0 else 0) | round(2) }}%)</small>
               </div>
             </div>
           </div>
         </div>
         {% endfor %}
       </div>
-      
+
     </div>
 
     <!-- Análise de Risco -->
@@ -106,13 +114,129 @@
 
     <!-- Análise de Vulnerabilidade -->
     <div class="tab-pane fade" id="vulnerability" role="tabpanel">
-      <a href="{{ url_for('analysis_vulnerability.get_analysis_vulnerability', analysis_vulnerability_id=analysis.analysis_vulnerability.id) }}" class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Ir para Análise de
+      <a href="{{ url_for('analysis_vulnerability.get_analysis_vulnerability', analysis_vulnerability_id=analysis.analysis_vulnerability.id) }}"
+        class="btn btn-primary"><i class="bi bi-arrow-right-circle"></i> Ir para Análise de
         Vulnerabilidade</a>
     </div>
 
     <!-- Resultados -->
     <div class="tab-pane fade" id="results" role="tabpanel">
-      <!-- Resultados serão renderizados aqui via js -->
+      <div class="container">
+        {% for active in actives %}
+        <div class="accordion mb-4" id="accordion{{ active.id }}">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ active.id }}">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ active.id }}" aria-expanded="true" aria-controls="collapse{{ active.id }}">
+                Ativo {{ active.id }} - {{ active.description or 'Sem descrição' }}
+              </button>
+            </h2>
+            <div id="collapse{{ active.id }}" class="accordion-collapse collapse show" aria-labelledby="heading{{ active.id }}">
+              <div class="accordion-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered text-center">
+                    <thead style="background-color: #f1f1f1;">
+                      <tr>
+                        <th colspan="5" class="text-center">PROBABILIDADE</th>
+                        <th colspan="3" class="text-center">IMPACTO</th>
+                        <th colspan="2" class="text-center">RISCO</th>
+                      </tr>
+                      <tr style="background-color: #e6e6e6;">
+                        <th>Fator Vulnerabilidade</th>
+                        <th>Ameaças</th>
+                        <th>Ação Adversa</th>
+                        <th>Nota Ação Adversa</th>
+                        <th>Nota Probabilidade</th>
+                        <th>Nota Consequência</th>
+                        <th>Nota Ativo</th>
+                        <th>Nota Impacto</th>
+                        <th>Grau do Risco</th>
+                        <th>Classificação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% set ameacasLength = len(active.threats) %}
+                      {% for ameaca in active.threats %}
+                      <tr>
+                        {% if loop.index0 % ameacasLength == 0 %}
+                        <td rowspan="{{ ameacasLength }}" class="align-middle text-center">{{ vuln_factor }}</td>
+                        {% endif %}
+                        <td data-toggle="tooltip" data-placement="top" title="{{ ameaca.title }}" class="align-middle text-center">{{ ameaca.title|truncate(30) }}</td>
+                        <td class="align-middle text-center">
+                          <ul class="list-unstyled">
+                            {% for action in ameaca.adverse_actions %}
+                            <li data-toggle="tooltip" data-placement="top" title="{{ action.title }}">{{ action.title|truncate(30) }}</li>
+                            {% endfor %}
+                          </ul>
+                        </td>
+                        <td class="align-middle text-center">
+                          <ul class="list-unstyled">
+                            {% for action in ameaca.adverse_actions %}
+                            <li>{{ action.score | round(2) }}</li>
+                            {% endfor %}
+                          </ul>
+                        </td>
+                        <td class="align-middle text-center">
+                          <ul class="list-unstyled">
+                            {% for action in ameaca.adverse_actions %}
+                            <li>{{ ((action.score + vuln_factor) / 2) | round(2) }}</li>
+                            {% endfor %}
+                          </ul>
+                        </td>
+                        <td rowspan="{{ len(ameaca.adverse_actions) }}" class="align-middle text-center">0</td>
+                        <td rowspan="{{ len(ameaca.adverse_actions) }}" class="align-middle text-center">{{ active.score | round(2) }}</td>
+                        <td class="align-middle text-center">
+                          <ul class="list-unstyled">
+                            {% for action in ameaca.adverse_actions %}
+                            <li>{{ active.score | round(2) }}</li>
+                            {% endfor %}
+                          </ul>
+                        </td>
+                        <td class="align-middle text-center">
+                          <ul class="list-unstyled">
+                            {% for action in ameaca.adverse_actions %}
+                            {% set notaProbabilidade = (action.score + vuln_factor) / 2 %}
+                            {% set notaImpacto = action.score %}
+                            {% set grauRisco = notaProbabilidade + notaImpacto %}
+                            <li>{{ grauRisco | round(2) }}</li>
+                            {% endfor %}
+                          </ul>
+                        </td>
+                        <td class="align-middle text-center">
+                          <ul class="list-unstyled">
+                            {% for action in ameaca.adverse_actions %}
+                            {% set notaProbabilidade = (action.score + vuln_factor) / 2 %}
+                            {% set notaImpacto = action.score %}
+                            {% set grauRisco = notaProbabilidade + notaImpacto %}
+                            <li>
+                              {% if grauRisco < 0.83 %}
+                                  MUITO MUITO BAIXO
+                              {% elif grauRisco < 6 %}
+                                  MUITO BAIXO
+                              {% elif grauRisco < 9 %}
+                                  BAIXO
+                              {% elif grauRisco < 14 %}
+                                  MÉDIO
+                              {% elif grauRisco < 20 %}
+                                  ALTO
+                              {% elif grauRisco < 25.1 %}
+                                  MUITO ALTO
+                              {% endif %}
+
+                            </li>
+                            {% endfor %}
+                          </ul>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>      
     </div>
   </div>
 </div>
@@ -130,6 +254,26 @@
   const analysisId = parseInt("{{ analysis.id }}")
   const analysisRiskId = parseInt("{{ analysis.analysis_risk.id }}")
   const analysisVulnerabilityId = parseInt("{{ analysis.analysis_vulnerability.id }}")
+
+  const _accordionItem = (counter, title, description) => {
+    return `<div class="accordion-item">
+            <h2 class="accordion-header" id="heading${counter}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                 data-bs-target="#collapse${counter}" aria-expanded="false" aria-controls="collapse${counter}">
+                    ${title}
+                </button>
+            </h2>
+            <div id="collapse${counter}" class="accordion-collapse collapse" 
+            aria-labelledby="heading${counter}" data-bs-parent="#accordionCool">
+                <div class="accordion-body">
+                    <strong class="text-center">${description}</strong>
+                    <ul class="ul"></ul>
+                </div>
+            </div>
+            </div>`
+  }
+
+  $.ajax
 
 
   const switchActiveTab = (paneId) => {
@@ -212,21 +356,10 @@
         }
       }
     })
-    
+
     var resultsData = undefined;
     listen(tabs.results, "click", () => {
       switchActiveTab("results")
-      const results_api = ''
-      if (!resultsData) {
-        addLoading(qs("#results"))
-        fetchData(results_api, {
-          ar_id: analysisId
-        }).then(data => {
-          resultsData = data
-        })
-        delLoading()
-
-      }
     })
   })
 </script>

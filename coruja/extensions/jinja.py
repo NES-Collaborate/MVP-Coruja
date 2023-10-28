@@ -19,5 +19,7 @@ def is_field_required(field: Field):
 
 def init_app(app: Flask):
     app.jinja_env.globals.update(
-        is_field_required=is_field_required, proxy_access=proxy_access_function
+        is_field_required=is_field_required,
+        proxy_access=proxy_access_function,
+        len=len,
     )
