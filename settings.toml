@@ -1,4 +1,5 @@
 [default]
+APP_NAME = "App Arso"
 CSRF_ENABLED = true
 CSRF_SESSION_TIMEOUT = 86400 # 60 * 60 * 24
 PERMANENT_SESSION_LIFETIME = 86400 # 60 * 60 * 24
@@ -37,4 +38,10 @@ DEBUG_TB_PANELS = [
     "flask_debugtoolbar.panels.profiler.ProfilerDebugPanel",
     "flask_debugtoolbar.panels.config_vars.ConfigVarsDebugPanel",
 ]
-APP_NAME = "App Arso"
+
+[production]
+SQLALCHEMY_TRACK_MODIFICATIONS = false
+TEMPLATES_AUTO_RELOAD = true
+SESSION_TYPE = "filesystem"
+SESSION_PERMANENT = false
+DEBUG = false

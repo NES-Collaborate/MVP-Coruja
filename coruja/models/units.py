@@ -10,7 +10,7 @@ from .users import User
 class Unit(BaseTable):
     name = db.Column(db.String(255), nullable=False)
     address = db.Column(db.String(255))
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     is_template = db.Column(db.Boolean, default=False)
 
     analyses = db.relationship(

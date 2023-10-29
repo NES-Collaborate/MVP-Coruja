@@ -1,6 +1,7 @@
 import re
 from typing import Any, Dict, List, Optional, Tuple, overload
 
+import ipdb
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
@@ -44,6 +45,23 @@ def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
     return _new_form
 
 
+def parse_nullables(cls_model: Any, form: FlaskForm):
+    is_dunder = lambda atributte: not atributte.startswith("_")
+    fields = filter(is_dunder, dir(form))
+
+    for field_form in fields:
+        _field_form = getattr(form, field_form, None)
+        field_table = getattr(cls_model, field_form, None)
+
+        if not _field_form or not field_table:
+            continue
+
+        if field_table.nullable and _field_form.data == "":
+            _field_form.data = None
+
+    return form
+
+
 class UniqueData:
     def __init__(self, message: str):
         self.message = message
@@ -54,6 +72,10 @@ class UniqueData:
             atributte = getattr(_table, field.name, None)
             if not atributte or not atributte.unique:
                 continue
+
+            # # Se o campo do formulário estiver vazio
+            # if field.nullable and field.data == "":
+            #     field.data = None
 
             # Se o campo do formulário não foi alterado na tabela
             if form.is_edit and getattr(form.obj, field.name) == field.data:

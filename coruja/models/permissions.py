@@ -5,16 +5,18 @@ from .configurations import BaseTable
 
 
 class Permission(BaseTable):
-    type = db.Column(
-        db.String(255), nullable=False
-    )  # "create", "read", "update", "delete"
-    object_type = db.Column(
-        db.String(255), nullable=False
-    )  # "organ", "unit", "user", "access_logs"
+    # "create", "read", "update", "delete"
+    type = db.Column(db.String(255), nullable=False)
+    # "organ", "unit", "user", "access_logs"
+    object_type = db.Column(db.String(255), nullable=False)
     object_id = db.Column(db.Integer)
 
     def __init__(
-        self, *, type: str, object_type: str, object_id: Optional[int] = None
+        self,
+        *,
+        type: str,
+        object_type: str,
+        object_id: Optional[int] = None,
     ):
         """Permissão de acesso à funcionalidades gerais da aplicação
 

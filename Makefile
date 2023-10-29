@@ -14,6 +14,9 @@ init:
 	@python -m flask createsu >> access.txt
 server:
 	@python -m flask run --debug
+server-production:
+	# Altere FLASK_ENV para production em .flaskenv
+	@python -m flask run
 migrate:
 	@python -m flask db migrate
 	@python -m flask db upgrade

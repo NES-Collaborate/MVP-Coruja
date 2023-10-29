@@ -7,7 +7,7 @@ from .dangers import Threat
 
 class Active(BaseTable):
     title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     analysis_risk_id = db.Column(db.Integer, db.ForeignKey("analysis_risk.id"))
     is_template = db.Column(db.Boolean, default=False)
 
