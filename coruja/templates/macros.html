@@ -165,13 +165,16 @@
     <tbody>
         <p id="textWithoutResults" class="text-muted d-none">Nenhum resultado encontrado</p>
         {% for obj in object %}
+
+        {% set params = {"{}_id".format(route) : obj.id} %}
+
         <tr>
             {% if not is_analysis %}
-            <td>{{ obj.name }}</td>
-            <td>{{ obj.address }}</td>
+            <td><a style="text-decoration: none; color: inherit;" href="{{ url_for('{}.get_{}'.format(route, route), **params) }}">{{ obj.name }}</a></td>
+            <td><a style="text-decoration: none; color: inherit;" href="{{ url_for('{}.get_{}'.format(route, route), **params) }}">{{ obj.address }}</a></td>
             {% else %}
-            <td>{{ obj.created_at.strftime('%d/%m/%Y') }}</td>
-            <td>{{ obj.description }}</td>
+            <td><a style="text-decoration: none; color: inherit;" href="{{ url_for('{}.get_{}'.format(route, route), **params) }}">{{ obj.created_at.strftime('%d/%m/%Y') }}</a></td>
+            <td><a style="text-decoration: none; color: inherit;" href="{{ url_for('{}.get_{}'.format(route, route), **params) }}">{{ obj.description }}</a></td>
             {% endif %}
 
             <td class="text-center">
@@ -180,7 +183,6 @@
                         <i class="bi bi-three-dots"></i>
                     </span>
 
-                    {% set params = {"{}_id".format(route) : obj.id} %}
                     <ul class="dropdown-menu">
                         <li>
                             <a class="dropdown-item" href="{{ url_for('{}.get_{}'.format(route, route), **params) }}">
