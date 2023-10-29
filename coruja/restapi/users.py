@@ -1,11 +1,20 @@
 from typing import Any, Dict
 
-from flask import Blueprint, Flask, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    Flask,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import login_required
 
 from ..decorators import proxy_access
 from ..forms import UserForm
-from ..utils import database_manager, form_to_dict
+from ..models.users import User
+from ..utils import database_manager, form_to_dict, parse_nullables
 
 bp = Blueprint("user", __name__, url_prefix="/user")
 
@@ -30,6 +39,7 @@ def create_user():
     form = UserForm()
 
     if request.method == "POST" and form.validate_on_submit():
+        form = parse_nullables(User, form)
         user: Dict[str, str | Any] = form_to_dict(form)["data"]
         user.pop("csrf_token", None)
         user.pop("submit", None)
