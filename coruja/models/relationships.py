@@ -3,8 +3,18 @@ from ..extensions.database import db
 # Relacionamento de Permissões
 user_permissions = db.Table(
     "user_permissions",
-    db.Column("user_id", db.String, db.ForeignKey("user.id")),
-    db.Column("permission_id", db.String, db.ForeignKey("permission.id")),
+    db.Column(
+        "user_id",
+        db.Integer,
+        db.ForeignKey("user.id"),
+        primary_key=True,
+    ),
+    db.Column(
+        "permission_id",
+        db.Integer,
+        db.ForeignKey("permission.id"),
+        primary_key=True,
+    ),
 )
 
 # Relacionamento de Orgãos

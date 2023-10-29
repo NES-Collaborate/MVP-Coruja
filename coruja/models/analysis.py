@@ -8,7 +8,7 @@ from .users import User
 
 
 class Analysis(BaseTable):
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     is_template = db.Column(db.Boolean, default=False)
 
     administrators = db.relationship(

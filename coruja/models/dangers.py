@@ -6,7 +6,7 @@ from .configurations import BaseTable
 
 class AdverseAction(BaseTable):
     title = db.Column(db.String(255))
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     threat_id = db.Column(db.Integer, db.ForeignKey("threat.id"))
     threat = db.relationship("Threat", backref="adverse_actions", lazy=True)
     is_template = db.Column(db.Boolean, default=False)
@@ -35,7 +35,7 @@ class AdverseAction(BaseTable):
 
 class Threat(BaseTable):
     title = db.Column(db.String(255))
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     active_id = db.Column(db.Integer, db.ForeignKey("active.id"))
     active = db.relationship("Active", backref="threats", lazy=True)
     is_template = db.Column(db.Boolean, default=False)
@@ -171,7 +171,7 @@ class VulnerabilitySubCategory(BaseTable):
 
 class Vulnerability(BaseTable):
     name = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     sub_category_id = db.Column(
         db.Integer,
         db.ForeignKey("vulnerability_sub_category.id"),
