@@ -25,6 +25,8 @@ from .models import (
     VulnerabilityCategory,
     VulnerabilityScore,
     VulnerabilitySubCategory,
+    analytics_administrators,
+    analytics_experts,
     institution_administrators,
     institution_units,
     organ_administrators,
@@ -101,18 +103,21 @@ class DatabaseManager:
             list[Organ]: Uma lista de objetos Organ associados ao usuário especificado.
         """
         organ_admin_alias = aliased(organ_administrators)
-        institution_admin_alias = aliased(institution_administrators)
+        institution_admin_alias = aliased(
+            institution_administrators
+        )
         unit_admin_alias = aliased(units_administrators)
 
         # 1. Órgãos onde o user_id é um dos administradores
         query_1 = Organ.query.join(
-            organ_admin_alias, Organ.id == organ_admin_alias.c.organ_id
+            organ_admin_alias,
+            Organ.id == organ_admin_alias.c.organ_id,
         ).filter(organ_admin_alias.c.user_id == user_id)
 
         # 2. Órgãos relacionados às instituições onde o user_id é um dos administradores
         query_2 = (
             Organ.query.join(
-                organ_institutions,  # Substitua pelo nome real da sua tabela associativa
+                organ_institutions,
                 (organ_institutions.c.organ_id == Organ.id),
             )
             .join(
@@ -120,29 +125,91 @@ class DatabaseManager:
                 institution_admin_alias.c.institution_id
                 == organ_institutions.c.institution_id,
             )
-            .filter(institution_admin_alias.c.user_id == user_id)
+            .filter(
+                institution_admin_alias.c.user_id == user_id
+            )
         )
 
         # 3. Órgãos relacionados às unidades onde o user_id é um dos administradores
         query_3 = (
             Organ.query.join(
-                organ_institutions,  # Substitua pelo nome real da sua tabela associativa
+                organ_institutions,
                 (organ_institutions.c.organ_id == Organ.id),
             )
             .join(
-                institution_units,  # Substitua pelo nome real da sua tabela associativa
+                institution_units,
                 institution_units.c.institution_id
                 == organ_institutions.c.institution_id,
             )
             .join(
                 unit_admin_alias,
-                unit_admin_alias.c.unit_id == institution_units.c.unit_id,
+                unit_admin_alias.c.unit_id
+                == institution_units.c.unit_id,
             )
             .filter(unit_admin_alias.c.user_id == user_id)
         )
 
+        # 4. Órgãos relacionados às análises onde o user_id é um dos administradores
+        query_4 = (
+            Organ.query.join(
+                organ_institutions,
+                (organ_institutions.c.organ_id == Organ.id),
+            )
+            .join(
+                institution_units,
+                institution_units.c.institution_id
+                == organ_institutions.c.institution_id,
+            )
+            .join(
+                unit_analysis,
+                unit_analysis.c.unit_id
+                == institution_units.c.unit_id,
+            )
+            .join(
+                analytics_administrators,
+                analytics_administrators.c.analysis_id
+                == unit_analysis.c.analysis_id,
+            )
+            .filter(
+                analytics_administrators.c.user_id
+                == user_id
+            )
+        )
+
+        # 5. Órgãos relacionados às análises onde o user_id é um dos experts
+        query_5 = (
+            Organ.query.join(
+                organ_institutions,
+                (organ_institutions.c.organ_id == Organ.id),
+            )
+            .join(
+                institution_units,
+                institution_units.c.institution_id
+                == organ_institutions.c.institution_id,
+            )
+            .join(
+                unit_analysis,
+                unit_analysis.c.unit_id
+                == institution_units.c.unit_id,
+            )
+            .join(
+                analytics_experts,
+                analytics_experts.c.analysis_id
+                == unit_analysis.c.analysis_id,
+            )
+            .filter(
+                analytics_experts.c.user_id
+                == user_id
+            )
+        )
+
         # Query Final:
-        final_query = query_1.union(query_2).union(query_3)
+        final_query = (
+            query_1.union(query_2)
+            .union(query_3)
+            .union(query_4)
+            .union(query_5)
+        )
 
         return final_query.all()
 

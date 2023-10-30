@@ -12,6 +12,9 @@ from ..utils import database_manager
 def organ_access(
     organ_id: int, user: User | LocalProxy, kind_access: str
 ) -> bool:
+    if kind_access in ("read", "update") and not organ_id:
+        return False
+
     user_permissions = getattr(user, "permissions")
 
     return any(
@@ -19,47 +22,131 @@ def organ_access(
         and permission.object_id == organ_id
         and permission.object_type == "organ"
         for permission in user_permissions
+    ) or (
+        organ_id
+        and any(
+            [
+                institution_access(
+                    institution.id, user, kind_access, True
+                )
+            ]
+            for institution in database_manager.get_organ(
+                organ_id
+            ).institutions
+        )
     )
 
 
 def institution_access(
-    institution_id: int, user: User | LocalProxy, kind_access: str
+    institution_id: int,
+    user: User | LocalProxy,
+    kind_access: str,
+    from_organ=False,
 ) -> bool:
+    if (
+        kind_access in ("read", "update")
+        and not institution_id
+    ):
+        return False
+
     user_permissions = getattr(user, "permissions")
-    organ = database_manager.get_organ_by_institution(institution_id)
-    return any(
-        permission.type == kind_access
-        and permission.object_id == institution_id
-        and permission.object_type == "instituition"
-        for permission in user_permissions
-    ) or organ_access(getattr(organ, "id"), user, kind_access)
+    organ = database_manager.get_organ_by_institution(
+        institution_id
+    )
+
+    return (
+        any(
+            permission.type == kind_access
+            and permission.object_id == institution_id
+            and permission.object_type == "instituition"
+            for permission in user_permissions
+        )
+        or (
+            institution_id
+            and any(
+                [
+                    unit_access(
+                        unit.id, user, kind_access, True
+                    )
+                ]
+                for unit in database_manager.get_institution(
+                    institution_id
+                ).units
+            )
+        )
+        or (
+            not from_organ
+            and organ_access(
+                getattr(organ, "id"), user, kind_access
+            )
+        )
+    )
 
 
 def unit_access(
-    unit_id: int, user: User | LocalProxy, kind_access: str
+    unit_id: int,
+    user: User | LocalProxy,
+    kind_access: str,
+    from_institution=False,
 ) -> bool:
     user_permissions = getattr(user, "permissions")
-    institution = database_manager.get_institution_by_unit(unit_id)
-    return any(
-        permission.type == kind_access
-        and permission.object_id == unit_id
-        and permission.object_type == "unit"
-        for permission in user_permissions
-    ) or institution_access(getattr(institution, "id"), user, kind_access)
+    institution = database_manager.get_institution_by_unit(
+        unit_id
+    )
+
+    return (
+        any(
+            permission.type == kind_access
+            and permission.object_id == unit_id
+            and permission.object_type == "unit"
+            for permission in user_permissions
+        )
+        or (
+            unit_id
+            and any(
+                [
+                    analysis_access(
+                        analysis.id, user, kind_access, True
+                    )
+                ]
+                for analysis in database_manager.get_unit(
+                    unit_id
+                ).analyses
+            )
+        )
+        or (
+            not from_institution
+            and institution_access(
+                getattr(institution, "id"),
+                user,
+                kind_access,
+            )
+        )
+    )
 
 
 def analysis_access(
-    analysis_id: int, user: User | LocalProxy, kind_access: str
+    analysis_id: int,
+    user: User | LocalProxy,
+    kind_access: str,
+    from_unit=False,
 ) -> bool:
     user_permissions = getattr(user, "permissions")
-    unit = database_manager.get_unit_by_analysis(analysis_id)
+    unit = database_manager.get_unit_by_analysis(
+        analysis_id
+    )
 
     return any(
         permission.type == kind_access
         and permission.object_id == analysis_id
         and permission.object_type == "analysis"
         for permission in user_permissions
-    ) or unit_access(getattr(unit, "id"), user, kind_access)
+    ) or (
+        not from_unit
+        and unit_access(
+            getattr(unit, "id"), user, kind_access
+        )
+    )
 
 
 def analysis_risk_access(
@@ -95,7 +182,7 @@ def adverse_action_access(
     adverse_action = database_manager.get_adverse_action(adverse_action_id)
     threat_id = getattr(adverse_action, "threat_id")
 
-    return threat_acess(threat_id, user, kind_access)
+    return threat_access(threat_id, user, kind_access)
 
 
 def user_access(
@@ -133,7 +220,7 @@ object_map: Mapping[str, Callable] = {
     "analysis": analysis_access,
     "analysis_risk": analysis_risk_access,
     "active": active_access,
-    "threat": threat_acess,
+    "threat": threat_access,
     "adverse_action": adverse_action_access,
     "user": user_access,
     "admin": admin_access,
