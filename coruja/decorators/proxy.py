@@ -58,7 +58,7 @@ def institution_access(
         any(
             permission.type == kind_access
             and permission.object_id == institution_id
-            and permission.object_type == "instituition"
+            and permission.object_type == "institution"
             for permission in user_permissions
         )
         or (
@@ -167,7 +167,7 @@ def active_access(
     return analysis_risk_access(analysis_risk_id, user, kind_access)
 
 
-def threat_acess(
+def threat_access(
     threat_id: int, user: User | LocalProxy, kind_access: str
 ) -> bool:
     threat = database_manager.get_threat(threat_id)
@@ -268,7 +268,7 @@ def proxy_access(
 
     Args:
         function (Callable): Funcionalidade
-        kind_object (str): Tipo do objeto. Ex: `organ`, `instituition`, etc.
+        kind_object (str): Tipo do objeto. Ex: `organ`, `institution`, etc.
             Em caso de dúvidas, consulte `object_map`.
         kind_access (str): Tipo de acesso. Ex: `read`, `write`, etc.
         message (Optional[str], optional): Mensagem que deve ser exibida caso

@@ -38,17 +38,17 @@ from .models import (
 
 def form_to_dict(form: FlaskForm) -> Dict[Any, Any]:
     _new_form = {}
-    for atributte in dir(form):
-        if callable(getattr(form, atributte)) or atributte.startswith("_"):
+    for attribute in dir(form):
+        if callable(getattr(form, attribute)) or attribute.startswith("_"):
             continue
 
-        _new_form[atributte] = getattr(form, atributte)
+        _new_form[attribute] = getattr(form, attribute)
 
     return _new_form
 
 
 def parse_nullables(cls_model: Any, form: FlaskForm):
-    is_dunder = lambda atributte: not atributte.startswith("_")
+    is_dunder = lambda attribute: not attribute.startswith("_")
     fields = filter(is_dunder, dir(form))
 
     for field_form in fields:
@@ -71,8 +71,8 @@ class UniqueData:
     def __call__(self, form, field):
         for _table in [Organ, Institution, User]:
             # Validação para campos únicos nas tabelas
-            atributte = getattr(_table, field.name, None)
-            if not atributte or not atributte.unique:
+            attribute = getattr(_table, field.name, None)
+            if not attribute or not attribute.unique:
                 continue
 
             # # Se o campo do formulário estiver vazio
@@ -218,21 +218,21 @@ class DatabaseManager:
         organ_id: int,
         or_404: bool = True,
     ) -> Organ | None:
-        # esta é outrra alteração aleatória eeeee
+        # esta é outra alteração aleatória eeeee
 
-        """Obtém um orgão com base em seu ID.
+        """Obtém um órgão com base em seu ID.
 
         Args:
-            organ_id (int): O ID do orgão.
-            or_404 (bool, optional): Se True, caso não exista um orgão
+            organ_id (int): O ID do órgão.
+            or_404 (bool, optional): Se True, caso não exista um órgão
                 com o ID especificado, `abort(404)`. O padrão é True.
 
         Returns:
-            Organ: O orgão com o ID especificado.
-            None: Caso não exista um orgão com o ID especificado.
+            Organ: O órgão com o ID especificado.
+            None: Caso não exista um órgão com o ID especificado.
         """
         if or_404:
-            message = "Orgão não encontrado"
+            message = "Órgão não encontrado"
             return Organ.query.filter_by(id=organ_id).first_or_404(message)
 
         return Organ.query.filter_by(id=organ_id).first()
@@ -242,14 +242,14 @@ class DatabaseManager:
         organ: Organ,
         form: Dict[str, Any],
     ) -> Organ:
-        """Atualiza um orgão com base em seus dados
+        """Atualiza um órgão com base em seus dados
 
         Args:
-            organ (Organ): O orgão a ser atualizado
+            organ (Organ): O órgão a ser atualizado
             form (Dict[str, Any]): Os dados a serem atualizados
 
         Returns:
-            Organ: O orgão atualizado
+            Organ: O órgão atualizado
         """
         administrators: List[int] = form.pop("admin_ids", [])
 
@@ -291,11 +291,11 @@ class DatabaseManager:
 
         Params:
             user_id (int): O ID do usuário a ser pesquisado.
-            organ_id (int): O ID do orgão a ser pesquisado.
+            organ_id (int): O ID do órgão a ser pesquisado.
 
         Return:
             list[Institution]: Uma lista de objetos Institution associados
-                ao usuário e orgão especificado.
+                ao usuário e órgão especificado.
         """
         ...
 
@@ -305,11 +305,11 @@ class DatabaseManager:
         *,
         organ_id: Optional[int] = None,
     ) -> List[Institution]:
-        """Obtém instituições associadas a um usuario com base em seu ID e o órgão
+        """Obtém instituições associadas a um usuário com base em seu ID e o órgão
 
         Args:
             user_id (int): O ID do usuário
-            organ_id (Optional[int], optional): O ID do orgão. Defaults to None.
+            organ_id (Optional[int], optional): O ID do órgão. Defaults to None.
 
         Returns:
             List[Institution]: Uma lista de objetos Institution
@@ -524,7 +524,7 @@ class DatabaseManager:
     def add_analysis(self, **kwargs) -> Analysis:
         """
         Cria uma nova análise e atribui administradores a ela.
-        Relacionado à esta anaĺise cria Análise de Risco e Análise de Vulnerabilidade
+        Relacionado à esta análise cria Análise de Risco e Análise de Vulnerabilidade
 
         Args:
             description (str): A descrição da análise.
@@ -692,10 +692,10 @@ class DatabaseManager:
         )
 
     def get_threat_score(self, threat: Threat, analysis: Analysis) -> float:
-        """Retorna o score de uma dada ameaca
+        """Retorna o score de uma dada ameaça
 
         Args:
-            threat (Threat): ameaca
+            threat (Threat): ameaça
 
         Returns:
             float: score
@@ -811,14 +811,14 @@ class DatabaseManager:
         expert = expert[0]
         scored = 0
         total = 0
-        analisys_risk = AnalysisRisk.query.filter_by(
+        analysis_risk = AnalysisRisk.query.filter_by(
             analysis_id=analysis.id
         ).first()
-        if not analisys_risk:
+        if not analysis_risk:
             raise KeyError("Analise de risco não encontrada")
 
         # Obtém scores de ativos
-        actives = getattr(analisys_risk, "associated_actives")
+        actives = getattr(analysis_risk, "associated_actives")
         total += len(actives)
 
         for active in actives:

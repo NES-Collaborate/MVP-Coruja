@@ -17,7 +17,7 @@ user_permissions = db.Table(
     ),
 )
 
-# Relacionamento de Orgãos
+# Relacionamento de Órgãos
 organ_administrators = db.Table(
     "organ_administrators",
     db.Column(

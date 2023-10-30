@@ -17,7 +17,7 @@ def get_organ(organ_id: int):
     """Rota para retornar a página de detalhes de um órgão.
 
     Args:
-        organ_id (int): ID do orgão a ser visualizado.
+        organ_id (int): ID do órgão a ser visualizado.
     """
     organ = database_manager.get_organ(organ_id)
 
@@ -55,7 +55,7 @@ def create_organ():
             **organ,
             administrators=organ_administrators,
         )
-        flash(f"Orgão {organ.get('name')} criado", "success")
+        flash(f"Órgão {organ.get('name')} criado", "success")
         return redirect(url_for("application.home"))
 
     return render_template("organ/create.html", form=form)
@@ -65,10 +65,10 @@ def create_organ():
 @login_required
 @proxy_access(kind_object="organ", kind_access="update")
 def edit_organ(organ_id: int):
-    """Rota para edição de orgão específico pelo seu ID.
+    """Rota para edição de órgão específico pelo seu ID.
 
     Args:
-        organ_id (int): ID do orgão a ser editado.
+        organ_id (int): ID do órgão a ser editado.
     """
     organ = database_manager.get_organ(organ_id)
     form = OrganForm(obj=organ, is_edit=True)
@@ -79,7 +79,7 @@ def edit_organ(organ_id: int):
         form.pop("submit", None)
 
         if organ := database_manager.update_organ(organ, form):
-            flash(f"Orgão {organ.name} atualizado", "success")
+            flash(f"Órgão {organ.name} atualizado", "success")
             return redirect(url_for("organ.get_organ", organ_id=organ.id))
 
     return render_template("organ/edit.html", form=form, organ=organ)

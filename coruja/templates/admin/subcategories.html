@@ -4,7 +4,7 @@
 <div class="container my-5">
     <h2 class="h2 fw-normal mb-4">
         <i class="bi bi-list me-3"></i>
-        Subategorias
+        Subcategorias
     </h2>
 
         <table class="table table-striped" style="font-size: 1.3rem; line-height: 2;">
@@ -21,14 +21,14 @@
                                 <li>
                                     <a class="dropdown-item" href="{{ url_for('admin.vulnerability.view_vulnerabilities', subcategory_id=subcategory.id) }}">
                                         <i class="bi bi-arrow-right-square me-2"></i>
-                                        Acessar Vunerabilidades
+                                        Acessar Vulnerabilidades
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item"
                                         href="{{ url_for('admin.subcategory.edit_subcategory', subcategory_id=subcategory.id) }}">
                                         <i class="bi bi-pencil-square me-2"></i>
-                                        Editar 
+                                        Editar
                                     </a>
                                 </li>
                             </ul>

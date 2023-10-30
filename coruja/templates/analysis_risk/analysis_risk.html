@@ -28,15 +28,15 @@ overflow-y: auto;
             </p>
             <p class="text-start">
                 O <strong>Custo de Reposição</strong> trata, subjetivamente, da valia do ativo e é definido de acordo
-                com os seguintes níveis: Baixo, Médio ou Alto 
+                com os seguintes níveis: Baixo, Médio ou Alto
             </p>
             <p class="text-start">
                 A <strong>Substitutibilidade</strong> refere-se à mensuração da condição de facilidade/dificuldade
-                em se substituir um determinado ativo: Fácil, Médio ou Difícil  
+                em se substituir um determinado ativo: Fácil, Médio ou Difícil
             </p>
         </div>
         <div class="row row-cols-3 d-flex align-items-center justify-content-center">
-            {% for score in ["Accessibilitade", "Capacidade", "Motivação"] %}
+            {% for score in ["Accessibilidade", "Capacidade", "Motivação"] %}
             <div class="col">
                 <table class="table table-striped">
                     <thead>
@@ -52,14 +52,14 @@ overflow-y: auto;
                         {% for key, value in table_info.items() %}
                         {% if key == "Inexistente" and score != "Motivação" %}
                             <!-- Sem campo -->
-                            
+
                         {% else %}
                         <tr>
                             <td scope="col">{{key}}</td>
                             <td scope="col">{{value}}</td>
                         </tr>
                         {% endif %}
-                        
+
                         {% endfor %}
                     </tbody>
                 </table>
@@ -70,7 +70,7 @@ overflow-y: auto;
     </div>
 </div>
 </div>
-  
+
 <div class="container-fluid mt-5">
 <div class="row d-flex align-items-center justify-content-center">
     <div class="col-md-3 text-left">
@@ -109,7 +109,7 @@ overflow-y: auto;
                     ${title}
                 </button>
             </h2>
-            <div id="collapse${counter}" class="accordion-collapse collapse" 
+            <div id="collapse${counter}" class="accordion-collapse collapse"
             aria-labelledby="heading${counter}" data-bs-parent="#accordionCool">
                 <div class="accordion-body">
                     <strong class="text-center">${description}</strong>
@@ -178,16 +178,16 @@ overflow-y: auto;
 
                             let isFetching = false;
                             let scoreInputs = scoreContainer.find("#score-inputs");
-                            
-                        
+
+
                             let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
 
                             let traduction = {"motivation": "Motivação",
                             "capacity": "Capacidade",
                             "accessibility": "Acessibilidade"};
-                            
+
                             for (let score in action_scores){
-                                
+
                                 let input = $(
                                     `<input class="form-control text-center m-1" style="width: 50px;"
                                     title="${traduction[score]}" data-bs-toggle="tooltip" data-bs-placement="top" id="${score}"
@@ -201,7 +201,7 @@ overflow-y: auto;
                             }
 
                             scoreInputs.append(updateButton);
-                            
+
                             ul.append(scoreContainer);
                             let ad_id = scoreContainer.data("id");
 
@@ -216,8 +216,8 @@ overflow-y: auto;
                                 {
                                     let input = scoreContainer.find(`#${score}`);
                                     scores[score] = input.val();
-                                }   
-                                
+                                }
+
                                 $.ajax({
                                 url: '{{ url_for("api.update_adverse_action_score") }}',
                                 type: 'POST',
@@ -271,7 +271,7 @@ overflow-y: auto;
 
                     let traduction = {"essentiality" : "Essencialidade",
                     "replacement_cost": "Custo de reposição",
-                    "substitutability": "Substitibilidade",
+                    "substitutability": "Substitutibilidade",
                     }
 
 
@@ -280,7 +280,7 @@ overflow-y: auto;
                             `<button type="button" class="btn btn-success
                             m-1" disabled><i class="bi bi-check-lg"></i></button>`
                         )
-                    
+
                     for(let score in active.scores){
                         let input = $(
                             `
@@ -296,7 +296,7 @@ overflow-y: auto;
 
                         activeScore.find("#score-inputs").append(input);
                     }
-                    
+
                     activeScore.find("#score-inputs").append(updateButton);
 
                     updateButton.click(function(){
@@ -334,7 +334,7 @@ overflow-y: auto;
                         }
                         });
                     })
-                    
+
                     $('#threats').append(activeScore);
                     $('#threats').append(accordion);
                     $('#threats').append(addThreat);
@@ -359,7 +359,7 @@ overflow-y: auto;
         success: (data, textStatus, jqXHR) => {
         $('#actives').empty();
         let listGroup = $('<div class="list-group">');
-        
+
         for (let key in data.actives) {
             let active = data.actives[key];
             let listItem = $(`<button class="list-group-item list-group-item-action py-2" data-id="${active.id}">

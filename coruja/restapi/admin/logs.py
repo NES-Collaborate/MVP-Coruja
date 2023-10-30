@@ -50,7 +50,7 @@ def get_changes():
     )
 
 
-def generate_csv_chunks_acess():
+def generate_csv_chunks_access():
     output = StringIO()
     writer = csv.writer(output)
     headers = [
@@ -105,7 +105,7 @@ def download_logs():
     }
 
     return Response(
-        stream_with_context(generate_csv_chunks_acess()), headers=headers
+        stream_with_context(generate_csv_chunks_access()), headers=headers
     )
 
 
@@ -143,8 +143,8 @@ def generate_csv_chunks():
                     changes.append(change_str)
 
             changes_str = "".join(changes).strip()
-            usuario = f"{user_name} - {user_cpf}"
-            writer.writerow([usuario, object_type, changes_str])
+            user = f"{user_name} - {user_cpf}"
+            writer.writerow([user, object_type, changes_str])
 
         yield output.getvalue()
         output.truncate(0)

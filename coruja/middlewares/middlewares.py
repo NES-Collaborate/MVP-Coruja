@@ -28,7 +28,9 @@ def unauthorized_handler():
     """Trata o caso de usuário não estar logado (não autorizado)"""
     flash("Faça login antes de acessar a página", "danger")
 
-    return redirect(url_for("auth.login", next=request.path))
+    return redirect(
+        url_for("auth.login", next=request.path)
+    )
 
 
 def _before_request():
@@ -54,7 +56,10 @@ def handle_404(err: NotFound):
     Args:
         err (NotFound): Erro
     """
-    if err.description != NotFound.description and err.description:
+    if (
+        err.description != NotFound.description
+        and err.description
+    ):
         flash(err.description, "warning")
     else:
         flash(
@@ -70,14 +75,23 @@ def handle_403(err: Forbidden):
     Args:
         err (Forbidden): Erro
     """
-    if err.description != Forbidden.description and err.description:
+    if (
+        err.description != Forbidden.description
+        and err.description
+    ):
         flash(err.description, "warning")
     else:
-        flash("Você não tem permissão para acessar esta página", "danger")
+        flash(
+            (
+                "Você não tem permissão para acessar esta"
+                " página"
+            ),
+            "danger",
+        )
     return redirect(url_for("application.home"))
 
 
-def init_middlware_login(app: Flask) -> None:
+def init_middleware_login(app: Flask) -> None:
     app.register_error_handler(404, handle_404)
     app.register_error_handler(403, handle_403)
     app.before_request(_before_request)

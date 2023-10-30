@@ -88,7 +88,7 @@ def edit_institution(institution_id: int):
     """Rota para edição de uma instituição específica pelo seu ID.
 
     Args:
-        insitution_id (int): ID da instituição a ser editada.
+        institution_id (int): ID da instituição a ser editada.
     """
 
     institution = database_manager.get_institution(institution_id)
