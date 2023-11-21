@@ -1,31 +1,23 @@
-FROM python
+FROM python:3.11-alpine
 
-# Configuração das variáveis de ambiente
-ENV PYTHON_VERSION 3.11.0
-ENV FLASK_APP coruja.app:create_app
-ENV FLASK_ENV production
+ENV FLASK_APP=coruja.app:create_app \
+    FLASK_ENV=production
 
-WORKDIR /MVP-Coruja
+WORKDIR /var/www
 
-COPY requirements.txt .
-COPY settings.toml .
-COPY .secrets.toml .
-COPY Makefile .
+COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
-# Inicialização do banco de dados e migração
-RUN python -m flask db init
-RUN	python -m flask db migrate
-RUN	python -m flask db upgrade
-RUN	python -m flask createroles
-RUN python -m flask createsu
+RUN apk add --virtual .build-dependencies --no-cache \
+    build-base \
+    git \
+    gcc \
+    musl-dev && \
+    apk add --no-cache \
+    mariadb-dev \
+    # packages for uWSGI
+    linux-headers \
+    pcre-dev && \
+    python -m pip install -r requirements.txt && \
+    apk del .build-dependencies
 
-WORKDIR /MVP-Coruja/coruja
-
-COPY /coruja .
-
-EXPOSE 8000
-
-WORKDIR /MVP-Coruja
-
-CMD ["python", "-m", "flask", "run"]
+CMD [ "tail", "-f", "/dev/null" ]

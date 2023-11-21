@@ -26,3 +26,4 @@ typing_extensions==4.8.0
 Werkzeug==3.0.0
 WTForms==3.0.1
 mysqlclient==2.2.0
+uWSGI==2.0.23

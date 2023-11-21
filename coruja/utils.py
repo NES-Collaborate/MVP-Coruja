@@ -1,7 +1,6 @@
 import re
 from typing import Any, Dict, List, Optional, Tuple, overload
 
-import ipdb
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from sqlalchemy.orm import aliased
@@ -103,9 +102,7 @@ class DatabaseManager:
             list[Organ]: Uma lista de objetos Organ associados ao usuário especificado.
         """
         organ_admin_alias = aliased(organ_administrators)
-        institution_admin_alias = aliased(
-            institution_administrators
-        )
+        institution_admin_alias = aliased(institution_administrators)
         unit_admin_alias = aliased(units_administrators)
 
         # 1. Órgãos onde o user_id é um dos administradores
@@ -125,9 +122,7 @@ class DatabaseManager:
                 institution_admin_alias.c.institution_id
                 == organ_institutions.c.institution_id,
             )
-            .filter(
-                institution_admin_alias.c.user_id == user_id
-            )
+            .filter(institution_admin_alias.c.user_id == user_id)
         )
 
         # 3. Órgãos relacionados às unidades onde o user_id é um dos administradores
@@ -143,8 +138,7 @@ class DatabaseManager:
             )
             .join(
                 unit_admin_alias,
-                unit_admin_alias.c.unit_id
-                == institution_units.c.unit_id,
+                unit_admin_alias.c.unit_id == institution_units.c.unit_id,
             )
             .filter(unit_admin_alias.c.user_id == user_id)
         )
@@ -162,18 +156,14 @@ class DatabaseManager:
             )
             .join(
                 unit_analysis,
-                unit_analysis.c.unit_id
-                == institution_units.c.unit_id,
+                unit_analysis.c.unit_id == institution_units.c.unit_id,
             )
             .join(
                 analytics_administrators,
                 analytics_administrators.c.analysis_id
                 == unit_analysis.c.analysis_id,
             )
-            .filter(
-                analytics_administrators.c.user_id
-                == user_id
-            )
+            .filter(analytics_administrators.c.user_id == user_id)
         )
 
         # 5. Órgãos relacionados às análises onde o user_id é um dos experts
@@ -189,26 +179,18 @@ class DatabaseManager:
             )
             .join(
                 unit_analysis,
-                unit_analysis.c.unit_id
-                == institution_units.c.unit_id,
+                unit_analysis.c.unit_id == institution_units.c.unit_id,
             )
             .join(
                 analytics_experts,
-                analytics_experts.c.analysis_id
-                == unit_analysis.c.analysis_id,
+                analytics_experts.c.analysis_id == unit_analysis.c.analysis_id,
             )
-            .filter(
-                analytics_experts.c.user_id
-                == user_id
-            )
+            .filter(analytics_experts.c.user_id == user_id)
         )
 
         # Query Final:
         final_query = (
-            query_1.union(query_2)
-            .union(query_3)
-            .union(query_4)
-            .union(query_5)
+            query_1.union(query_2).union(query_3).union(query_4).union(query_5)
         )
 
         return final_query.all()
