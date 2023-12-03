@@ -1,13 +1,64 @@
 {
+  // Configurações do Material Icon Theme
   "material-icon-theme.folders.associations": {
     "coruja": "app",
     "application": "theme",
     "flask_session": "archive",
     "instance": "database"
   },
+
   "material-icon-theme.files.associations": {
     ".flaskenv": "Settings",
     "requirements_dev.txt": "Python-misc",
     "requirements_test.txt": "Python-misc"
-  }
+  },
+
+  // Configurações do Python
+  "[python]": {
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.analysis.completeFunctionParens": true,
+  "python.autoComplete.extraPaths": [
+    "flask",
+    "wtforms",
+    "dynaconf",
+    "werkezeug",
+    "flask_wtf",
+    "sqlalchemy",
+    "flask_cors",
+    "flask_login",
+    "flask_session",
+    "flask_sqlalchemy"
+  ],
+  "python.analysis.extraPaths": [
+    "flask",
+    "wtforms",
+    "dynaconf",
+    "werkezeug",
+    "flask_wtf",
+    "sqlalchemy",
+    "flask_cors",
+    "flask_login",
+    "flask_session",
+    "flask_sqlalchemy"
+  ],
+  "python.analysis.autoImportCompletions": true,
+  "python.terminal.focusAfterLaunch": true,
+  "python.terminal.executeInFileDir": false,
+  "python.terminal.activateEnvironment": true,
+  "python.terminal.activateEnvInCurrentTerminal": true,
+
+  // Configuração do Isort
+  "isort.check": true,
+  "isort.importStrategy": "fromEnvironment",
+
+  // Configurações do Black Formatter
+  "black-formatter.importStrategy": "fromEnvironment"
 }

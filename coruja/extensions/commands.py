@@ -1,60 +1,69 @@
+from functools import reduce
 from random import choices
 from string import ascii_lowercase
 
 from flask import Flask
 
 from ..extensions.database import db
-from ..models import Permission, Role, User
+from ..models import Permission, User
+
+
+def create_default_permissions():
+    """Cria os 'cargos' padrões dos usuários"""
+    print("Creating default permissions...")
+
+    # Permissões de Administração
+    config_permissions = [
+        Permission(type="read", object_type="admin"),
+        Permission(type="update", object_type="admin"),
+        Permission(type="delete", object_type="admin"),
+        Permission(type="create", object_type="admin"),
+    ]
+
+    # Permissões de usuários
+    user_permissions = [
+        Permission(type="create", object_type="user"),
+        Permission(type="read", object_type="user"),
+        Permission(type="update", object_type="user"),
+        Permission(type="delete", object_type="user"),
+    ]
+
+    # Permissões de Organ
+    organ_permissions = [
+        Permission(type="create", object_type="organ"),
+    ]
+
+    all_permissions = [
+        config_permissions,
+        user_permissions,
+        organ_permissions,
+    ]
+
+    for permission in all_permissions:
+        db.session.add_all(permission)
+
+    db.session.commit()
+
+    all_permissions = reduce(lambda x, y: x + y, all_permissions)
+
+    print("Default Permissions Created\n")
 
 
 def init_database():
+    """Cria as tabelas do banco de dados e alimenta com dados padrões"""
     print("Creating tables...")
 
     db.drop_all()
     db.create_all()
     db.session.commit()
 
+    create_default_permissions()
+
     print("Tables Created\n")
 
 
-def create_default_roles():
-    print("Creating default roles...")
-    permissions = [
-        Permission(
-            label="access_log",
-            type="read",
-            description="Acessar logs de acesso",
-        ),
-        Permission(
-            label="configurations",
-            type="read",
-            description="Acessar configurações",
-        ),
-        Permission(
-            label="configurations",
-            type="write",
-            description="Editar configurações",
-        ),
-        Permission(label="organ", type="create", description="Criar Órgãos"),
-        Permission(label="organ", type="read", description="Acessar Órgãos"),
-        Permission(label="organ", type="update", description="Editar Órgãos"),
-        Permission(label="organ", type="delete", description="Deletar Órgãos"),
-    ]
-    db.session.add_all(permissions)
-    db.session.commit()
-
-    admin_role = Role(name="admin", permissions=permissions)
-    db.session.add(admin_role)
-    db.session.commit()
-
-    user_role = Role(name="user")
-    db.session.add(user_role)
-    db.session.commit()
-
-    print("Default Roles Created\n")
-
-
 def create_admin():
+    """Cria um usuário administrador"""
     print("Creating admin user...")
 
     password = "".join(choices(ascii_lowercase, k=10))
@@ -65,10 +74,15 @@ def create_admin():
         cpf=cpf,
         password=password,
         email_professional="admin@coruja",
-        role=Role.query.filter_by(name="admin").first(),
     )
 
     db.session.add(user)
+    db.session.commit()
+
+    permissions = Permission.query.all()
+    for permission in permissions:
+        user.add_permission(permission)
+
     db.session.commit()
 
     print("Admin User Created")
@@ -79,10 +93,10 @@ def create_admin():
 
 
 def init_app(app: Flask) -> None:
-    @app.cli.command("initdb")
+    @app.cli.command("createroles")
     def _():
-        """Inicializa o banco de dados."""
-        init_database()
+        """Cria as regras de acesso padrão."""
+        create_default_permissions()
 
     @app.cli.command("createsu")
     def _():

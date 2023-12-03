@@ -5,7 +5,7 @@
 instance/*
 !instance/.gitignore
 .webassets-cache
-.env
+# .env
 
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
@@ -289,6 +289,5 @@ pyrightconfig.json
 
 # Others
 access.txt
-
-
-# End of https://www.toptal.com/developers/gitignore/api/python,pythonvanilla,flask
+# .secrets.toml
+traefik

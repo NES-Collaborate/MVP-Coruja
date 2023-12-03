@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% set active_page = "admin" %}
+
+{% block content %}
+
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-sm-8 col-md-12 col-lg-8">
+    <h2 class="h2 fw-normal my-4">
+        <i class="bi bi-clock-fill"></i>
+        Logs de Acesso
+    </h2>
+
+    <form class="d-flex mb-4 w-50 m-auto" role="search" id="search-form">
+        <div class="input-group">
+            <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
+            <input class="form-control border-0 p-2 shadow-lg" id="search-input" type="text"
+                placeholder="Buscar pelo ID do usuário">
+            <div id="result-container-admin"></div>
+        </div>
+        <input type="hidden" name="user_id" id="user-id">
+    </form>
+
+    <table class="table table-hover table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>User</th>
+                <th>IP</th>
+                <th>User Agent</th>
+                <th>Access At</th>
+                <th>Endpoint</th>
+            </tr>
+        </thead>
+        <tbody id="log-table-body">
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.user.name }} ({{ log.user.cpf_censored }})</td>
+                <td>{{ log.ip }}</td>
+                <td>{{ log.user_agent }}</td>
+                <td>{{ log.access_at.strftime("%d/%m/%Y %H:%M:%S") }}</td>
+                <td>{{ log.endpoint }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination">
+            {% set params = request.args.copy() %}
+            {% set _ = params.pop('page', None) %}
+            {% set _ = params.pop('per_page', None) %}
+            <li class="page-item {% if not has_prev_page %}disabled{% endif %}">
+                <a class="page-link"
+                    href="{{ url_for('admin.logs.get_logs', page=pagination.page-1, **params) }}">Anterior</a>
+            </li>
+            <li class="page-item {% if not has_next_page %}disabled{% endif %}">
+                <a class="page-link"
+                    href="{{ url_for('admin.logs.get_logs', page=pagination.page+1, **params) }}">Próximo</a>
+            </li>
+        </ul>
+    </nav>
+    <!-- Botão para baixar logs -->
+    <div class="position-fixed bottom-0 end-0 m-3">
+        <a href="{{ url_for('admin.logs.download_logs') }}" class="btn btn-primary btn-lg"
+            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Baixar Logs">
+            <i class="bi bi-download"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        $("#search-input").autocomplete({
+            appendTo: "#result-container-admin",
+            source: (request, response) => {
+                $.getJSON("{{ url_for('api.get_users') }}", { query: request.term }, (data) => {
+                    response(data.users);
+                })
+            },
+            focus: (event, ui) => {
+                return false;
+            },
+            select: (event, ui) => {
+                $("#user-id").val(ui.item.id);
+                $("#search-input").val(ui.item.name);
+                $("#search-form").submit();
+                return false;
+            }
+        }).data("ui-autocomplete")._renderItem = (ul, item) => {
+            const listItem = $("<li>").appendTo(ul);
+            const div = $("<div>").addClass("d-flex justify-content-between align-items-center bg-info").appendTo(listItem);
+            div.html(`${item.name} <span class="badge bg-secondary">${item.title || "Sem Título"}</span>`);
+            return listItem;
+        }
+    }
+    )
+</script>
+{% endblock %}

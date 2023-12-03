@@ -2,13 +2,22 @@ from typing import Optional
 
 from ..extensions.database import db
 from .configurations import BaseTable
+from .dangers import Threat
 
 
 class Active(BaseTable):
-    title = db.Column(db.String(255))
-    description = db.Column(db.String)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255))
     analysis_risk_id = db.Column(db.Integer, db.ForeignKey("analysis_risk.id"))
     is_template = db.Column(db.Boolean, default=False)
+
+    associated_threats = db.relationship(
+        "Threat",
+        foreign_keys=[Threat.active_id],
+        backref=db.backref("active_threat", lazy=True),
+        lazy=True,
+        overlaps="associated_threats",
+    )
 
     def __init__(
         self,
@@ -22,6 +31,15 @@ class Active(BaseTable):
         self.description = description
         self.analysis_risk_id = analysis_risk_id
         self.is_template = is_template
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}  # type: ignore
+
+    def add_threat(self, threat: Threat):
+        if not self.associated_threats:
+            self.associated_threats = []
+        self.associated_threats.append(threat)
+        db.session.commit()
 
 
 class ActiveScore(BaseTable):
@@ -50,3 +68,10 @@ class ActiveScore(BaseTable):
         self.essentiality = essentiality
         self.user_id = user_id
         self.active_id = active_id
+
+    def as_dict(self):
+        return {
+            "substitutability": self.substitutability,
+            "replacement_cost": self.replacement_cost,
+            "essentiality": self.essentiality,
+        }

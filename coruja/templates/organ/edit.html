@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_form %}
+
+{% block content %}
+<div class="container mt-4 px-3 mx-auto w-50">
+    <h3 class="h3 fw-normal mb-3">
+        <i class="bi bi-pencil-square"></i> 
+        Editar {{ organ.name }}
+    </h3>
+
+    <div class="card shadow mb-3 border-0">
+        <div class="card-body">
+            {{ render_form(form, current_user, True, formId = 'edit-organ', adminList = organ.administrators) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(() => {
+        const current_id = '{{ current_user.id }}';
+        const selectedAdmins = [parseInt(current_id)];
+
+        $('#admin_autocomplete').autocomplete({
+            appendTo: "#result-container-admin",
+            source: (request, response) => {
+                $.getJSON('{{ url_for("api.get_users") }}', { query: request.term }, (data) => {
+                    response(data.users);
+                });
+            },
+            focus: (event, ui) => {
+                return false;
+            },
+            select: (event, ui) => {
+                if (selectedAdmins.includes(ui.item.id)) return false;
+                selectedAdmins.push(ui.item.id);
+
+                const adminItem = $(`
+                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${ui.item.id}">
+                    ${ui.item.name} <span class="badge bg-secondary">${ui.item.title || "Sem título"}</span>
+                    <button class="remove-admin btn btn-outline-danger btn-sm">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </li>
+                `);
+                $('#selected_admins').append(adminItem);
+                $(`<input type="hidden" name="admin_ids-${ui.item.id}" value="${ui.item.id}" id="admin_ids-${ui.item.id}" />`)
+                    .appendTo('#edit-organ');
+
+                return false;
+            }
+        }).data("ui-autocomplete")._renderItem = (ul, item) => {
+            const listItem = $("<li>").appendTo(ul);
+            const div = $("<div>").addClass("d-flex justify-content-between align-items-center bg-info").appendTo(listItem);
+            const name = $("<span>").text(item.name).appendTo(div);
+            const cpf = $("<span>").text(`(${item.cpf})`).addClass("text-muted").appendTo(div);
+
+            return listItem;
+        };
+
+        $(document).on('click', '.remove-admin', () => {
+            const listItem = $(this).closest('li');
+            const id = listItem.data('id');
+            selectedAdmins = selectedAdmins.filter(adminId => adminId !== id);
+            listItem.remove();
+            $(`#admin_ids-${id}`).remove();
+        });
+    });
+</script>
+{% endblock %}

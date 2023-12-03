@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_table %}
+
+{% block content %}
+
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-sm-8 col-md-12 col-lg-8">
+
+        <h2 class="fw-normal my-4">
+            <i class="bi bi-buildings-fill"></i> 
+            {{ organ.name }}
+        </h2>
+
+        <!-- Informações Gerais do Orgão -->
+        <div class="row">
+            <div class="card-shadow">
+                <div class="card border-0 shadow-lg rounded">
+                    <div class="card-header border-0">
+                        <i class="bi bi-info-circle"></i>
+                        &nbsp;Informações Gerais
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row row-cols-2">
+                            <div class="col py-3">
+                                <p>
+                                    <strong>Endereço:</strong> 
+                                    {{ organ.address }}
+                                </p>
+                            </div>
+                            <div class="col py-3">
+                                <p>
+                                    <strong>CNPJ:</strong> 
+                                    {{ organ.cnpj }}
+                                </p>
+                            </div>
+                            <div class="col">
+                                <p>
+                                    <strong>E-mail:</strong> 
+                                    {{ organ.email }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>Telefone:</strong> 
+                                    {{ organ.telephone }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="text-center">
+                <h3 class="fw-normal mb-4">
+                    <i class="bi bi-building-gear"></i> 
+                    Instituições
+                </h3>
+                <form class="d-flex mb-4 w-50 m-auto" role="search">
+                    <div class="input-group shadow-lg">
+                        <i class="input-group-text bi bi-search border-0" aria-hidden="true"></i>
+                        <input id="searchInput" class="form-control border-0 p-2" type="text" placeholder="Buscar pelo nome da instituição">
+                    </div>
+                </form>
+                {{ render_table(institutions, "institution", searchInputId = "searchInput") }}
+            </div>
+        </div>
+
+        <!-- Floating Button para criar Instituição -->
+        {% if True %}
+        <div class="position-fixed bottom-0 end-0 m-5">
+            <a
+                href="{{ url_for('institution.create_institution', parent_id=organ.id) }}"
+                class="btn btn-outline-primary m-5 btn-lg"
+                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Criar Instituição"
+            >
+                <i class="bi bi-plus-lg"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

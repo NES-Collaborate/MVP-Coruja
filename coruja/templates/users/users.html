@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_table %}
+
+{% block content %}
+
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-sm-8 col-md-12 col-lg-8">
+
+        <h2 class="fw-normal my-4">
+            <i class="bi bi-person-fill-gear"></i> 
+            {{ user.name }}
+        </h2>
+
+        <!-- Informações Gerais do Orgão -->
+        <div class="row">
+            <div class="card-shadow">
+                <div class="card border-0 shadow-lg rounded">
+                    <div class="card-header border-0">
+                        <i class="bi bi-info-circle"></i>
+                        &nbsp;Informações Gerais
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row row-cols-3">
+                            <div class="col py-3">
+                                <p>
+                                    <strong>Título:</strong> 
+                                    {{ user.title if user.title else 'Sem título' }}
+                                </p>
+                            </div>
+                            <div class="col py-3">
+                                <p>
+                                    <strong>CPF:</strong> 
+                                    {{ user.cpf_censored }}
+                                </p>
+                            </div>
+                            <div class="col py-3">
+                                <p>
+                                    <strong>E-mail Profissional:</strong> 
+                                    {{ user.email_professional }}
+                                </p>
+                            </div>
+                            <div class="col">
+                                <p>
+                                    <strong>E-mail Pessoal:</strong> 
+                                    {{ user.email_personal if user.email_personal else 'Sem E-mail' }}
+                                </p>
+                            </div>
+                            <div class="col">
+                                <p>
+                                    <strong>Endereço:</strong> 
+                                    {{ user.address if user.address else 'Sem Endereço' }}
+                                </p>
+                            </div>
+                            <div class="col">
+                                <p>
+                                    <strong>Telefone:</strong> 
+                                    {{ user.telephone }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
