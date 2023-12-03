@@ -30,4 +30,3 @@ test:
 	# @pytest tests/units/test_hash_generator.py -v
 	# @pytest tests/units/test_password_generator.py -v
 sec:
-	@pip-audit

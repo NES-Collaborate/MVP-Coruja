@@ -291,5 +291,3 @@ pyrightconfig.json
 access.txt
 # .secrets.toml
 traefik
-
-# End of https://www.toptal.com/developers/gitignore/api/python,pythonvanilla,flask
