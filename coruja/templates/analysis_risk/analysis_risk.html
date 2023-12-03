@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style>
+.list-group{
+max-height: 70vh;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+    <div class="modal-header">
+        <h1 class="modal-title fs-5" id="infoModalLabel">Notas de Ativo e Ações Adversas</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body p-4">
+        <div class="row d-flex justify-content-center mx-3">
+            <p class="text-start">
+                A <strong>Essencialidade</strong> representa o quanto determinado ativo é considerado indispensável para o
+                cumprimento das funções e missões institucionais e objetivos estratégicos. Pode ser graduada em: Baixa, Média
+                ou Alta (1-5)
+            </p>
+            <p class="text-start">
+                O <strong>Custo de Reposição</strong> trata, subjetivamente, da valia do ativo e é definido de acordo
+                com os seguintes níveis: Baixo, Médio ou Alto (1-5)
+            </p>
+            <p class="text-start">
+                A <strong>Substitutibilidade</strong> refere-se à mensuração da condição de facilidade/dificuldade
+                em se substituir um determinado ativo: Fácil, Médio ou Difícil (1-5)
+            </p>
+        </div>
+        <div class="row row-cols-3 d-flex align-items-center justify-content-center">
+            {% for score in ["Accessibilidade", "Capacidade", "Motivação"] %}
+            <div class="col">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col" colspan="2"><strong>{{ score }}</strong></th>
+                        </tr>
+                        <tr>
+                            <th scope="col"><strong>Grau</strong></th>
+                            <th scope="col"><strong>Valor</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, value in table_info.items() %}
+                        {% if key == "Inexistente" and score != "Motivação" %}
+                            <!-- Sem campo -->
+
+                        {% else %}
+                        <tr>
+                            <td scope="col">{{key}}</td>
+                            <td scope="col">{{value}}</td>
+                        </tr>
+                        {% endif %}
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+
+<div class="container-fluid mt-5">
+<div class="row d-flex align-items-center justify-content-center">
+    <div class="col-md-3 text-left">
+        <div class="d-flex flex-column">
+            <h6 class="mb-3">Ativos</h6>
+            <div id="actives"></div>
+        </div>
+    </div>
+    <div class="col-md-9 my-auto" id="threats">
+    </div>
+</div>
+
+<!-- Botão de informação -->
+<div class="position-fixed bottom-0 end-0 m-2">
+    <button
+    class="btn m-5 btn-lg btn-circle"
+    data-bs-toggle="modal" data-bs-target="#infoModal"
+    >
+    <i class="bi bi-info-circle"></i>
+    </button>
+</div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+    $(document).ready(function () {
+    var csrf_token = '{{ csrf_token() }}';
+
+    function _accordionItem(counter, title, description) {
+        return `<div class="accordion-item">
+            <h2 class="accordion-header" id="heading${counter}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                 data-bs-target="#collapse${counter}" aria-expanded="false" aria-controls="collapse${counter}">
+                    ${title}
+                </button>
+            </h2>
+            <div id="collapse${counter}" class="accordion-collapse collapse"
+            aria-labelledby="heading${counter}" data-bs-parent="#accordionCool">
+                <div class="accordion-body">
+                    <strong class="text-center">${description}</strong>
+                    <ul class="ul"></ul>
+                </div>
+            </div>
+        </div>`
+    }
+
+    function renderThreats(active) {
+
+        // Recebe o ativo atualizado
+        $.ajax({
+            url: '{{ url_for("api.get_user_actives") }}',
+            type: 'POST',
+            headers: {
+            'X-CSRFToken': csrf_token
+            },
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify({
+            'ar_id': '{{ analysis_risk.id }}'
+            }),
+            success: (data, textStatus, jqXHR) => {
+                active = data.actives[active.id]
+
+                $('#threats').empty();
+                $.ajax({
+                url: '{{ url_for("api.get_threats") }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': csrf_token
+                },
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify({
+                    'ar_id': '{{ analysis_risk.id }}',
+                    'ac_id': active.id,
+                }),
+                success: (data, textStatus, jqXHR) => {
+
+                    let accordion = $('<div class="accordion" id="accordionCool">');
+                    let counter = 0;
+
+                    for (let threatId in data) {
+
+                        counter++;
+                        let threat = data[threatId];
+                        let accordionItem = $(_accordionItem(counter, threat.title, threat.description));
+                        let ul = accordionItem.find(".ul");
+
+                        for (let action of threat.adverses_actions) {
+
+                            let scoreContainer = $(
+                            `<div class="d-flex justify-content-between align-items-center mb-2" data-id="${action.id}">
+                                <span>${action.title} - ${action.description || 'Sem descrição'}</span>
+                                <div class="d-flex justify-content-between" id="score-inputs">
+                                </div>
+                            </div>`
+                            );
+
+                            let updateButton = $(
+                                `<button type="button" class="btn btn-success
+                                m-1" disabled><i class="bi bi-check-lg"></i></button>`
+                            )
+
+                            let isFetching = false;
+                            let scoreInputs = scoreContainer.find("#score-inputs");
+
+
+                            let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
+
+                            let traduction = {"motivation": "Motivação",
+                            "capacity": "Capacidade",
+                            "accessibility": "Acessibilidade"};
+
+                            for (let score in action_scores){
+
+                                let input = $(
+                                    `<input class="form-control text-center m-1" style="width: 50px;"
+                                    title="${traduction[score]}" data-bs-toggle="tooltip" data-bs-placement="top" id="${score}"
+                                    data-score-type=${score} value = "${action_scores[score]}" >`
+                                );
+
+                                input.change(function(){
+                                    if(!isFetching) updateButton.prop("disabled", false)
+                                })
+                                scoreInputs.append(input);
+                            }
+
+                            scoreInputs.append(updateButton);
+
+                            ul.append(scoreContainer);
+                            let ad_id = scoreContainer.data("id");
+
+                            scoreContainer.find("button").click(function () {
+                                isFetching = true
+                                updateButton.prop("disabled", true);
+                                updateButton.empty();
+                                updateButton.append(`<div class="spinner-border spinner-border-sm" role="status"></div>`);
+                                let scores = {}
+                                let action_scores = (JSON.stringify(action.scores) == '{}') ? {"accessibility":0, "capacity": 0, "motivation": 0} : action.scores;
+                                for (let score in action_scores)
+                                {
+                                    let input = scoreContainer.find(`#${score}`);
+                                    scores[score] = input.val();
+                                }
+
+                                $.ajax({
+                                url: '{{ url_for("api.update_adverse_action_score") }}',
+                                type: 'POST',
+                                data: JSON.stringify({
+                                    ad_id: ad_id, scores: scores
+                                }),
+                                contentType: 'application/json',
+                                dataType: 'json',
+                                headers: {
+                                    'X-CSRFToken': csrf_token
+                                },
+                                success: (data, textStatus, jqXHR) => {
+                                    isFetching = false;
+                                    updateButton.empty();
+                                    updateButton.append(`<i class="bi bi-check-lg"></i>`);
+
+                                },
+                                error: (error) => {
+                                    console.log(error);
+                                }
+                                });
+                            });
+                        }
+                        let addAction = $(
+                            `<a class="btn btn-outline-success btn my-3" href="{{url_for("analysis_risk.create_adverse_action")}}?parent_id=${threatId}">
+                            <i class="bi bi-plus-lg"></i> Adicionar Ação Adversa
+                            </a>`
+                        )
+                        accordionItem.find(".accordion-body").append(addAction);
+                        accordion.append(accordionItem);
+                    }
+                    let addThreat = $(
+                        `<a class="btn btn-outline-primary btn my-3" href="{{url_for("analysis_risk.create_threat")}}?parent_id=${active.id}">
+                        <i class="bi bi-plus-lg"></i> Adicionar Ameaça
+                        </a>`
+                    )
+                    let activeScore = $(
+                        `<div class="card mb-3">
+                            <div class="card-header">
+                                <strong>${active.title}</strong>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class = "d-flex justify-content-between align-items-center mt-2"
+                                >
+                                    <spam>${active.description || "sem descrição" }</spam>
+                                    <div class="d-flex justify-content-between" id="score-inputs"></div>
+                                </div>
+                            </div>
+                        </div>`
+                    )
+
+                    let traduction = {"essentiality" : "Essencialidade",
+                    "replacement_cost": "Custo de reposição",
+                    "substitutability": "Substitutibilidade",
+                    }
+
+
+                    let isFetching = false
+                    let updateButton = $(
+                            `<button type="button" class="btn btn-success
+                            m-1" disabled><i class="bi bi-check-lg"></i></button>`
+                        )
+
+                    for(let score in active.scores){
+                        let input = $(
+                            `
+                                <input class="form-control text-center m-1" style="width: 50px;"
+                                title="${traduction[score]}" data-bs-toggle="tooltip" data-bs-placement="top"
+                                id="${score}" data-score-type=${score} value = "${active.scores[score]}" >
+                            `
+                        );
+
+                        input.change(function(){
+                            if(!isFetching) updateButton.prop("disabled", false)
+                        })
+
+                        activeScore.find("#score-inputs").append(input);
+                    }
+
+                    activeScore.find("#score-inputs").append(updateButton);
+
+                    updateButton.click(function(){
+                        isFetching = true
+                        updateButton.prop("disabled", true);
+                        updateButton.empty();
+                        updateButton.append(`<div class="spinner-border spinner-border-sm" role="status"></div>`);
+                        let scores = {}
+
+                        for(let score in active.scores)
+                        {
+                            let input = activeScore.find(`#${score}`);
+                            scores[score] = input.val();
+                        }
+
+                        $.ajax({
+                        url: '{{ url_for("api.update_active_score") }}',
+                        type: 'POST',
+                        data: JSON.stringify({
+                            ac_id: active.id, scores: scores
+                        }),
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        headers: {
+                            'X-CSRFToken': csrf_token
+                        },
+                        success: (data, textStatus, jqXHR) => {
+                            isFetching = false;
+                            updateButton.empty();
+                            updateButton.append(`<i class="bi bi-check-lg"></i>`);
+
+                        },
+                        error: (error) => {
+                            console.log(error);
+                        }
+                        });
+                    })
+
+                    $('#threats').append(activeScore);
+                    $('#threats').append(accordion);
+                    $('#threats').append(addThreat);
+                    $('[data-bs-toggle="tooltip"]').tooltip();
+                }
+                });
+                    }
+            });
+    }
+
+    $.ajax({
+        url: '{{ url_for("api.get_user_actives") }}',
+        type: 'POST',
+        headers: {
+        'X-CSRFToken': csrf_token
+        },
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({
+        'ar_id': '{{ analysis_risk.id }}'
+        }),
+        success: (data, textStatus, jqXHR) => {
+        $('#actives').empty();
+        let listGroup = $('<div class="list-group">');
+
+        for (let key in data.actives) {
+            let active = data.actives[key];
+            let listItem = $(`<button class="list-group-item list-group-item-action py-2" data-id="${active.id}">
+            ${active.title}</button>`);
+            listItem.click(() => {
+            renderThreats(active);
+            });
+            listGroup.append(listItem);
+        };
+        let addActive = $(`<a class="btn btn-outline-primary list-group-item py-2" href="{{url_for("analysis_risk.create_active", parent_id=analysis_risk.id)}}"
+        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Criar Ativo">
+        <i class="bi bi-plus-lg"></i>
+        </a>`);
+        listGroup.append(addActive);
+        $('#actives').append(listGroup);
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        },
+        error: (error) => {
+        console.log(error);
+        }
+    });
+    });
+    </script>
+    {% endblock %}

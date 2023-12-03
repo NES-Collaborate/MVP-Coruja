@@ -4,9 +4,38 @@ from ..extensions.database import db
 from .configurations import BaseTable
 
 
+class AdverseAction(BaseTable):
+    title = db.Column(db.String(255))
+    description = db.Column(db.String(255))
+    threat_id = db.Column(db.Integer, db.ForeignKey("threat.id"))
+    threat = db.relationship("Threat", backref="adverse_actions", lazy=True)
+    is_template = db.Column(db.Boolean, default=False)
+
+    def __init__(
+        self,
+        *,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        threat_id: Optional[int] = None,
+        is_template: Optional[bool] = False,
+    ):
+        self.title = title
+        self.description = description
+        self.threat_id = threat_id
+        self.is_template = is_template
+
+    def as_dict(self):
+        """Retorna campos principais da tabela como dicionário"""
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+        }
+
+
 class Threat(BaseTable):
     title = db.Column(db.String(255))
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     active_id = db.Column(db.Integer, db.ForeignKey("active.id"))
     active = db.relationship("Active", backref="threats", lazy=True)
     is_template = db.Column(db.Boolean, default=False)
@@ -24,26 +53,11 @@ class Threat(BaseTable):
         self.active_id = active_id
         self.is_template = is_template
 
-
-class AdverseAction(BaseTable):
-    title = db.Column(db.String(255))
-    description = db.Column(db.String)
-    threat_id = db.Column(db.Integer, db.ForeignKey("threat.id"))
-    threat = db.relationship("Threat", backref="adverse_actions", lazy=True)
-    is_template = db.Column(db.Boolean, default=False)
-
-    def __init__(
-        self,
-        *,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        threat_id: Optional[int] = None,
-        is_template: Optional[bool] = False,
-    ):
-        self.title = title
-        self.description = description
-        self.threat_id = threat_id
-        self.is_template = is_template
+    def add_adverse_action(self, adverse_action: AdverseAction):
+        if not self.adverse_actions:
+            self.adverse_actions = []
+        self.adverse_actions.append(adverse_action)
+        db.session.commit()
 
 
 class AdverseActionScore(BaseTable):
@@ -79,12 +93,47 @@ class AdverseActionScore(BaseTable):
         self.user_id = user_id
         self.adverse_action_id = adverse_action_id
 
+    def as_dict(self):
+        """Retorna campos principais da tabela como dicionário
+
+        Returns:
+            dict: Dicionário
+        """
+        return {
+            "motivation": self.motivation,
+            "capacity": self.capacity,
+            "accessibility": self.accessibility,
+        }
+
 
 class VulnerabilityCategory(BaseTable):
     name = db.Column(db.String(255), nullable=False)
+    analysis_vulnerability_id = db.Column(
+        db.Integer, db.ForeignKey("analysis_vulnerability.id")
+    )
 
-    def __init__(self, *, name: str):
+    analysis_vulnerability = db.relationship(
+        "AnalysisVulnerability", back_populates="vulnerability_categories"
+    )
+
+    is_template = db.Column(db.Boolean, default=False)
+
+    def __init__(
+        self,
+        *,
+        name: str,
+        is_template: bool = False,
+        analysis_vulnerability_id: int | None = None,
+    ):
         self.name = name
+        self.is_template = is_template
+        self.analysis_vulnerability_id = analysis_vulnerability_id
+
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
 
 
 class VulnerabilitySubCategory(BaseTable):
@@ -100,14 +149,29 @@ class VulnerabilitySubCategory(BaseTable):
         lazy=True,
     )
 
-    def __init__(self, *, name: str, category_id: Optional[int] = None):
+    is_template = db.Column(db.Boolean, default=False)
+
+    def __init__(
+        self,
+        *,
+        name: str,
+        is_template: bool = False,
+        category_id: int | None = None,
+    ):
         self.name = name
+        self.is_template = is_template
         self.category_id = category_id
+
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
 
 
 class Vulnerability(BaseTable):
     name = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String)
+    description = db.Column(db.String(255))
     sub_category_id = db.Column(
         db.Integer,
         db.ForeignKey("vulnerability_sub_category.id"),
@@ -118,17 +182,27 @@ class Vulnerability(BaseTable):
         backref="vulnerabilities",
         lazy=True,
     )
+    is_template = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
         *,
         name: str,
         description: Optional[str] = None,
-        sub_category_id: Optional[int] = None,
+        is_template: bool = False,
+        sub_category_id: int | None = None,
     ):
         self.name = name
         self.description = description
+        self.is_template = is_template
         self.sub_category_id = sub_category_id
+
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+        }
 
 
 class VulnerabilityScore(BaseTable):

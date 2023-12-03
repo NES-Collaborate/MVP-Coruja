@@ -2,25 +2,15 @@
 
 Mínimo Produto Viável (MVP) de uma aplicação Web para gerenciamento de cargos e permissões em uma organização composta por órgãos, instituições, análises de risco e ativos. Além de possibilitar a realização de avaliações de ameaças e ações adversas, assim como a atribuição de notas por especialistas independentemente.
 
-## **Execução**
+## **Deploy**
 
-```bash
-# Clone este repositório
-$ git clone git@github.com:Coruja-NES/MVP-Coruja.git
-# Acesse a pasta do projeto no terminal/cmd
-$ cd MVP-Coruja
-# Instale as dependências
-$ python -m venv .venv
-$ source .venv/bin/activate
-$ pip install -U pip setuptools
-$ pip install -r requirements.txt
-# Execute a aplicação em modo de desenvolvimento
-$ export FLASK_ENV=development
-$ export FLASK_APP=coruja.app:create_app
-$ make init
-# O servidor inciará na porta:5000 - acesse http://localhost:5000
-$ make server
-```
+Este projeto contém Flask como aplicação web configurado com o servidor uWSGI, NGinx como proxy reverso, e Alembic para migrações no banco MySQL, sendo tudo gerenciado pelo Docker Compose. Siga as seguintes instruções para executar o projeto:
+
+1. Clone este repositório;
+2. Modifique o arquivo `.env` adicionando uma senha e nome do banco de dados de sua escolha;
+3. Modifique o arquivo `.secrets.toml` adicionando uma chave secreta para a aplicação;
+4. Executa `docker-compose up -d`.
+5. Acesse http://localhost . O nome do servidor está configurado no `server_name` no `nginx.conf`.
 
 ## :rotating_light: **Licença**
 

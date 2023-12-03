@@ -1,4 +1,5 @@
 flask-debugtoolbar
+pip-audit
 flake8
 black
 isort
